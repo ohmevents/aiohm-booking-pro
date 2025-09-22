@@ -17,6 +17,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return bool
  */
 function aiohm_booking_is_premium() {
+	// Check if we're in demo mode first
+	if ( apply_filters( 'aiohm_booking_demo_mode', false ) ) {
+		return true;
+	}
+	
+	// Check Freemius premium status
+	if ( function_exists( 'aiohm_booking_fs' ) ) {
+		return aiohm_booking_fs()->can_use_premium_code__premium_only();
+	}
+	
+	// Fallback for admin users
 	return current_user_can( 'manage_options' );
 }
 

@@ -914,5 +914,193 @@ function aiohm_booking_fs_uninstall_cleanup() {
     wp_cache_flush();
 }
 
+// Demo mode detection for WordPress Playground
+add_action( 'init', function() {
+    // Check if we're in demo mode (WordPress Playground or explicitly set)
+    $is_demo = get_option( 'aiohm_booking_demo_mode' ) || 
+               (isset( $_SERVER['HTTP_HOST'] ) && strpos( $_SERVER['HTTP_HOST'], 'playground.wordpress.net' ) !== false);
+    
+    if ( $is_demo ) {
+        // Enable Pro features for demo
+        add_filter( 'aiohm_booking_is_pro_active', '__return_true' );
+        add_filter( 'aiohm_booking_demo_mode', '__return_true' );
+        
+        // Override Freemius can_use_premium_code check
+        add_filter( 'fs_can_use_premium_code__aiohm_booking_pro', '__return_true' );
+        
+        // Set demo license data
+        add_filter( 'pre_option_aiohm_booking_pro_license', function() {
+            return array(
+                'status' => 'demo',
+                'key' => 'demo-key-playground',
+                'expires' => strtotime( '+1 year' ),
+                'features' => array( 'stripe', 'notifications', 'analytics', 'advanced_fields' )
+            );
+        });
+        
+        // Add demo notice in admin
+        add_action( 'admin_notices', function() {
+            if ( ! get_user_meta( get_current_user_id(), 'aiohm_demo_notice_dismissed', true ) ) {
+                echo '<div class="notice notice-info is-dismissible" data-dismissible="aiohm-demo-notice">
+                    <p><strong>🎯 Demo Mode Active:</strong> All Pro features are unlocked for demonstration. 
+                    <a href="#" onclick="this.closest(\'.notice\').style.display=\'none\'; return false;">Dismiss</a></p>
+                </div>';
+            }
+        });
+        
+        // Add demo watermark to frontend
+        add_action( 'wp_footer', function() {
+            if ( ! is_admin() ) {
+                echo '<div style="position:fixed;bottom:10px;right:10px;background:var(--aiohm-brand-color,#457d59);color:white;padding:8px 12px;border-radius:6px;font-size:12px;z-index:9999;font-family:sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                    ✨ AIOHM Pro Demo
+                </div>';
+            }
+        });
+        
+        // Enable demo Stripe keys (test mode)
+        add_filter( 'pre_option_aiohm_booking_stripe_settings', function() {
+            return array(
+                'enabled' => true,
+                'test_mode' => true,
+                'test_publishable_key' => 'pk_test_demo',
+                'test_secret_key' => 'sk_test_demo',
+                'demo_mode' => true
+            );
+        });
+        
+        // Initialize demo data on first load
+        add_action( 'wp_loaded', function() {
+            if ( ! get_option( 'aiohm_booking_demo_data_initialized' ) ) {
+                aiohm_booking_initialize_demo_data();
+                update_option( 'aiohm_booking_demo_data_initialized', true, false );
+            }
+        });
+    }
+}, 1 );
+
+/**
+ * Initialize demo data for WordPress Playground
+ */
+function aiohm_booking_initialize_demo_data() {
+    // Sample events data
+    $events_data = array(
+        array(
+            'title' => 'Yoga Retreat Weekend',
+            'event_date' => date('Y-m-d', strtotime('+15 days')),
+            'event_time' => '09:00',
+            'event_end_date' => date('Y-m-d', strtotime('+17 days')),
+            'event_end_time' => '17:00',
+            'price' => 150,
+            'early_bird_price' => 120,
+            'early_bird_date' => date('Y-m-d', strtotime('+5 days')),
+            'available_seats' => 25,
+            'description' => 'A rejuvenating weekend yoga retreat in the mountains with meditation and wellness activities.',
+            'event_type' => 'Retreat',
+            'teachers' => array(
+                array('name' => 'Sarah Johnson', 'photo' => ''),
+                array('name' => 'Michael Chen', 'photo' => '')
+            )
+        ),
+        array(
+            'title' => 'Photography Workshop',
+            'event_date' => date('Y-m-d', strtotime('+25 days')),
+            'event_time' => '10:00',
+            'event_end_time' => '16:00',
+            'price' => 80,
+            'early_bird_price' => 65,
+            'early_bird_date' => date('Y-m-d', strtotime('+10 days')),
+            'available_seats' => 15,
+            'description' => 'Learn professional photography techniques from award-winning photographers.',
+            'event_type' => 'Workshop',
+            'teachers' => array(
+                array('name' => 'David Martinez', 'photo' => '')
+            )
+        ),
+        array(
+            'title' => 'Cooking Masterclass',
+            'event_date' => date('Y-m-d', strtotime('+30 days')),
+            'event_time' => '14:00',
+            'event_end_time' => '18:00',
+            'price' => 95,
+            'available_seats' => 20,
+            'description' => 'Master the art of Italian cuisine with our expert chefs.',
+            'event_type' => 'Masterclass',
+            'teachers' => array(
+                array('name' => 'Chef Giuseppe', 'photo' => '')
+            )
+        )
+    );
+    
+    // Sample accommodations data
+    $accommodations_data = array(
+        array(
+            'name' => 'Mountain Villa',
+            'type' => 'villa',
+            'price' => 200,
+            'description' => 'Luxury villa with mountain views and private garden. Perfect for couples or small families.',
+            'amenities' => array('WiFi', 'Kitchen', 'Balcony', 'Garden', 'Parking'),
+            'capacity' => 4
+        ),
+        array(
+            'name' => 'Cozy Studio',
+            'type' => 'studio',
+            'price' => 80,
+            'description' => 'Comfortable studio apartment in the city center with all modern amenities.',
+            'amenities' => array('WiFi', 'Kitchenette', 'TV', 'AC'),
+            'capacity' => 2
+        ),
+        array(
+            'name' => 'Family Suite',
+            'type' => 'suite',
+            'price' => 150,
+            'description' => 'Spacious suite perfect for families with separate living area and bedroom.',
+            'amenities' => array('WiFi', 'Kitchen', 'TV', 'Balcony', 'Washing Machine'),
+            'capacity' => 6
+        ),
+        array(
+            'name' => 'Rustic Cabin',
+            'type' => 'cabin',
+            'price' => 120,
+            'description' => 'Charming wooden cabin surrounded by nature. Great for a peaceful getaway.',
+            'amenities' => array('WiFi', 'Fireplace', 'Kitchen', 'Garden'),
+            'capacity' => 4
+        )
+    );
+    
+    // Default settings for demo
+    $demo_settings = array(
+        'currency' => 'EUR',
+        'company_name' => 'AIOHM Demo Resort',
+        'enable_stripe' => true,
+        'enable_notifications' => true,
+        'enable_early_bird' => true,
+        'early_bird_days' => 30,
+        'deposit_percentage' => 50,
+        'number_of_events' => 5,
+        'demo_mode' => true,
+        'form_primary_color' => '#457d59',
+        'form_text_color' => '#333333'
+    );
+    
+    // Save data to WordPress options
+    update_option( 'aiohm_booking_events_data', $events_data, false );
+    update_option( 'aiohm_booking_accommodations_data', $accommodations_data, false );
+    update_option( 'aiohm_booking_settings', $demo_settings, false );
+    
+    // Enable key modules for demo
+    $modules_to_enable = array(
+        'enable_tickets' => '1',
+        'enable_accommodations' => '1', 
+        'enable_notifications' => '1',
+        'enable_orders' => '1'
+    );
+    
+    foreach ( $modules_to_enable as $module => $value ) {
+        $demo_settings[$module] = $value;
+    }
+    
+    update_option( 'aiohm_booking_settings', $demo_settings, false );
+}
+
 // Initialize the plugin.
 AIOHM_Booking::get_instance();
