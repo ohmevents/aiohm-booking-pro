@@ -669,10 +669,8 @@
          * Handle accommodation checkbox selection for sandwich template
          */
         handleAccommodationSelection: function(e) {
-            console.log('frontend.js handleAccommodationSelection called for:', e.target);
             const $checkbox = $(e.target);
             const $form = $checkbox.closest('form');
-            console.log('Found form:', $form.length > 0 ? 'yes' : 'no');
             
             // Get current date selection
             const checkinDate = $form.find('#checkinHidden').val() || '';
@@ -690,7 +688,6 @@
             // Collect selected accommodations data
             const selectedAccommodations = [];
             const $checkedBoxes = $form.find('.accommodation-checkbox:checked');
-            console.log('Found', $checkedBoxes.length, 'checked accommodation checkboxes');
             
             $checkedBoxes.each(function() {
                 const $cb = $(this);
@@ -707,7 +704,6 @@
                     price = parseFloat(priceText.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
                 }
                 
-                console.log('Collected accommodation:', name, 'ID:', accommodationId);
                 selectedAccommodations.push({
                     id: accommodationId,
                     name: name,
@@ -718,7 +714,6 @@
                 });
             });
             
-            console.log('Dispatching event with', selectedAccommodations.length, 'accommodations:', selectedAccommodations);
             // Dispatch event for pricing summary to update
             const event = new CustomEvent('aiohm-accommodation-selected', {
                 detail: {

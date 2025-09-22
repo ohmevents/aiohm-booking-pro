@@ -1,5 +1,38 @@
 # AIOHM Booking Pro - Changelog
 
+## Version 2.0.2 (23 September 2025)
+
+### 🐛 Bug Fixes & Improvements
+
+#### Invoice Generation Fixes
+- **Mini-Card Data Population**: Fixed invoice table to properly display all items from mini-cards in tab 2 by enhancing selector collection in `getItemsFromSummary()` method
+- **Comprehensive Item Collection**: Updated `generateInvoiceItems()` to prioritize mini-card summary data over fallback event/accommodation parsing
+
+#### UI/UX Improvements
+- **Upgrade Button Repositioning**: Moved upgrade button from prominent position to small notification style after the send invoice button for better user experience
+- **Template Cleanup**: Cleaned up sandwich template to remove debug code and improve layout consistency
+
+#### Code Quality
+- **Debug Code Removal**: Systematically removed all `console.log` statements from JavaScript files for production readiness:
+  - `aiohm-booking-checkout.js`
+  - `aiohm-booking-frontend.js`
+  - `aiohm-booking-pricing-summary.js`
+  - `aiohm-booking-sandwich-navigation.js`
+- **Version Update**: Updated plugin version to 2.0.2 in both header and version constant
+
+#### Files Modified:
+```
+assets/js/aiohm-booking-checkout.js
+assets/js/aiohm-booking-frontend.js
+assets/js/aiohm-booking-pricing-summary.js
+assets/js/aiohm-booking-sandwich-navigation.js
+templates/aiohm-booking-sandwich-template.php
+aiohm-booking-pro.php
+CHANGELOG.md
+```
+
+---
+
 ## Version 2.0.1 (22 September 2025)
 
 ### 🐛 Bug Fixes & Improvements

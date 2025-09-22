@@ -10,7 +10,7 @@
  * Plugin Name: AIOHM Booking Pro
  * Plugin URI:  https://wordpress.org/plugins/aiohm-booking/
  * Description: Professional event booking and accommodation management system. Streamlined booking experience for events and accommodations with secure Stripe payments and comprehensive utilities.
- * Version:     2.0.1
+ * Version:     2.0.2
  * Author:      OHM Events Agency
  * Author URI:  https://www.ohm.events
  * Text Domain: aiohm-booking-pro
@@ -463,7 +463,7 @@ if ( function_exists( 'aiohm_booking_fs' ) ) {
 
     }
 }
-define( 'AIOHM_BOOKING_VERSION', '2.0.1' );
+define( 'AIOHM_BOOKING_VERSION', '2.0.2' );
 define( 'AIOHM_BOOKING_FILE', __FILE__ );
 define( 'AIOHM_BOOKING_DIR', __DIR__ . '/' );
 define( 'AIOHM_BOOKING_URL', plugins_url( '', __FILE__ ) . '/' );

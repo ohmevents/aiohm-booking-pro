@@ -18,22 +18,8 @@ class AIOHMBookingCheckout {
      */
     init() {
         this.container = document.querySelector('.aiohm-booking-sandwich-container');
-        if (!this.container) {
-            console.warn('AIOHM Booking: Checkout container not found. Initialization skipped.');
-            return;
-        }
-
+        if (!this.container) return;
         this.setupEventListeners();
-        
-        // Only generate invoice preview if we have the necessary elements
-        try {
-            this.generateInvoicePreview();
-        } catch (error) {
-            console.warn('AIOHM Booking: Error generating invoice preview:', error.message);
-        }
-
-        // Set up observers for dynamic updates
-        this.setupInvoiceUpdateListeners();
     }
 
     /**
@@ -400,10 +386,8 @@ class AIOHMBookingCheckout {
         
         // Try to get items from mini-cards summary (tab 2)
         const summaryItems = this.getItemsFromSummary();
-        console.log('AIOHM Invoice: Summary items found:', summaryItems);
         
         if (summaryItems.length > 0) {
-            console.log('AIOHM Invoice: Using summary items for invoice');
             return summaryItems.map(item => `
                 <tr>
                     <td>${item.name}</td>
@@ -414,16 +398,12 @@ class AIOHMBookingCheckout {
             `).join('');
         }
         
-        console.log('AIOHM Invoice: No summary items found, using fallback');
-        console.log('AIOHM Invoice: Booking data:', bookingData);
-        
         // Fallback: Add events with proper pricing
         if (bookingData.events && bookingData.events.length > 0) {
             bookingData.events.forEach((eventId, index) => {
                 const eventName = this.getEventName(eventId) || `Event ${index + 1}`;
                 const eventDetails = this.getEventDetails(eventId);
                 const eventPrice = eventDetails?.price || (pricingData.total / (bookingData.events.length + bookingData.accommodations.length)) || 0;
-                console.log(`AIOHM Invoice: Event ${eventId}:`, eventName, eventPrice);
                 items.push(`
                     <tr>
                         <td>${eventName}</td>
@@ -441,7 +421,6 @@ class AIOHMBookingCheckout {
                 const accomName = this.getAccommodationName(accomId) || `Accommodation ${index + 1}`;
                 const accomDetails = this.getAccommodationDetails(accomId);
                 const accomPrice = accomDetails?.price || (pricingData.total / (bookingData.events.length + bookingData.accommodations.length)) || 0;
-                console.log(`AIOHM Invoice: Accommodation ${accomId}:`, accomName, accomPrice);
                 items.push(`
                     <tr>
                         <td>${accomName}</td>
@@ -455,7 +434,6 @@ class AIOHMBookingCheckout {
         
         // If no items, add a generic booking item
         if (items.length === 0) {
-            console.log('AIOHM Invoice: No items found, using generic booking service');
             items.push(`
                 <tr>
                     <td>Booking Service</td>
@@ -477,10 +455,8 @@ class AIOHMBookingCheckout {
         
         // Look for pricing summary container
         const pricingContainer = this.container.querySelector('.aiohm-pricing-summary-card, .aiohm-pricing-container, .aiohm-booking-summary, .aiohm-summary-container');
-        console.log('AIOHM Invoice: Pricing container found:', pricingContainer);
         
         if (!pricingContainer) {
-            console.log('AIOHM Invoice: No pricing container found, searching for alternative selectors');
             // Try alternative selectors
             const alternatives = [
                 '.pricing-summary', 
@@ -495,7 +471,6 @@ class AIOHMBookingCheckout {
             for (const selector of alternatives) {
                 const altContainer = this.container.querySelector(selector);
                 if (altContainer) {
-                    console.log(`AIOHM Invoice: Found alternative container with selector: ${selector}`, altContainer);
                     return this.parseContainerItems(altContainer);
                 }
             }
@@ -517,8 +492,6 @@ class AIOHMBookingCheckout {
                         this.container.querySelector('[data-currency]')?.getAttribute('data-currency') || 
                         'RON';
 
-        console.log('AIOHM Invoice: Using currency:', currency);
-
         // Look for individual item cards or rows
         const itemSelectors = [
             '.aiohm-summary-item', 
@@ -538,16 +511,14 @@ class AIOHMBookingCheckout {
         for (const selector of itemSelectors) {
             const elements = container.querySelectorAll(selector);
             if (elements.length > 0) {
-                console.log(`AIOHM Invoice: Found ${elements.length} items with selector: ${selector}`);
-                itemElements = elements;
-                break;
+                // Add to the array instead of replacing
+                itemElements.push(...Array.from(elements));
             }
         }
         
         if (itemElements.length > 0) {
             itemElements.forEach(itemEl => {
                 const item = this.parseItemFromElement(itemEl, currency);
-                console.log('AIOHM Invoice: Parsed item:', item);
                 if (item) {
                     items.push(item);
                 }
@@ -556,14 +527,11 @@ class AIOHMBookingCheckout {
 
         // If no individual items found, try to parse from text content
         if (items.length === 0) {
-            console.log('AIOHM Invoice: No structured items found, trying text parsing');
             const summaryText = container.textContent || '';
-            console.log('AIOHM Invoice: Container text:', summaryText.substring(0, 200) + '...');
             const parsedItems = this.parseItemsFromText(summaryText, currency);
             items.push(...parsedItems);
         }
 
-        console.log('AIOHM Invoice: Final parsed items:', items);
         return items;
     }
 

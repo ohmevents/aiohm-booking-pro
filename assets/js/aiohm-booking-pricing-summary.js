@@ -186,7 +186,6 @@
          * Handle event selection
          */
         handleEventSelection(eventData) {
-            console.log('handleEventSelection called with:', eventData);
             
             if (eventData.selectedEvents && eventData.selectedEvents.length > 0) {
                 this.selectedEvents = eventData.selectedEvents;
@@ -198,7 +197,6 @@
                 this.selectedEvents = [];
             }
             
-            console.log('Updated selectedEvents to:', this.selectedEvents);
             this.updateDisplay();
         }
 
@@ -206,10 +204,8 @@
          * Handle accommodation selection
          */
         handleAccommodationSelection(accommodationData) {
-            console.log('handleAccommodationSelection called with:', accommodationData);
             
             this.selectedAccommodations = accommodationData.selectedAccommodations || [];
-            console.log('Updated selectedAccommodations to:', this.selectedAccommodations);
             
             this.updateDisplay();
             
@@ -353,7 +349,6 @@
          * Update events list to match accommodation styling
          */
         updateEventsList() {
-            console.log('updateEventsList called, selectedEvents:', this.selectedEvents);
             
             // Find the event list container (similar to accommodationsList)
             const eventListContainer = this.elements.selectedEvents.querySelector('.aiohm-booking-event-summary-content') || 
@@ -361,11 +356,8 @@
                                        this.elements.selectedEvents;
             
             if (!eventListContainer) {
-                console.log('No eventListContainer found');
                 return;
             }
-            
-            console.log('Found eventListContainer, processing', this.selectedEvents.length, 'events');
             
             // Show individual mini-cards for each selected event
             const listHtml = this.selectedEvents.map((event, index) => {
@@ -445,18 +437,13 @@
          * Update accommodations list to match accommodation card styling
          */
         updateAccommodationsList() {
-            console.log('updateAccommodationsList called, selectedAccommodations:', this.selectedAccommodations);
             
             if (!this.elements.accommodationsList) {
-                console.log('No accommodationsList element found');
                 return;
             }
             
-            console.log('Processing', this.selectedAccommodations.length, 'accommodations');
-            
             // Show individual mini-cards for each accommodation unit
             const listHtml = this.selectedAccommodations.map((accommodation, index) => {
-                console.log('Creating mini-card for accommodation', index, ':', accommodation.name);
                 
                 const totalPrice = accommodation.price * accommodation.nights || accommodation.price;
                 const pricePerUnit = accommodation.price;
@@ -525,9 +512,7 @@
                 `;
             }).join('');
             
-            console.log('Generated HTML for accommodations:', listHtml);
             this.elements.accommodationsList.innerHTML = listHtml;
-            console.log('Set accommodationsList.innerHTML, element now contains:', this.elements.accommodationsList.innerHTML);
             
             // Update check-in/check-out displays in accommodation table
             this.updateAccommodationDateDisplays();

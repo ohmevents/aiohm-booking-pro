@@ -529,7 +529,6 @@ class AIOHMBookingSandwichNavigation {
 			const result = await response.json();
 			
 			if (result.success) {
-				console.log('AIOHM Booking: Pending order created and notification sent', result.data);
 				
 				// Store the booking ID for later use
 				if (result.data.booking_id) {
