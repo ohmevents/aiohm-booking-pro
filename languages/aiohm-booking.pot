@@ -1,0 +1,71 @@
+# Copyright (C) 2024 AIOHM Booking
+# This file is distributed under the same license as the AIOHM Booking plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: AIOHM Booking 1.2.3\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiohm-booking\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-12-15T12:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WordPress\n"
+"X-Domain: aiohm-booking\n"
+
+#: aiohm-booking.php:119
+msgid "Settings"
+msgstr ""
+
+#: aiohm-booking.php:132
+msgid "Hey %1$s"
+msgstr ""
+
+#: aiohm-booking.php:133
+msgid "Please help us improve %2$s! If you opt-in, some data about your usage of %2$s will be sent to %5$s. If you skip this, that's okay! %2$s will still work just fine."
+msgstr ""
+
+#: aiohm-booking.php:144
+msgid "Never miss an important update -- opt-in to our security and feature updates notifications. If you skip this, that's okay! %2$s will still work just fine."
+msgstr ""
+
+#: includes/aiohm-booking-cron.php:30
+msgid "Every 15 Minutes"
+msgstr ""
+
+#: includes/class-aiohm-booking-calendar.php:XX
+msgid "Week"
+msgstr ""
+
+#: includes/class-aiohm-booking-calendar.php:XX
+msgid "Month"
+msgstr ""
+
+#: includes/class-aiohm-booking-calendar.php:XX
+msgid "Year"
+msgstr ""
+
+#: includes/class-aiohm-booking-calendar.php:XX
+msgid "Show"
+msgstr ""
+
+#. Plugin Name of the plugin
+msgid "AIOHM Booking"
+msgstr ""
+
+#. Plugin URI of the plugin
+msgid "https://www.aiohm.app/"
+msgstr ""
+
+#. Description of the plugin
+msgid "The first WordPress booking plugin with built-in AI analytics consultant! Get accommodation insights, sales patterns, and customer analytics in plain English. Perfect for hotels, B&Bs, vacation rentals, event venues, and any booking business. Free AI analytics + optional premium payment processing. Ask your data anything!"
+msgstr ""
+
+#. Author of the plugin
+msgid "OHM Events Agency"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://www.ohm.events"
+msgstr ""

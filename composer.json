@@ -1,0 +1,7 @@
+{
+    "require": {},
+    "suggest": {
+        "stripe/stripe-php": "^17.6 - Required only if using the Stripe payment module"
+    },
+    "description": "AIOHM Booking WordPress Plugin - Core functionality without external dependencies"
+}

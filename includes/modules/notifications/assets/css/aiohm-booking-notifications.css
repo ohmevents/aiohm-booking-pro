@@ -1,0 +1,441 @@
+/**
+ * AIOHM Booking Notifications Module CSS
+ * Styles for email notifications, SMTP configuration, and email templates
+ *
+ * @package AIOHM_Booking
+ * @version 1.2.3
+ */
+
+/* ==========================================================================
+   NOTIFICATIONS PAGE - Email management and SMTP settings
+   ========================================================================== */
+
+/* Notifications layout */
+.aiohm-booking-notifications-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-6);
+    margin-top: var(--spacing-4);
+}
+
+.aiohm-booking-notifications-left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.aiohm-booking-notifications-right {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+/* SMTP Settings */
+.aiohm-booking-notifications-smtp-settings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.aiohm-booking-notifications-smtp-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+/* Smooth transitions for SMTP field visibility */
+.aiohm-booking-notifications-smtp-fields .aiohm-booking-notifications-setting-row {
+    transition: opacity 0.3s ease, height 0.3s ease;
+    overflow: hidden;
+}
+
+/* WordPress provider highlight when SMTP fields are hidden */
+.aiohm-booking-notifications-smtp-fields .aiohm-booking-notifications-setting-row:has(select[name="settings[email_provider]"]) {
+    background: var(--ohm-gray-50);
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--ohm-gray-200);
+}
+
+/* Setting Rows - styles consolidated above */
+
+.aiohm-booking-notifications-setting-row small {
+    margin-top: var(--spacing-1);
+}
+
+.aiohm-booking-notifications-row-split {
+    flex-direction: row;
+    gap: var(--spacing-4);
+}
+
+.aiohm-booking-notifications-setting-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+/* Button groups */
+.aiohm-booking-notifications-button-group {
+    display: flex;
+    gap: var(--spacing-3);
+    align-items: center;
+    margin-top: var(--spacing-4);
+}
+
+.aiohm-booking-notifications-test-result {
+    margin-top: var(--spacing-3);
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius);
+    display: none;
+}
+
+.aiohm-booking-notifications-test-result.success {
+    background: var(--alert-success);
+    color: var(--alert-success-text);
+    border: 1px solid #28a745;
+}
+
+.aiohm-booking-notifications-test-result.error {
+    background: var(--alert-error);
+    color: var(--alert-error-text);
+    border: 1px solid #dc3545;
+}
+
+/* SMTP disabled rows */
+.smtp-disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Enhanced Notification Styles */
+.aiohm-booking-notifications-notification {
+    position: fixed;
+    top: 40px;
+    right: 20px;
+    z-index: 999999;
+    max-width: 400px;
+    background: white;
+    border-left: 4px solid #0073aa;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    transition: all 0.3s ease;
+}
+
+.aiohm-booking-notifications-notification.notice-success {
+    border-left-color: #4CAF50;
+}
+
+.aiohm-booking-notifications-notification.notice-error {
+    border-left-color: #f44336;
+}
+
+.aiohm-booking-notifications-notification.notice-warning {
+    border-left-color: #ff9800;
+}
+
+.aiohm-booking-notifications-notification.notice-info {
+    border-left-color: #2196F3;
+}
+
+.aiohm-booking-notifications-notification .aiohm-booking-notifications-notification-icon {
+    flex-shrink: 0;
+    font-weight: bold;
+}
+
+.aiohm-booking-notifications-notification .aiohm-booking-notifications-notification-message {
+    flex: 1;
+    line-height: 1.4;
+}
+
+.aiohm-booking-notifications-notification .notice-dismiss {
+    transition: opacity 0.2s ease;
+}
+
+.aiohm-booking-notifications-notification .notice-dismiss:hover {
+    opacity: 1 !important;
+}
+
+/* Email Preview */
+.aiohm-booking-notifications-email-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-4);
+    padding-bottom: var(--spacing-3);
+    border-bottom: 1px solid var(--ohm-gray-200);
+}
+
+.aiohm-booking-notifications-email-preview-actions {
+    display: flex;
+    gap: var(--spacing-2);
+    align-items: center;
+}
+
+.aiohm-booking-notifications-email-preview-container {
+    padding: var(--spacing-4);
+}
+
+.aiohm-booking-notifications-email-client {
+    border: 1px solid var(--ohm-gray-300);
+    border-radius: var(--border-radius);
+    background: white;
+    overflow: hidden;
+}
+
+.aiohm-booking-notifications-email-header {
+    background: var(--ohm-gray-50);
+    border-bottom: 1px solid var(--ohm-gray-200);
+    padding: var(--spacing-4);
+}
+
+.aiohm-booking-notifications-email-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.aiohm-booking-notifications-email-from,
+.aiohm-booking-notifications-email-to,
+.aiohm-booking-notifications-email-subject {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    font-size: var(--ohm-font-size-sm);
+}
+
+.aiohm-booking-notifications-email-from strong,
+.aiohm-booking-notifications-email-to strong,
+.aiohm-booking-notifications-email-subject strong {
+    min-width: 60px;
+    color: var(--ohm-gray-600);
+    font-weight: var(--ohm-font-weight-medium);
+}
+
+.aiohm-booking-notifications-email-body {
+    padding: var(--spacing-5);
+}
+
+.aiohm-booking-notifications-email-content {
+    line-height: var(--ohm-line-height-relaxed);
+    color: var(--ohm-gray-800);
+}
+
+.aiohm-booking-notifications-email-footer-info {
+    background: var(--aiohm-brand-color, #457d59);
+    border-top: 1px solid var(--ohm-gray-200);
+    padding: var(--spacing-3);
+    color: white;
+    font-size: var(--ohm-font-size-xs);
+    text-align: center;
+}
+
+/* Template Customization */
+.aiohm-booking-notifications-template-customization {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.aiohm-booking-notifications-template-actions {
+    display: flex;
+    gap: var(--spacing-3);
+    justify-content: flex-end;
+    margin-top: var(--spacing-4);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--ohm-gray-200);
+}
+
+/* Email Template Manager */
+.aiohm-booking-notifications-email-templates-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.aiohm-booking-notifications-template-presets {
+    padding: var(--spacing-4);
+    background: var(--ohm-gray-50);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--ohm-gray-200);
+}
+
+.aiohm-booking-notifications-template-presets h5 {
+    margin: 0 0 var(--spacing-2) 0;
+    color: var(--ohm-dark-accent);
+    font-weight: var(--ohm-font-weight-semibold);
+}
+
+.aiohm-booking-notifications-template-presets p {
+    margin: 0 0 var(--spacing-3) 0;
+    color: var(--ohm-gray-600);
+    font-size: var(--ohm-font-size-sm);
+}
+
+.aiohm-booking-notifications-template-editor {
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-4);
+    background: var(--ohm-gray-50);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--ohm-gray-200);
+}
+
+.aiohm-booking-notifications-template-settings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+/* Email Logs */
+.aiohm-booking-notifications-email-logs-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.aiohm-booking-notifications-email-logs-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--ohm-gray-200);
+    border-radius: var(--border-radius);
+}
+
+.aiohm-booking-notifications-email-logs-list li {
+    padding: var(--spacing-3);
+    background: var(--ohm-gray-50);
+    border-left: 3px solid var(--ohm-gray-300);
+    border-bottom: 1px solid var(--ohm-gray-200);
+}
+
+.aiohm-booking-notifications-email-logs-list li.success {
+    border-left-color: #28a745;
+}
+
+.aiohm-booking-notifications-email-logs-list li.error {
+    border-left-color: #dc3545;
+}
+
+.aiohm-booking-notifications-email-logs-list li:last-child {
+    border-bottom: none;
+}
+
+.aiohm-booking-notifications-email-logs-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-2);
+}
+
+/* Template Variables */
+.aiohm-booking-notifications-template-variables {
+    margin-top: var(--spacing-5);
+    padding: var(--spacing-4);
+    background: var(--ohm-gray-50);
+    border-radius: var(--border-radius);
+}
+
+.aiohm-booking-notifications-template-variables h4 {
+    margin: 0 0 var(--spacing-3) 0;
+    color: var(--ohm-dark-accent);
+    font-weight: var(--ohm-font-weight-semibold);
+}
+
+.aiohm-booking-notifications-variables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-3);
+}
+
+.aiohm-booking-notifications-variable-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2);
+    background: white;
+    border: 1px solid var(--ohm-gray-200);
+    border-radius: var(--border-radius);
+    font-size: var(--ohm-font-size-sm);
+}
+
+.aiohm-booking-notifications-variable-item code {
+    background: var(--ohm-gray-100);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+    color: var(--aiohm-brand-color, #457d59);
+    font-weight: var(--ohm-font-weight-medium);
+}
+
+/* Template actions styling */
+.aiohm-booking-notifications-template-actions {
+    display: flex;
+    gap: var(--spacing-3);
+    justify-content: flex-end;
+    margin-top: var(--spacing-4);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--ohm-gray-200);
+}
+
+.aiohm-booking-notifications-template-actions .button {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.aiohm-booking-notifications-template-actions .button span.dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Notification provider select with caret */
+.aiohm-booking-admin .aiohm-booking-notifications-provider-select,
+.aiohm-booking-admin .aiohm-booking-notifications-enhanced-select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: right var(--spacing-3) center !important;
+    background-repeat: no-repeat !important;
+    background-size: 12px !important;
+    padding-right: var(--spacing-10) !important;
+    cursor: pointer !important;
+}
+
+/* Responsive design for notifications */
+@media (max-width: 1200px) {
+    .aiohm-booking-notifications-layout {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-5);
+    }
+}
+
+@media (max-width: 768px) {
+    .aiohm-booking-notifications-notification {
+        transition: none;
+    }
+    
+    .aiohm-booking-notifications-template-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .aiohm-booking-notifications-template-actions .button {
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .aiohm-booking-notifications-email-preview-actions {
+        flex-direction: column;
+        gap: var(--spacing-1);
+    }
+}

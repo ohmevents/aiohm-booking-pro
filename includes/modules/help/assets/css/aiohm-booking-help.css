@@ -1,0 +1,468 @@
+/**
+ * AIOHM Booking Help Module Styles
+ *
+ * @package AIOHM_Booking
+ * @since 1.0.0
+ */
+
+/* ==========================================================================
+   HELP MODULE BASE STYLES
+   ========================================================================== */
+
+.aiohm-booking-help-admin {
+    --ohm-muted-accent: #7d9b76;
+    --ohm-light-bg: #ebebeb;
+    --ohm-dark-accent: #1f5014;
+    --ohm-white: #ffffff;
+    --ohm-gray-50: #f9fafb;
+    --ohm-gray-100: #f3f4f6;
+    --ohm-gray-200: #e5e7eb;
+    --ohm-gray-300: #d1d5db;
+    --ohm-gray-400: #9ca3af;
+    --ohm-gray-500: #6b7280;
+    --ohm-gray-600: #4b5563;
+    --ohm-gray-700: #374151;
+    --ohm-gray-800: #1f2937;
+    --ohm-gray-900: #111827;
+    --ohm-primary: #457d59;
+    --ohm-primary-light: #5d9671;
+    --ohm-primary-dark: #2d5a40;
+    --ohm-secondary: #2c5aa0;
+    --ohm-accent: #8e44ad;
+    --ohm-warning: #f39c12;
+    --ohm-danger: #e74c3c;
+    --ohm-success: #27ae60;
+    --ohm-info: #3498db;
+}
+
+.aiohm-booking-help-card-content {
+    padding: 1rem;
+}
+
+/* ==========================================================================
+   HELP CARD STYLES
+   ========================================================================== */
+
+.aiohm-booking-help-card {
+    background: var(--ohm-white);
+    border: 1px solid var(--ohm-gray-200);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    overflow: hidden; /* Prevent content from overflowing */
+}
+
+.aiohm-booking-help-card-header {
+    padding: 1rem 1.5rem;
+    background: var(--ohm-gray-50);
+    border-bottom: 1px solid var(--ohm-gray-200);
+}
+
+.aiohm-booking-help-card-header h2,
+.aiohm-booking-help-card-header h3 {
+    margin: 0;
+    color: var(--ohm-gray-800);
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.aiohm-booking-help-card-content {
+    padding: 1.5rem;
+}
+
+/* ==========================================================================
+   HELP FORM STYLES
+   ========================================================================== */
+
+.aiohm-booking-help-support-form-section {
+    margin-bottom: 1.5rem;
+}
+
+.aiohm-booking-help-support-form-section h3,
+.aiohm-booking-help-support-form-section h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--ohm-gray-700);
+}
+
+.aiohm-booking-help-form-row {
+    margin-bottom: 1rem;
+}
+
+.aiohm-booking-help-checkbox-row {
+    display: flex;
+    align-items: center;
+}
+
+.aiohm-booking-help-checkbox-with-padding {
+    padding: 0.5rem 0;
+}
+
+.aiohm-booking-help-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.aiohm-booking-help-form-actions-section {
+    margin-top: 1.5rem;
+}
+
+.aiohm-booking-help-form-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.aiohm-booking-help-inline-buttons {
+    flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   HELP DEBUG STYLES
+   ========================================================================== */
+
+.aiohm-booking-help-debug-output-area {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--ohm-gray-50);
+    border-radius: 4px;
+    border: 1px solid var(--ohm-gray-200);
+}
+
+.aiohm-booking-help-debug-actions-bottom {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ==========================================================================
+   HELP JOURNEY STYLES
+   ========================================================================== */
+
+.aiohm-booking-help-journey-card {
+    background: var(--ohm-white);
+    border: 1px solid var(--ohm-gray-200);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.aiohm-booking-help-mb-5 {
+    margin-bottom: 2rem;
+}
+
+.aiohm-booking-help-journey-header h2 {
+    margin: 0 0 0.5rem 0;
+    color: var(--ohm-primary);
+}
+
+.aiohm-booking-help-journey-header p {
+    margin: 0;
+    color: var(--ohm-gray-600);
+}
+
+.aiohm-booking-help-journey-steps {
+    margin: 1.5rem 0 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step-counter;
+}
+
+.aiohm-booking-help-journey-step {
+    position: relative;
+    margin-bottom: 1.5rem;
+    padding-left: 2.5rem;
+    counter-increment: step-counter;
+}
+
+.aiohm-booking-help-journey-step:before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--ohm-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.aiohm-booking-help-step-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--ohm-gray-800);
+}
+
+.aiohm-booking-help-step-content p {
+    margin: 0 0 1rem 0;
+    color: var(--ohm-gray-600);
+}
+
+.aiohm-booking-help-step-button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--ohm-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+
+.aiohm-booking-help-step-button:hover {
+    background: var(--ohm-primary-dark);
+    color: white;
+}
+
+/* ==========================================================================
+   HELP TRANSLATION STYLES
+   ========================================================================== */
+
+.aiohm-booking-help-translation-card {
+    background: var(--ohm-white);
+    border: 1px solid var(--ohm-gray-200);
+    border-radius: 8px;
+    overflow: hidden; /* Prevent content from overflowing */
+    word-wrap: break-word; /* Handle long words */
+}
+
+.aiohm-booking-help-translation-card-spaced {
+    margin-top: 2rem;
+}
+
+.aiohm-booking-help-translation-intro p {
+    margin: 0 0 1rem 0;
+    color: var(--ohm-gray-600);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.aiohm-booking-help-translation-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Equal width columns */
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.aiohm-booking-help-translation-column h3 {
+    margin: 0 0 0.75rem 0; /* Reduced margin */
+    color: var(--ohm-gray-800);
+    font-size: 1rem; /* Slightly smaller */
+    line-height: 1.3;
+    word-wrap: break-word;
+}
+
+.aiohm-booking-help-translation-steps {
+    margin: 0;
+    padding-left: 1rem; /* Reduced padding */
+}
+
+.aiohm-booking-help-translation-steps li {
+    margin-bottom: 0.75rem; /* Reduced margin */
+    color: var(--ohm-gray-600);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.aiohm-booking-help-language-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem; /* Reduced gap */
+    max-height: 200px; /* Limit height to prevent overflow */
+    overflow-y: auto; /* Add scroll if needed */
+}
+
+.aiohm-booking-help-lang-example {
+    padding: 0.25rem 0.5rem; /* Reduced padding */
+    background: var(--ohm-gray-50);
+    border-radius: 4px;
+    font-size: 0.75rem; /* Smaller font size */
+    word-break: break-all; /* Handle long language codes */
+}
+
+.aiohm-booking-help-translation-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--ohm-gray-200);
+}
+
+.aiohm-booking-help-translation-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem; /* Reduced padding */
+    background: #3498db; /* Use direct color instead of variable */
+    color: white;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    word-wrap: break-word;
+    margin-top: 1rem;
+}
+
+.aiohm-booking-help-translation-tip .dashicons {
+    margin-top: 0.125rem;
+    flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+/* ==========================================================================
+   HELP MESSAGES
+   ========================================================================== */
+
+.aiohm-booking-help-support-messages {
+    position: relative;
+    top: auto;
+    right: auto;
+    z-index: auto;
+    min-width: 300px;
+    margin-bottom: 1rem;
+}
+
+/* ==========================================================================
+   HELP PAGE LAYOUT
+   ========================================================================== */
+
+.aiohm-booking-help-container {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.aiohm-booking-help-main {
+    flex: 1;
+    min-width: 0; /* Prevent flex item from overflowing */
+}
+
+.aiohm-booking-help-sidebar {
+    flex: 1; /* Make sidebar equal width to main content */
+    min-width: 0; /* Prevent flex item from overflowing */
+}
+
+/* ==========================================================================
+   RESPONSIVE STYLES
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .aiohm-booking-help-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .aiohm-booking-help-translation-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .aiohm-booking-help-translation-tip {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .aiohm-booking-help-language-examples {
+        max-height: none; /* Remove height limit on mobile */
+        overflow-y: visible;
+    }
+    
+    .aiohm-booking-help-form-actions {
+        flex-direction: column;
+    }
+}
+
+/* ==========================================================================
+   HELP PAGE BUTTONS
+   ========================================================================== */
+
+.aiohm-booking-help-page .button {
+    font-family: var(--ohm-font-primary);
+    font-weight: var(--btn-font-weight);
+    font-size: var(--btn-font-size);
+    line-height: var(--btn-line-height);
+    padding: var(--btn-padding-y) var(--btn-padding-x);
+    border-radius: var(--btn-border-radius);
+    border-width: 1px;
+    border-style: solid;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    cursor: pointer;
+    transition: var(--transition-colors), var(--transition-shadow);
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* Primary buttons */
+.aiohm-booking-help-page .button-primary {
+    background-color: var(--ohm-primary) !important;
+    border-color: var(--ohm-primary-dark) !important;
+    color: var(--ohm-white) !important;
+    text-shadow: none !important;
+    box-shadow: var(--shadow-sm);
+}
+
+.aiohm-booking-help-page .button-primary:hover {
+    background-color: var(--ohm-primary-dark) !important;
+    border-color: var(--ohm-primary-dark) !important;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.aiohm-booking-help-page .button-primary:focus {
+    box-shadow: var(--shadow-md), 0 0 0 3px rgba(69, 125, 88, 0.1) !important;
+}
+
+/* Secondary buttons */
+.aiohm-booking-help-page .button-secondary {
+    background-color: var(--ohm-white) !important;
+    border-color: var(--ohm-gray-300) !important;
+    color: var(--ohm-gray-700) !important;
+    box-shadow: var(--shadow-sm);
+}
+
+.aiohm-booking-help-page .button-secondary:hover {
+    background-color: var(--ohm-gray-50) !important;
+    border-color: var(--ohm-gray-400) !important;
+    color: var(--ohm-gray-900) !important;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   HELP PAGE FORM CONTROLS
+   ========================================================================== */
+
+.aiohm-booking-help-page input[type="text"],
+.aiohm-booking-help-page input[type="number"],
+.aiohm-booking-help-page input[type="email"],
+.aiohm-booking-help-page input[type="url"],
+.aiohm-booking-help-page input[type="password"],
+.aiohm-booking-help-page select,
+.aiohm-booking-help-page textarea {
+    font-family: var(--ohm-font-secondary);
+    font-size: var(--input-font-size);
+    line-height: var(--input-line-height);
+    padding: var(--input-padding-y) var(--input-padding-x);
+    border: var(--input-border-width) solid var(--input-border-color);
+    border-radius: var(--input-border-radius);
+    background-color: var(--input-bg);
+    color: var(--input-text-color);
+    width: 100%;
+    box-sizing: border-box;
+    transition: var(--transition-colors), var(--transition-shadow);
+}
+
+.aiohm-booking-help-page input[type="text"]:focus,
+.aiohm-booking-help-page input[type="number"]:focus,
+.aiohm-booking-help-page input[type="email"]:focus,
+.aiohm-booking-help-page input[type="url"]:focus,
+.aiohm-booking-help-page input[type="password"]:focus,
+.aiohm-booking-help-page select:focus,
+.aiohm-booking-help-page textarea:focus {
+    border-color: var(--input-border-color-focus);
+    box-shadow: 0 0 0 3px rgba(69, 125, 88, 0.1);
+    outline: none;
+}

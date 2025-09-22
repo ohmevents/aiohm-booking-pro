@@ -1,0 +1,251 @@
+/* <fs_premium_only> */
+/**
+ * Stripe Payment Module - Admin Styles
+ *
+ * @package AIOHM_Booking_PRO
+ * @since 1.2.4
+ */
+
+/* Stripe Payment Form Styles */
+#aiohm-booking-stripe-card-element {
+    padding: 12px 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 44px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+#aiohm-booking-stripe-card-element:focus {
+    outline: none;
+    border-color: #457d59;
+    box-shadow: 0 0 0 1px #457d59;
+}
+
+.aiohm-booking-stripe-card-container {
+    margin-bottom: 16px;
+}
+
+.aiohm-booking-stripe-card-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+#aiohm-booking-stripe-card-errors {
+    color: #dc3232;
+    font-size: 14px;
+    margin-top: 8px;
+    display: block;
+}
+
+.aiohm-booking-stripe-payment-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.aiohm-booking-stripe-payment-form .form-row {
+    margin-bottom: 16px;
+}
+
+.aiohm-booking-stripe-payment-form .form-row label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.aiohm-booking-stripe-payment-form .form-row input[type="text"],
+.aiohm-booking-stripe-payment-form .form-row input[type="email"],
+.aiohm-booking-stripe-payment-form .form-row input[type="tel"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 16px;
+    line-height: 1.5;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.aiohm-booking-stripe-payment-form .form-row input:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+}
+
+.aiohm-booking-stripe-pay-btn,
+.aiohm-booking-stripe-checkout-btn {
+    background-color: #007cba;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    width: 100%;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+}
+
+.aiohm-booking-stripe-pay-btn:hover,
+.aiohm-booking-stripe-checkout-btn:hover {
+    background-color: #005a87;
+}
+
+.aiohm-booking-stripe-pay-btn:disabled,
+.aiohm-booking-stripe-checkout-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.aiohm-booking-stripe-pay-btn:disabled:hover,
+.aiohm-booking-stripe-checkout-btn:disabled:hover {
+    background-color: #ccc;
+}
+
+.aiohm-booking-stripe-loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007cba;
+    border-radius: 50%;
+    animation: aiohm-booking-stripe-spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes aiohm-booking-stripe-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.aiohm-booking-stripe-checkout-container {
+    text-align: center;
+    padding: 24px;
+}
+
+.aiohm-booking-stripe-checkout-container .checkout-description {
+    margin-bottom: 24px;
+    color: #666;
+}
+
+.aiohm-booking-stripe-checkout-container .checkout-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 24px;
+}
+
+.aiohm-booking-stripe-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.aiohm-booking-stripe-overlay .loading-text {
+    font-size: 18px;
+    color: #333;
+    margin-left: 16px;
+}
+
+/* Stripe Element Classes */
+.StripeElement {
+    background-color: #fff;
+}
+
+.StripeElement--focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+}
+
+.StripeElement--invalid {
+    border-color: #dc3232;
+}
+
+.StripeElement--webkit-autofill {
+    background-color: #fefde5 !important;
+}
+
+.aiohm-booking-stripe-pay-btn:focus,
+.aiohm-booking-stripe-checkout-btn:focus {
+    outline: 2px solid #007cba;
+    outline-offset: 2px;
+}
+
+/* Responsive Styles */
+@media (max-width: 480px) {
+    .aiohm-booking-stripe-payment-form {
+        max-width: 100%;
+        padding: 0 16px;
+    }
+
+    .aiohm-booking-stripe-pay-btn,
+    .aiohm-booking-stripe-checkout-btn {
+        padding: 16px 24px;
+        font-size: 18px;
+    }
+
+    #aiohm-booking-stripe-card-element {
+        font-size: 18px;
+    }
+}
+
+/* OHM Brand Test Connection Button Styling */
+#test-stripe-connection {
+    background: linear-gradient(135deg, var(--aiohm-brand-color, #457d59) 0%, var(--ohm-primary-purple, #5a9a6b) 100%) !important;
+    border-color: var(--aiohm-brand-color, #457d59) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 4px rgba(69, 125, 89, 0.2) !important;
+}
+
+#test-stripe-connection:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--ohm-primary-purple, #5a9a6b) 0%, var(--aiohm-brand-color, #457d59) 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(69, 125, 89, 0.3) !important;
+}
+
+#test-stripe-connection:active:not(:disabled) {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 4px rgba(69, 125, 89, 0.2) !important;
+}
+
+#test-stripe-connection:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* Success state styling */
+#test-stripe-connection.button-primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+    border-color: #28a745 !important;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2) !important;
+}
+
+/* Error state styling */
+#test-stripe-connection.notice-error {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%) !important;
+    border-color: #dc3545 !important;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2) !important;
+}
+
+/* </fs_premium_only> */
