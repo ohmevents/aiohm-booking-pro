@@ -10,11 +10,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Get selected dates from POST data (for AJAX updates)
+$selected_arrival_date = isset( $_POST['arrival_date'] ) ? sanitize_text_field( wp_unslash( $_POST['arrival_date'] ) ) : '';
+$selected_departure_date = isset( $_POST['departure_date'] ) ? sanitize_text_field( wp_unslash( $_POST['departure_date'] ) ) : '';
+
+// Calculate duration from selected dates
+$calculated_duration = 1; // Default
+if ( ! empty( $selected_arrival_date ) && ! empty( $selected_departure_date ) ) {
+	$start = new DateTime( $selected_arrival_date );
+	$end = new DateTime( $selected_departure_date );
+	$interval = $start->diff( $end );
+	$calculated_duration = $interval->days;
+	if ( $calculated_duration < 1 ) {
+		$calculated_duration = 1;
+	}
+}
+
 // Get accommodations data and settings.
 $global_settings = get_option( 'aiohm_booking_settings', array() );
 
 // Get the maximum number of accommodations from settings
-$available_accommodations = intval( $global_settings['max_accommodations'] ?? 10 );
+$available_accommodations = intval( $global_settings['available_accommodations'] ?? 10 );
 
 // Ensure accommodation posts are synchronized with settings
 // Get current accommodation count
@@ -65,11 +81,22 @@ if ( $accommodations_query->have_posts() ) {
 			'id'              => $post->ID,
 			'title'           => $post->post_title,
 			'description'     => $post->post_content,
-			'price'           => get_post_meta( $post->ID, '_price', true ),
-			'earlybird_price' => get_post_meta( $post->ID, '_earlybird_price', true ),
-			'type'            => get_post_meta( $post->ID, '_type', true ) ?: 'room',
+			'price'           => get_post_meta( $post->ID, '_aiohm_booking_accommodation_price', true ),
+			'earlybird_price' => get_post_meta( $post->ID, '_aiohm_booking_accommodation_earlybird_price', true ),
+			'type'            => get_post_meta( $post->ID, '_aiohm_booking_accommodation_type', true ) ?: 'room',
 		);
 	}
+}
+
+if ( ! empty( $selected_arrival_date ) && ! empty( $selected_departure_date ) && class_exists( 'AIOHM_BOOKING_Accommodation_Service' ) ) {
+	$filtered_accommodations = array();
+	foreach ( $accommodations as $accommodation ) {
+		$is_available = AIOHM_BOOKING_Accommodation_Service::is_accommodation_available_for_range( $accommodation['id'], $selected_arrival_date, $selected_departure_date );
+		if ( $is_available ) {
+			$filtered_accommodations[] = $accommodation;
+		}
+	}
+	$accommodations = $filtered_accommodations;
 }
 
 $pricing       = get_option( 'aiohm_booking_pricing', array() );
@@ -88,9 +115,9 @@ $default_early_bird_price = $early_bird_settings['default_price'];
 $singular = $product_names['singular_cap'] ?? 'Room';
 $plural   = $product_names['plural_cap'] ?? 'Rooms';
 
-// Get currency from general settings (not pricing settings)
-$general_settings = get_option( 'aiohm_booking_settings', array() );
-$currency         = $general_settings['currency'] ?? 'USD';
+// Get currency from general settings (not pricing settings) - same as event selection
+$global_settings = get_option( 'aiohm_booking_settings', array() );
+$currency        = $global_settings['currency'] ?? 'USD';
 
 $p = array( 'currency' => $currency );
 // Get base price from accommodation module settings first, then fallback to accommodation_price from pricing
@@ -189,8 +216,8 @@ wp_add_inline_script(
 <div class="aiohm-accommodation-selection-card">
 	<div class="aiohm-booking-shortcode-card-header">
 		<div class="aiohm-booking-card-title-section">
-			<h3 class="aiohm-card-title"><?php esc_html_e( 'Select Your Accommodations', 'aiohm-booking-pro' ); ?></h3>
-			<p class="aiohm-card-subtitle"><?php esc_html_e( 'Select your check-in and check-out dates, then choose your accommodation below.', 'aiohm-booking-pro' ); ?></p>
+			<h3 class="aiohm-section-title"><?php esc_html_e( 'Select Your Accommodations', 'aiohm-booking-pro' ); ?></h3>
+			<p class="aiohm-section-subtitle"><?php esc_html_e( 'Select your check-in and check-out dates, then choose your accommodation below.', 'aiohm-booking-pro' ); ?></p>
 		</div>
 	</div>
 
@@ -242,7 +269,7 @@ wp_add_inline_script(
 					<label class="aiohm-input-label"><?php esc_html_e( 'Duration (nights)', 'aiohm-booking-pro' ); ?></label>
 					<div class="aiohm-quantity-selector">
 						<button type="button" class="aiohm-qty-btn aiohm-qty-minus" data-target="stay_duration">-</button>
-						<input type="number" name="stay_duration" id="stay_duration" min="1" max="30" value="1" class="aiohm-qty-input" aria-label="Duration in nights">
+						<input type="number" name="stay_duration" id="stay_duration" min="1" max="30" value="<?php echo esc_attr( $calculated_duration ); ?>" class="aiohm-qty-input" aria-label="Duration in nights">
 						<button type="button" class="aiohm-qty-btn aiohm-qty-plus" data-target="stay_duration">+</button>
 					</div>
 				</div>
@@ -256,14 +283,14 @@ wp_add_inline_script(
 				</div>
 			</div>
 			<div class="aiohm-checkout-display">
-				<strong><?php esc_html_e( 'Check-in:', 'aiohm-booking-pro' ); ?></strong> <span id="checkinDisplay"><?php esc_html_e( 'Select date from calendar', 'aiohm-booking-pro' ); ?></span> |
-				<strong><?php esc_html_e( 'Check-out:', 'aiohm-booking-pro' ); ?></strong> <span id="checkoutDisplay"><?php esc_html_e( 'Select check-in first', 'aiohm-booking-pro' ); ?></span>
+				<strong><?php esc_html_e( 'Check-in:', 'aiohm-booking-pro' ); ?></strong> <span id="checkinDisplay"><?php echo ! empty( $selected_arrival_date ) ? esc_html( date_i18n( 'D, M j', strtotime( $selected_arrival_date ) ) ) : esc_html__( 'Select date from calendar', 'aiohm-booking-pro' ); ?></span> |
+				<strong><?php esc_html_e( 'Check-out:', 'aiohm-booking-pro' ); ?></strong> <span id="checkoutDisplay"><?php echo ! empty( $selected_departure_date ) ? esc_html( date_i18n( 'D, M j', strtotime( $selected_departure_date ) ) ) : ( ! empty( $selected_arrival_date ) ? esc_html__( 'Select check-in first', 'aiohm-booking-pro' ) : esc_html__( 'Select check-in first', 'aiohm-booking-pro' ) ); ?></span>
 			</div>
 		</div>
 
 		<!-- Hidden inputs for form processing -->
-		<input type="hidden" name="checkin_date" id="checkinHidden">
-		<input type="hidden" name="checkout_date" id="checkoutHidden">
+		<input type="hidden" name="checkin_date" id="checkinHidden" value="<?php echo esc_attr( $selected_arrival_date ); ?>">
+		<input type="hidden" name="checkout_date" id="checkoutHidden" value="<?php echo esc_attr( $selected_departure_date ); ?>">
 	</div>
 
 	<!-- Select Your Accommodations -->
@@ -280,8 +307,9 @@ wp_add_inline_script(
 		<div class="aiohm-booking-events-scroll-container">
 			<?php
 			foreach ( $accommodations as $index => $accommodation ) :
-				$price       = ! empty( $accommodation['price'] ) ? floatval( $accommodation['price'] ) : $base_acc_price;
-				$early_price = ! empty( $accommodation['earlybird_price'] ) ? floatval( $accommodation['earlybird_price'] ) : $default_early_bird_price;
+				// Use accommodation price if it exists (even if 0), otherwise use base price
+				$price       = isset( $accommodation['price'] ) && $accommodation['price'] !== '' ? floatval( $accommodation['price'] ) : $base_acc_price;
+				$early_price = isset( $accommodation['earlybird_price'] ) && $accommodation['earlybird_price'] !== '' ? floatval( $accommodation['earlybird_price'] ) : $default_early_bird_price;
 
 				// If no specific early bird price is set, use the regular price
 				if ( empty( $accommodation['earlybird_price'] ) ) {

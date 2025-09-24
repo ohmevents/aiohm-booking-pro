@@ -115,7 +115,6 @@
                                         <div class="aiohm-ai-feature-item" style="margin-bottom: 8px; font-size: 13px;">🎭 Event type</div>
                                         <div class="aiohm-ai-feature-item" style="margin-bottom: 8px; font-size: 13px;">📅 Event title</div>
                                         <div class="aiohm-ai-feature-item" style="margin-bottom: 8px; font-size: 13px;">📝 Description</div>
-                                        <div class="aiohm-ai-feature-item" style="margin-bottom: 8px; font-size: 13px;">📍 Location</div>
                                     </div>
                                     <div class="aiohm-ai-features-column">
                                         <div class="aiohm-ai-feature-item" style="margin-bottom: 8px; font-size: 13px;">📆 Event date</div>
@@ -234,7 +233,6 @@
                                 <p><strong>🎭 Type:</strong> ${escapeHtml(info.event_type || 'Not detected')}</p>
                                 <p><strong>📆 Date:</strong> ${formatEventDate(info.event_date, info.event_end_date)}</p>
                                 <p><strong>⏰ Time:</strong> ${escapeHtml(info.event_time || 'Not detected')}</p>
-                                <p><strong>📍 Location:</strong> ${escapeHtml(info.location || 'Not detected')}</p>
                                 <p><strong>� Seats:</strong> ${escapeHtml(info.available_seats || 'Not detected')}</p>
                                 <p><strong>�💰 Price:</strong> ${escapeHtml(info.price || 'Not detected')}</p>
                                 ${info.early_bird_price ? `<p><strong>🕒 Early Bird:</strong> ${escapeHtml(info.early_bird_price)} (${escapeHtml(info.early_bird_date || 'No deadline')})</p>` : ''}
@@ -351,9 +349,6 @@
             $eventCard.find(`input[name="events[${eventIndex}][event_end_time]"]`).val(eventInfo.event_end_time);
         }
 
-        if (eventInfo.location) {
-            $eventCard.find(`input[name="events[${eventIndex}][location]"]`).val(eventInfo.location);
-        }
 
         if (eventInfo.available_seats) {
             $eventCard.find(`input[name="events[${eventIndex}][available_seats]"]`).val(eventInfo.available_seats);

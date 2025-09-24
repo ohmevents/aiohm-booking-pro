@@ -1,5 +1,64 @@
 # AIOHM Booking Pro - Changelog
 
+## Version 2.0.3 (23 September 2025) ⭐ **MAJOR ARCHITECTURAL UPGRADE**
+
+### 🏗️ Architectural Overhaul
+
+#### Events System Migration to Custom Post Type
+- **✅ MAJOR UPGRADE**: Migrated events from array storage to Custom Post Type (`aiohm_booking_event`) for architectural consistency with accommodations
+- **Automatic Migration**: Implemented seamless migration system that converts existing array-based events to CPT on plugin activation
+- **Backward Compatibility**: Maintained compatibility during transition with dual storage approach
+- **Meta Box System**: Added comprehensive meta boxes for event management matching WordPress standards
+- **Cross-Module Integration**: Updated all modules (Orders, EventON Integration) to use new unified data access methods
+
+#### Shortcode System Completion
+- **✅ ALL SHORTCODES FUNCTIONAL**: Completed shortcode registration system - all referenced shortcodes now properly registered
+- **Unified Backend**: All shortcodes (`[aiohm_booking_accommodations]`, `[aiohm_booking_events]`, `[aiohm_booking_checkout]`) use same core with mode parameters
+- **Enhanced User Experience**: Specialized shortcodes provide targeted booking flows
+
+#### Data Architecture Unification
+- **✅ CONSISTENCY ACHIEVED**: Both events and accommodations now use identical Custom Post Type architecture
+- **Scalability**: Eliminated serialization limits with individual post queries
+- **WordPress Integration**: Full admin UI, search, pagination, meta queries for both systems
+- **Performance**: Database indexing and query optimization across all booking types
+- **Extensibility**: Support for custom fields, taxonomies, and post relationships
+
+### 🔧 Technical Implementation
+
+#### New Methods & Classes
+- `register_event_cpt()` - Event Custom Post Type registration with meta boxes
+- `migrate_events_to_cpt()` - Automatic migration from array to CPT storage
+- `get_events_data_compatible()` - Compatibility layer for gradual transition
+- `create_event_cpt()` - Modern event creation using CPT
+- `get_events_data()` - Static cross-module data access method
+
+#### Enhanced Functionality
+- **Event Management**: Create, update, delete operations now work with both CPT and array storage
+- **Seat Management**: Available seats update both storage systems during booking
+- **Cross-Module Access**: All modules use consistent data retrieval methods
+- **Import Integration**: EventON imports now create both CPT and array entries
+
+#### Files Modified:
+```
+includes/modules/booking/class-aiohm-booking-module-tickets.php (Major overhaul)
+includes/modules/admin/class-aiohm-booking-module-shortcode-admin.php
+includes/modules/booking/class-aiohm-booking-module-orders.php
+includes/modules/integrations/class-aiohm-booking-module-eventon.php
+.github/copilot-instructions.md (Complete architectural documentation update)
+CHANGELOG.md
+README.md
+aiohm-booking-pro.php (Version bump)
+```
+
+### 🚀 Benefits
+- **Unified Architecture**: Both major booking systems use identical, superior patterns
+- **Future-Proof**: Scalable foundation for continued development
+- **WordPress Native**: Full integration with WordPress admin and query systems
+- **Backward Compatible**: No breaking changes during transition period
+- **Developer Friendly**: Consistent APIs across all booking functionality
+
+---
+
 ## Version 2.0.2 (23 September 2025)
 
 ### 🐛 Bug Fixes & Improvements

@@ -651,7 +651,7 @@ class AIOHM_BOOKING_REST_API {
 
 		// Check guest capacity if accommodation ID is provided.
 		if ( ! empty( $accommodation_id ) ) {
-			$capacity = get_post_meta( $accommodation_id, 'aiohm_max_guests', true );
+			$capacity = get_post_meta( $accommodation_id, '_aiohm_booking_accommodation_max_guests', true );
 			if ( ! empty( $capacity ) && $guests > intval( $capacity ) ) {
 				return new WP_Error( 'capacity_exceeded', __( 'Number of guests exceeds accommodation capacity', 'aiohm-booking-pro' ) );
 			}

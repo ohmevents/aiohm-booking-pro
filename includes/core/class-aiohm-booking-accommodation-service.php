@@ -267,7 +267,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 
 		// Get the available accommodations setting to limit the count
 		$settings                 = get_option( 'aiohm_booking_settings', array() );
-		$available_accommodations = isset( $settings['available_accommodations'] ) ? (int) $settings['available_accommodations'] : 7;
+		$available_accommodations = isset( $settings['available_accommodations'] ) ? (int) $settings['available_accommodations'] : 1;
 
 		// Limit accommodations to the available count setting
 		$limited_accommodations = array_slice( $accommodations, 0, $available_accommodations );
@@ -288,5 +288,79 @@ class AIOHM_BOOKING_Accommodation_Service {
 		}
 
 		return $stats;
+	}
+
+	/**
+	 * Check if a specific accommodation is available for a date range
+	 *
+	 * @since 1.2.3
+	 *
+	 * @param int    $accommodation_id Accommodation ID to check.
+	 * @param string $start_date Start date in Y-m-d format.
+	 * @param string $end_date End date in Y-m-d format.
+	 * @return bool True if accommodation is available for the entire date range
+	 */
+	public static function is_accommodation_available_for_range( $accommodation_id, $start_date, $end_date ) {
+		// Validate accommodation exists
+		if ( ! self::accommodation_exists( $accommodation_id ) ) {
+			return false;
+		}
+
+		$start    = new DateTime( $start_date );
+		$end      = new DateTime( $end_date );
+		$interval = new DateInterval( 'P1D' );
+
+		// Calculate the dates to check: from start date to (end date - 1 day)
+		$dates_to_check = array();
+		$current_date = clone $start;
+		while ( $current_date < $end ) {
+			$dates_to_check[] = $current_date->format('Y-m-d');
+			$current_date->modify('+1 day');
+		}
+
+		$cell_statuses = get_option( 'aiohm_booking_cell_statuses', array() );
+
+		// Check each date in the range
+		foreach ( $dates_to_check as $date_string ) {
+			$unit_key = $accommodation_id . '_' . $date_string . '_full';
+
+			// Try multiple methods to detect the key
+			$key_exists = false;
+			$status_data = null;
+
+			// Method 1: Direct array access
+			if ( isset( $cell_statuses[ $unit_key ] ) ) {
+				$key_exists = true;
+				$status_data = $cell_statuses[ $unit_key ];
+			}
+
+			// Method 2: Check if key exists in array_keys
+			if ( ! $key_exists && in_array( $unit_key, array_keys( $cell_statuses ) ) ) {
+				$key_exists = true;
+				$status_data = $cell_statuses[ $unit_key ];
+			}
+
+			// Method 3: Direct JSON search (fallback)
+			if ( ! $key_exists ) {
+				foreach ( $cell_statuses as $key => $data ) {
+					if ( $key === $unit_key ) {
+						$key_exists = true;
+						$status_data = $data;
+						break;
+					}
+				}
+			}
+
+			if ( $key_exists && $status_data && isset( $status_data['status'] ) ) {
+				$status = $status_data['status'];
+
+				// If booked, pending, blocked, or external, it's not available
+				if ( in_array( $status, array( 'booked', 'pending', 'blocked', 'external' ), true ) ) {
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 }

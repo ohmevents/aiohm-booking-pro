@@ -5,7 +5,15 @@
  * This template provides the user interface for managing accommodations.
  * It uses the `aiohm_accommodation` Custom Post Type for data storage.
  *
- * @package AIOHM_Booking_PRO
+ * @packag										<div class="aiohm-booking-setting-description">Number of accommodations to activate</div>
+						<div class="aiohm-booking-setting-input">
+							<input type="number" name="aiohm_booking_settings[available_accommodations]" value="<?php echo esc_attr( $global_settings['available_accommodations'] ?? '1' ); ?>" min="1" max="50" step="1" placeholder="1">
+							<span class="aiohm-booking-setting-unit">units</span>
+						</div>v class="aiohm-booking-setting-description">Number of accommodations to activate</div>
+						<div class="aiohm-booking-setting-input">
+							<input type="number" name="aiohm_booking_settings[available_accommodations]" value="<?php echo esc_attr( $global_settings['available_accommodations'] ?? '1' ); ?>" min="1" max="50" step="1" placeholder="1">
+							<span class="aiohm-booking-setting-unit">units</span>
+						</div>HM_Booking_PRO
  * @since 2.0.0
  */
 
@@ -128,7 +136,7 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 						<label class="aiohm-booking-setting-label">Deposit Percentage</label>
 						<div class="aiohm-booking-setting-description">Percentage required as deposit for bookings</div>
 						<div class="aiohm-booking-setting-input">
-							<input type="number" name="aiohm_booking_settings[deposit_percentage]" value="<?php echo esc_attr( $global_settings['deposit_percentage'] ?? '30' ); ?>" min="0" max="100" step="1" placeholder="30">
+							<input type="number" name="aiohm_booking_settings[deposit_percentage]" value="<?php echo esc_attr( $global_settings['deposit_percentage'] ?? '0' ); ?>" min="0" max="100" step="1" placeholder="0">
 							<span class="aiohm-booking-setting-unit">%</span>
 						</div>
 					</div>
@@ -189,18 +197,18 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 						<div class="aiohm-booking-setting-description">Default type for new accommodations</div>
 						<div class="aiohm-booking-setting-input">
 							<select name="aiohm_booking_settings[accommodation_type]">
-								<option value="room" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'room' ); ?>>🏠 Room</option>
-								<option value="house" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'house' ); ?>>🏘️ House</option>
-								<option value="apartment" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'apartment' ); ?>>🏢 Apartment</option>
-								<option value="villa" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'villa' ); ?>>🏰 Villa</option>
-								<option value="bungalow" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'bungalow' ); ?>>🏕️ Bungalow</option>
-								<option value="cabin" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'cabin' ); ?>>🏔️ Cabin</option>
-								<option value="cottage" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'cottage' ); ?>>🏡 Cottage</option>
-								<option value="suite" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'suite' ); ?>>🛏️ Suite</option>
-								<option value="studio" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'studio' ); ?>>🎨 Studio</option>
-								<option value="unit" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'unit' ); ?>>🏗️ Unit</option>
-								<option value="space" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'space' ); ?>>🌌 Space</option>
-								<option value="venue" <?php selected( $global_settings['accommodation_type'] ?? 'room', 'venue' ); ?>>🎭 Venue</option>
+								<option value="room" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'room' ); ?>>🏠 Room</option>
+								<option value="house" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'house' ); ?>>🏘️ House</option>
+								<option value="apartment" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'apartment' ); ?>>🏢 Apartment</option>
+								<option value="villa" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'villa' ); ?>>🏰 Villa</option>
+								<option value="bungalow" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'bungalow' ); ?>>🏕️ Bungalow</option>
+								<option value="cabin" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'cabin' ); ?>>🏔️ Cabin</option>
+								<option value="cottage" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'cottage' ); ?>>🏡 Cottage</option>
+								<option value="suite" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'suite' ); ?>>🛏️ Suite</option>
+								<option value="studio" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'studio' ); ?>>🎨 Studio</option>
+								<option value="unit" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'unit' ); ?>>🏗️ Unit</option>
+								<option value="space" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'space' ); ?>>🌌 Space</option>
+								<option value="venue" <?php selected( $global_settings['accommodation_type'] ?? 'unit', 'venue' ); ?>>🎭 Venue</option>
 							</select>
 						</div>
 					</div>
@@ -284,7 +292,7 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 									<label>Type:</label>
 									<select name="aiohm_accommodations[<?php echo esc_attr( $accommodation['id'] ); ?>][type]" class="accommodation-individual-type-select">
 										<?php
-										$current_type        = $accommodation['type'] ?? 'room';
+										$current_type        = $accommodation['type'] ?? 'unit';
 										$accommodation_types = AIOHM_BOOKING_Module_Accommodation::get_accommodation_types_for_select();
 										foreach ( $accommodation_types as $value => $label ) :
 											?>
@@ -336,7 +344,7 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 								<span class="dashicons dashicons-plus-alt"></span>
 								Add New <?php echo esc_html( $singular ); ?>
 							</a>
-							<br><small>Current: <?php echo esc_html( count( $accommodation_data ) ); ?>/20 <?php echo esc_html( strtolower( $plural ) ); ?></small>
+							<br><small>unlimited</small>
 						</div>
 					</div>
 				<?php endif; ?>

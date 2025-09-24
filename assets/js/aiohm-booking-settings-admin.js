@@ -80,8 +80,8 @@
             $(document).on('click.aiohm-settings', '[data-action="test-connection"]', AIOHM_Booking_Settings_Admin.handleTestConnection);
             
             // Event buttons handlers
-            $(document).on('click.aiohm-settings', '.aiohm-clone-event-btn', AIOHM_Booking_Settings_Admin.handleCloneEvent);
-            $(document).on('click.aiohm-settings', '.aiohm-delete-event-btn', AIOHM_Booking_Settings_Admin.handleDeleteEvent);
+            $(document).on('click.aiohm-settings', '.aiohm-clone-event-btn', this.handleCloneEvent);
+            $(document).on('click.aiohm-settings', '.aiohm-delete-event-btn', this.handleDeleteEvent);
             $(document).on('click.aiohm-settings', '.aiohm-eventon-import-btn', AIOHM_Booking_Settings_Admin.handleEventONImport);
             // Note: AI Import is handled by aiohm-booking-ai-import.js
             
@@ -608,9 +608,10 @@
         handleSaveSettings: function(e) {
             var $button = $(this);
             
-            // Check if this is a booking settings save button - let it submit normally
-            if ($button.hasClass('aiohm-booking-settings-save-btn')) {
-                // Don't prevent default - let the form submit normally
+            // Check if this is a save button (main settings or individual module)
+            if ($button.hasClass('aiohm-booking-settings-save-btn') || 
+                ($button.attr('name') && $button.attr('name').startsWith('save_'))) {
+                // Don't prevent default - let the form submit normally for all save buttons
                 return;
             }
             
@@ -619,16 +620,6 @@
             // Check if this is a form customization save button
             if ($button.hasClass('aiohm-form-customization-save-btn')) {
                 AIOHM_Booking_Settings_Admin.handleFormCustomizationSave($button);
-                return;
-            }
-            
-            var $form = $button.closest('form');
-            
-            // Check if this is an individual module save button
-            if ($button.attr('name') && $button.attr('name').startsWith('save_')) {
-                // Handle individual module saves with AJAX
-                var moduleName = $button.attr('name').replace('save_', '').replace('_settings', '');
-                AIOHM_Booking_Settings_Admin.saveModuleSettings($button, $form, moduleName);
                 return;
             }
 
@@ -800,6 +791,11 @@
             
             var $button = $(this);
             var provider = $button.data('provider');
+            
+            // Skip Stripe connections - handled by dedicated stripe-settings.js
+            if (provider === 'stripe') {
+                return;
+            }
             
             // Capture original text more reliably
             var $btnText = $button.find('.btn-text');
@@ -1429,37 +1425,40 @@
         handleCloneEvent: function(e) {
             e.preventDefault();
             var $button = $(this);
-            var eventIndex = $button.data('event-index');
-            
+            var eventId = $button.data('event-index'); // Use event-index for array index
+
             if (confirm('Are you sure you want to clone this event? This will create a copy with the same settings.')) {
                 $button.prop('disabled', true);
                 var originalText = $button.html();
                 $button.html('<span class="dashicons dashicons-update-alt" style="animation: rotation 1s infinite linear;"></span> Cloning...');
-                
-                // Get the event card data
-                var $eventCard = $button.closest('.aiohm-booking-event-settings');
-                var eventData = AIOHM_Booking_Settings_Admin.collectEventData($eventCard, eventIndex);
-                
+
                 // Send AJAX request to clone event
                 $.ajax({
                     url: aiohm_booking_admin.ajax_url,
                     method: 'POST',
                     data: {
                         action: 'aiohm_clone_event',
-                        event_index: eventIndex,
-                        event_data: eventData,
+                        event_id: eventId, // Send the event ID
                         nonce: aiohm_booking_admin.nonce
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert('Event cloned successfully! The page will reload to show the new event.');
-                            location.reload();
+                            AIOHM_Booking_Settings_Admin.showNotice(response.data.message, 'success');
+
+                            // Add the new event card to the page instead of redirecting
+                            if (response.data.cloned_event) {
+                                AIOHM_Booking_Settings_Admin.addClonedEventCard(response.data.cloned_event);
+                                AIOHM_Booking_Settings_Admin.updateEventStatistics();
+                            } else {
+                                // Fallback to reload if no event data returned
+                                location.reload();
+                            }
                         } else {
-                            alert('Error cloning event: ' + (response.data || 'Unknown error'));
+                            AIOHM_Booking_Settings_Admin.showNotice('Error cloning event: ' + (response.data.message || 'Unknown error'), 'error');
                         }
                     },
                     error: function() {
-                        alert('Error cloning event. Please try again.');
+                        AIOHM_Booking_Settings_Admin.showNotice('Error cloning event. Please try again.', 'error');
                     },
                     complete: function() {
                         $button.prop('disabled', false);
@@ -1469,42 +1468,337 @@
             }
         },
 
+        /**
+         * Handle delete event button click
+         */
         handleDeleteEvent: function(e) {
             e.preventDefault();
             var $button = $(this);
             var eventIndex = $button.data('event-index');
-            
-            if (confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+            var $eventCard = $button.closest('.aiohm-booking-event-settings');
+            var eventTitle = $eventCard.find('.aiohm-card-title').text().trim();
+
+            if (confirm('Are you sure you want to permanently delete "' + eventTitle + '"? This action cannot be undone and will remove all event data including bookings.')) {
                 $button.prop('disabled', true);
                 var originalText = $button.html();
                 $button.html('<span class="dashicons dashicons-update-alt" style="animation: rotation 1s infinite linear;"></span> Deleting...');
-                
+
                 // Send AJAX request to delete event
                 $.ajax({
                     url: aiohm_booking_admin.ajax_url,
                     method: 'POST',
                     data: {
-                        action: 'aiohm_delete_event',
+                        action: 'aiohm_booking_delete_event',
                         event_index: eventIndex,
                         nonce: aiohm_booking_admin.nonce
                     },
                     success: function(response) {
                         if (response.success) {
-                            alert('Event deleted successfully! The page will reload.');
-                            location.reload();
+                            AIOHM_Booking_Settings_Admin.showNotice('Event deleted successfully!', 'success');
+                            
+                            // Remove the event card from the DOM with animation
+                            $eventCard.fadeOut(300, function() {
+                                $eventCard.remove();
+                                
+                                // Update event statistics
+                                AIOHM_Booking_Settings_Admin.updateEventStatistics();
+                                
+                                // Update event indexes for remaining cards
+                                AIOHM_Booking_Settings_Admin.updateEventIndexes();
+                            });
                         } else {
-                            alert('Error deleting event: ' + (response.data || 'Unknown error'));
+                            AIOHM_Booking_Settings_Admin.showNotice('Error deleting event: ' + (response.data.message || 'Unknown error'), 'error');
+                            $button.prop('disabled', false);
+                            $button.html(originalText);
                         }
                     },
                     error: function() {
-                        alert('Error deleting event. Please try again.');
-                    },
-                    complete: function() {
+                        AIOHM_Booking_Settings_Admin.showNotice('Error deleting event. Please try again.', 'error');
                         $button.prop('disabled', false);
                         $button.html(originalText);
                     }
                 });
             }
+        },
+
+        /**
+         * Add a cloned event card to the page
+         */
+        addClonedEventCard: function(clonedEvent) {
+            // Find the add event banner
+            var $addBanner = $('.aiohm-add-more-banner');
+            
+            // Create the event card HTML
+            var eventCardHtml = this.generateEventCardHtml(clonedEvent);
+
+            // Insert the new event card right before the add banner
+            if ($addBanner.length > 0) {
+                $addBanner.before(eventCardHtml);
+            } else {
+                // Fallback: insert after the last event card
+                $('.aiohm-booking-event-settings').last().after(eventCardHtml);
+            }
+
+            // Re-bind events for the new card
+            setTimeout(function() {
+                AIOHM_Booking_Settings_Admin.bindEvents();
+            }, 100);
+
+            // Scroll to the new event card
+            var $newCard = $('.aiohm-booking-event-settings').last();
+            if ($newCard.length) {
+                $('html, body').animate({
+                    scrollTop: $newCard.offset().top - 100
+                }, 800);
+
+                // Highlight the new card
+                $newCard.addClass('aiohm-highlight');
+                setTimeout(function() {
+                    $newCard.removeClass('aiohm-highlight');
+                }, 3000);
+            }
+        },
+
+        /**
+         * Generate HTML for an event card
+         */
+        generateEventCardHtml: function(event) {
+            var eventIndex = $('.aiohm-booking-event-settings').length;
+            var currency = '€'; // Default currency symbol
+
+            return `
+                <div class="aiohm-booking-event-settings aiohm-booking-admin-card" data-event-index="${eventIndex}">
+                    <!-- Event Header -->
+                    <div class="aiohm-card-header aiohm-event-card-header">
+                        <div class="aiohm-card-header-title">
+                            <h3 class="aiohm-card-title">${this.escapeHtml(event.title)}</h3>
+                        </div>
+                        <div class="aiohm-card-header-actions">
+                            <button type="button" class="aiohm-event-toggle-btn" data-event-index="${eventIndex}" aria-label="Collapse event details" aria-expanded="true">
+                                <span class="dashicons dashicons-arrow-up-alt2 aiohm-toggle-icon"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="aiohm-card-body">
+                        <!-- Event Content - 2 Column Layout -->
+                        <div class="aiohm-columns-2">
+                            <!-- Left Column -->
+                            <div class="aiohm-column">
+                                <div class="aiohm-form-group">
+                                    <label>Event Type</label>
+                                    <input type="text" name="events[${eventIndex}][event_type]" value="${this.escapeHtml(event.event_type || '')}" placeholder="e.g., Concert, Workshop, Conference">
+                                </div>
+
+                                <div class="aiohm-form-group">
+                                    <label>Event Title <span class="aiohm-char-limit">(max 50 chars)</span></label>
+                                    <input type="text" name="events[${eventIndex}][title]" value="${this.escapeHtml(event.title)}" placeholder="e.g., Summer Music Festival" maxlength="50" class="aiohm-char-limited aiohm-event-title-input">
+                                    <div class="aiohm-char-counter" data-max="50">
+                                        <span class="aiohm-char-current">${event.title.length}</span>/50
+                                    </div>
+                                </div>
+
+                                <div class="aiohm-form-group">
+                                    <label>Event Description <span class="aiohm-char-limit">(max 150 chars)</span></label>
+                                    <textarea name="events[${eventIndex}][description]" rows="3" placeholder="Brief description of your event..." maxlength="150" class="aiohm-char-limited">${this.escapeHtml(event.description || '')}</textarea>
+                                    <div class="aiohm-char-counter" data-max="150">
+                                        <span class="aiohm-char-current">${(event.description || '').length}</span>/150
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="aiohm-column">
+                                <div class="aiohm-columns-2">
+                                    <div class="aiohm-form-group">
+                                        <label>Event Date</label>
+                                        <input type="date" name="events[${eventIndex}][event_date]" value="">
+                                    </div>
+                                    <div class="aiohm-form-group">
+                                        <label>Event Time</label>
+                                        <input type="time" name="events[${eventIndex}][event_time]" value="">
+                                    </div>
+                                </div>
+
+                                <div class="aiohm-columns-2">
+                                    <div class="aiohm-form-group">
+                                        <label>Event End Date</label>
+                                        <input type="date" name="events[${eventIndex}][event_end_date]" value="">
+                                    </div>
+                                    <div class="aiohm-form-group">
+                                        <label>Event End Time</label>
+                                        <input type="time" name="events[${eventIndex}][event_end_time]" value="">
+                                    </div>
+                                </div>
+
+                                <div class="aiohm-columns-2">
+                                    <div class="aiohm-form-group">
+                                        <label>Available Seats</label>
+                                        <input type="number" name="events[${eventIndex}][available_seats]" value="${event.available_seats || ''}" min="1" max="10000" class="aiohm-number-input">
+                                    </div>
+                                    <div class="aiohm-form-group">
+                                        <label>Price (<span class="currency-symbol" title="Euro">${currency}</span>)</label>
+                                        <input type="number" name="events[${eventIndex}][price]" value="${event.price || ''}" step="0.01" min="0" class="aiohm-number-input">
+                                    </div>
+                                </div>
+
+                                <div class="aiohm-early-bird-section">
+                                    <div class="aiohm-form-group">
+                                        <label>Early Bird Price (<span class="currency-symbol" title="Euro">${currency}</span>)</label>
+                                        <input type="number" name="events[${eventIndex}][early_bird_price]" value="${event.early_bird_price || ''}" step="0.01" min="0" placeholder="Optional" class="aiohm-number-input">
+                                    </div>
+                                </div>
+
+                                <div class="aiohm-columns-2">
+                                    <div class="aiohm-form-group">
+                                        <label>Early Bird Days Before Event</label>
+                                        <input type="number" name="events[${eventIndex}][early_bird_days]" value="${event.early_bird_days || ''}" min="1" max="365" step="1" placeholder="e.g. 30" class="aiohm-number-input">
+                                        <small>Number of days before the event when early bird pricing ends</small>
+                                    </div>
+
+                                    <div class="aiohm-form-group">
+                                        <label>Deposit Percentage</label>
+                                        <input type="number" name="events[${eventIndex}][deposit_percentage]" value="${event.deposit_percentage || ''}" min="0" max="100" step="1" placeholder="e.g. 0" class="aiohm-number-input">
+                                        <small>Percentage of total price required as deposit</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="aiohm-booking-card-event-footer">
+                        <!-- Action Buttons Group -->
+                        <div class="aiohm-button-group aiohm-action-buttons">
+                            <button type="button" class="button button-primary aiohm-individual-save-btn aiohm-action-btn" data-event-index="${eventIndex}" title="Save this event with all current settings">
+                                <span class="dashicons dashicons-saved"></span>
+                                Save Event
+                            </button>
+
+                            <button type="button" class="button aiohm-clone-event-btn aiohm-action-btn" data-event-index="${eventIndex}" title="Create a copy of this event with all settings">
+                                <span class="dashicons dashicons-admin-page"></span>
+                                Clone Event
+                            </button>
+
+                            <button type="button" class="button button-danger aiohm-delete-event-btn aiohm-action-btn" data-event-index="${eventIndex}" title="Permanently delete this event and all its data">
+                                <span class="dashicons dashicons-trash"></span>
+                                Delete Event
+                            </button>
+                        </div>
+
+                        <!-- Import Buttons Group -->
+                        <div class="aiohm-button-group aiohm-import-buttons">
+                            <button type="button" class="aiohm-facebook-import-btn aiohm-import-btn" data-event-index="${eventIndex}" title="Import event data from Facebook Events">
+                                <span class="dashicons dashicons-facebook"></span>
+                                Facebook
+                            </button>
+
+                            <button type="button" class="aiohm-eventon-import-btn aiohm-import-btn" data-event-index="${eventIndex}" title="Import event data from EventON calendar">
+                                <span class="dashicons dashicons-calendar-alt"></span>
+                                EventON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        },
+
+        /**
+         * Add a new event to the page
+         */
+        addNewEvent: function() {
+            // Send AJAX request to create new event with default data
+            $.ajax({
+                url: aiohm_booking_admin.ajax_url,
+                method: 'POST',
+                data: {
+                    action: 'aiohm_add_new_event',
+                    nonce: aiohm_booking_admin.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Add the new event card with the server-provided default data
+                        AIOHM_Booking_Settings_Admin.addClonedEventCard(response.data.new_event);
+                        
+                        // Update event statistics
+                        AIOHM_Booking_Settings_Admin.updateEventStatistics();
+                        
+                        // Show success message
+                        AIOHM_Booking_Settings_Admin.showNotice('New event added successfully with default settings!', 'success');
+                        
+                        // Scroll to the new event
+                        var $newCard = $('.aiohm-booking-event-settings').last();
+                        if ($newCard.length) {
+                            $('html, body').animate({
+                                scrollTop: $newCard.offset().top - 100
+                            }, 500);
+                        }
+                    } else {
+                        AIOHM_Booking_Settings_Admin.showNotice('Error adding new event: ' + (response.data.message || 'Unknown error'), 'error');
+                    }
+                },
+                error: function() {
+                    AIOHM_Booking_Settings_Admin.showNotice('Error adding new event. Please try again.', 'error');
+                }
+            });
+        },
+
+        /**
+         * Update event statistics display
+         */
+        updateEventStatistics: function() {
+            var $statsContainer = $('.aiohm-booking-orders-stats');
+            if ($statsContainer.length) {
+                var totalEvents = $('.aiohm-booking-event-settings').length;
+
+                // Update the total events count
+                $statsContainer.find('.aiohm-booking-orders-stat').first().find('.number').text(totalEvents);
+
+                // Update total seats count
+                var totalSeats = 0;
+                $('.aiohm-booking-event-settings').each(function() {
+                    var $card = $(this);
+                    var seatsInput = $card.find('input[name*="[available_seats]"]').val();
+                    if (seatsInput) {
+                        totalSeats += parseInt(seatsInput);
+                    }
+                });
+                $statsContainer.find('.aiohm-booking-orders-stat').last().find('.number').text(totalSeats);
+            }
+        },
+
+        /**
+         * Update event indexes after deletion or reordering
+         */
+        updateEventIndexes: function() {
+            $('.aiohm-booking-event-settings').each(function(index) {
+                var $eventCard = $(this);
+                
+                // Update the data-event-index attribute
+                $eventCard.attr('data-event-index', index);
+                
+                // Update all action buttons' data-event-index
+                $eventCard.find('[data-event-index]').attr('data-event-index', index);
+                
+                // Update form field names to use correct index
+                $eventCard.find('input, select, textarea').each(function() {
+                    var $field = $(this);
+                    var name = $field.attr('name');
+                    if (name && name.includes('[')) {
+                        // Replace the index in field names like events[0][title] with events[newIndex][title]
+                        var newName = name.replace(/\[\d+\]/, '[' + index + ']');
+                        $field.attr('name', newName);
+                    }
+                });
+            });
+        },
+
+        /**
+         * Escape HTML to prevent XSS
+         */
+        escapeHtml: function(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         },
 
         handleEventONImport: function(e) {
@@ -1517,29 +1811,164 @@
                 return;
             }
             
-            alert('EventON import functionality will be available soon!');
-        },
-
-
-        collectEventData: function($eventCard, eventIndex) {
-            var eventData = {};
+            // Show loading state
+            var originalText = $button.text();
+            $button.prop('disabled', true).text('Loading events...');
             
-            // Collect all form fields within the event card
-            $eventCard.find('input, select, textarea').each(function() {
-                var $field = $(this);
-                var name = $field.attr('name');
-                var value = $field.val();
-                
-                if (name && value) {
-                    // Extract field name from the array notation
-                    var fieldMatch = name.match(/\[([^\]]+)\]$/);
-                    if (fieldMatch) {
-                        eventData[fieldMatch[1]] = value;
+            // First, get list of available EventON events
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'aiohm_booking_get_eventon_events_list',
+                    nonce: aiohm_booking_admin.nonce
+                },
+                success: function(response) {
+                    $button.prop('disabled', false).text(originalText);
+                    
+                    if (response.success && response.data.events && response.data.events.length > 0) {
+                        AIOHM_Booking_Settings_Admin.showEventONImportModal(response.data.events);
+                    } else {
+                        alert('No EventON events found to import.');
                     }
+                },
+                error: function() {
+                    $button.prop('disabled', false).text(originalText);
+                    alert('Failed to load EventON events. Please try again.');
                 }
             });
+        },
+
+        // Show EventON import modal with event selection
+        showEventONImportModal: function(events) {
+            var modalHtml = '<div id="aiohm-eventon-import-modal" class="aiohm-modal">' +
+                '<div class="aiohm-modal-content">' +
+                '<div class="aiohm-modal-header">' +
+                '<h3>Import EventON Events</h3>' +
+                '<span class="aiohm-modal-close">&times;</span>' +
+                '</div>' +
+                '<div class="aiohm-modal-body">' +
+                '<p>Select events to import from EventON:</p>' +
+                '<div class="aiohm-eventon-events-list">';
             
-            return eventData;
+            // Add events to selection list
+            events.forEach(function(event) {
+                modalHtml += '<label class="aiohm-event-item">' +
+                    '<input type="checkbox" name="eventon_events[]" value="' + event.id + '">' +
+                    '<div class="aiohm-event-details">' +
+                    '<strong>' + event.title + '</strong>' +
+                    '<div class="aiohm-event-meta">' +
+                    '<span class="date">' + event.date + '</span>' +
+                    (event.time ? ' <span class="time">' + event.time + '</span>' : '') +
+                    '</div>' +
+                    (event.description ? '<p class="description">' + event.description.substring(0, 100) + '...</p>' : '') +
+                    '</div>' +
+                    '</label>';
+            });
+            
+            modalHtml += '</div>' +
+                '<div class="aiohm-import-options">' +
+                '<label>' +
+                'Import Status: ' +
+                '<select name="import_status">' +
+                '<option value="draft">Draft</option>' +
+                '<option value="publish">Published</option>' +
+                '</select>' +
+                '</label>' +
+                '<label>' +
+                'Import Limit: ' +
+                '<input type="number" name="import_limit" value="10" min="1" max="50">' +
+                '</label>' +
+                '</div>' +
+                '</div>' +
+                '<div class="aiohm-modal-footer">' +
+                '<button type="button" class="button aiohm-modal-cancel">Cancel</button>' +
+                '<button type="button" class="button button-primary aiohm-import-selected">Import Selected</button>' +
+                '</div>' +
+                '</div>' +
+                '</div>';
+            
+            // Add modal to page
+            $('body').append(modalHtml);
+            $('#aiohm-eventon-import-modal').show();
+            
+            // Bind modal events
+            this.bindEventONModalEvents();
+        },
+
+        // Bind EventON modal events
+        bindEventONModalEvents: function() {
+            var self = this;
+            
+            // Close modal
+            $(document).on('click', '.aiohm-modal-close, .aiohm-modal-cancel', function() {
+                $('#aiohm-eventon-import-modal').remove();
+            });
+            
+            // Import selected events
+            $(document).on('click', '.aiohm-import-selected', function() {
+                var selectedEvents = [];
+                $('input[name="eventon_events[]"]:checked').each(function() {
+                    selectedEvents.push($(this).val());
+                });
+                
+                if (selectedEvents.length === 0) {
+                    alert('Please select at least one event to import.');
+                    return;
+                }
+                
+                var importStatus = $('select[name="import_status"]').val();
+                var importLimit = parseInt($('input[name="import_limit"]').val());
+                
+                self.importEventONEvents(selectedEvents, importStatus, importLimit);
+            });
+        },
+
+        // Import selected EventON events
+        importEventONEvents: function(eventIds, status, limit) {
+            var $button = $('.aiohm-import-selected');
+            var originalText = $button.text();
+            $button.prop('disabled', true).text('Importing...');
+            
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'aiohm_booking_import_eventon_events',
+                    nonce: aiohm_booking_admin.nonce,
+                    event_ids: eventIds,
+                    import_status: status,
+                    import_limit: limit
+                },
+                success: function(response) {
+                    $button.prop('disabled', false).text(originalText);
+                    
+                    if (response.success) {
+                        var results = response.data;
+                        var message = 'Import completed!\n\n';
+                        message += 'Successfully imported: ' + results.success.length + ' events\n';
+                        if (results.errors.length > 0) {
+                            message += 'Errors: ' + results.errors.length + ' events\n\n';
+                            message += 'Error details:\n';
+                            results.errors.forEach(function(error) {
+                                message += '- ' + error.message + '\n';
+                            });
+                        }
+                        
+                        alert(message);
+                        $('#aiohm-eventon-import-modal').remove();
+                        
+                        // Refresh the page to show imported events
+                        location.reload();
+                    } else {
+                        alert('Import failed: ' + (response.data.message || 'Unknown error'));
+                    }
+                },
+                error: function() {
+                    $button.prop('disabled', false).text(originalText);
+                    alert('Import failed. Please try again.');
+                }
+            });
         },
 
         // Initialize event card toggle functionality
@@ -1644,3 +2073,57 @@
     });
 
 })(jQuery);
+
+// Global function for plugin reset confirmation (outside jQuery namespace)
+function aiohm_confirm_reset_plugin_data() {
+    if (confirm('⚠️ WARNING: This will permanently delete ALL plugin data including:\n\n' +
+               '• All events and accommodations\n' +
+               '• All booking orders and calendar data\n' +
+               '• All plugin settings and configurations\n' +
+               '• All email logs and statistics\n\n' +
+               'This action CANNOT be undone!\n\n' +
+               'Are you absolutely sure you want to proceed?')) {
+        
+        if (confirm('🚨 FINAL CONFIRMATION:\n\n' +
+                   'You are about to PERMANENTLY DELETE all plugin data.\n' +
+                   'Click OK to proceed or Cancel to abort.')) {
+            aiohm_reset_plugin_data();
+        }
+    }
+}
+
+function aiohm_reset_plugin_data() {
+    const button = document.getElementById('aiohm-reset-plugin-data');
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '🔄 Resetting...';
+    }
+    
+    jQuery.ajax({
+        url: ajaxurl,
+        type: 'POST',
+        data: {
+            action: 'aiohm_booking_reset_plugin_data',
+            nonce: jQuery('#aiohm_booking_settings_nonce').val() || ''
+        },
+        success: function(response) {
+            if (response.success) {
+                alert('✅ Plugin data has been reset successfully!\n\nThe page will now reload.');
+                window.location.reload();
+            } else {
+                alert('❌ Error resetting plugin data: ' + (response.data.message || 'Unknown error'));
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = '🗑️ Reset All Plugin Data';
+                }
+            }
+        },
+        error: function() {
+            alert('❌ Network error occurred while resetting plugin data.');
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = '🗑️ Reset All Plugin Data';
+            }
+        }
+    });
+}

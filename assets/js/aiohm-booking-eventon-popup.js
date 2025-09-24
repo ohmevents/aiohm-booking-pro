@@ -238,11 +238,6 @@
             }
         }
         
-        // Location
-        if (eventData.location) {
-            $eventCard.find('input[name*="[location]"]').val(eventData.location);
-        }
-        
         // Add visual indicator that data was imported
         $eventCard.addClass('aiohm-imported-from-eventon');
         
@@ -338,8 +333,7 @@
             price: parseFloat($eventCard.find('input[name*="[price]"]').val()) || 0,
             early_bird_price: parseFloat($eventCard.find('input[name*="[early_bird_price]"]').val()) || 0,
             early_bird_date: $eventCard.find('input[name*="[early_bird_date]"]').val() || '',
-            capacity: parseInt($eventCard.find('input[name*="[capacity]"]').val()) || 50,
-            location: $eventCard.find('input[name*="[location]"]').val() || ''
+            capacity: parseInt($eventCard.find('input[name*="[capacity]"]').val()) || 50
         };
     }
 

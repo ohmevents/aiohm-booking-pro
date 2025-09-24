@@ -24,8 +24,8 @@
             $(document).on('change', '.field-visibility-input', this.handleFieldVisibilityChange);
             $(document).on('change', '.required-field-input', this.handleFieldRequiredChange);
 
-            // Individual accommodation save events
-            $(document).on('click', '.aiohm-individual-save-btn', (e) => this.handleIndividualSave(e));
+            // Individual accommodation save events (only for accommodation buttons with data-post-id)
+            $(document).on('click', '.aiohm-individual-save-btn[data-post-id]', (e) => this.handleIndividualSave(e));
 
             // Form submission
             $(document).on('submit', '.aiohm-booking-settings-form', this.handleSettingsFormSubmit);

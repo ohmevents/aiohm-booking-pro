@@ -109,11 +109,16 @@
          * Initialize Stripe admin functionality
          */
         init: function() {
-            // Test Stripe connection button
+            // Only bind test connection if the stripe-settings.js didn't handle it
+            // Check if the button exists and doesn't already have handlers
             const testStripeButton = document.getElementById('test-stripe-connection');
-            if (testStripeButton) {
+            if (testStripeButton && !testStripeButton.hasAttribute('data-stripe-handler-bound')) {
+                // Mark as handled to prevent double binding
+                testStripeButton.setAttribute('data-stripe-handler-bound', 'true');
+                
                 testStripeButton.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     this.testConnection(testStripeButton);
                 });
             }

@@ -422,6 +422,7 @@ class AIOHM_BOOKING_Utilities {
 		return defined( 'AIOHM_BOOKING_VERSION' ) ? AIOHM_BOOKING_VERSION : '1.0.0';
 	}
 
+	/* <fs_premium_only> */
 	/**
 	 * Get list of PRO modules
 	 *
@@ -451,6 +452,7 @@ class AIOHM_BOOKING_Utilities {
 	public static function is_pro_module( $module_name ) {
 		return in_array( $module_name, self::get_pro_modules(), true );
 	}
+	/* </fs_premium_only> */
 
 	/**
 	 * Get Go PRO message for a specific feature
@@ -508,6 +510,7 @@ class AIOHM_BOOKING_Utilities {
 		);
 	}
 
+	/* <fs_premium_only> */
 	/**
 	 * Check if PRO features should be disabled
 	 *
@@ -523,4 +526,5 @@ class AIOHM_BOOKING_Utilities {
 		
 		return ! aiohm_booking_fs()->can_use_premium_code__premium_only();
 	}
+	/* </fs_premium_only> */
 }

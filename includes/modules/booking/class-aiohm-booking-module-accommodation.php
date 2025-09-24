@@ -103,6 +103,9 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		add_action( 'add_option_aiohm_booking_cell_statuses', array( $this, 'clear_accommodation_service_cache' ) );
 		add_action( 'delete_option_aiohm_booking_cell_statuses', array( $this, 'clear_accommodation_service_cache' ) );
 
+		// Update calendar when accommodation payment is completed
+		add_action( 'aiohm_booking_payment_completed', array( $this, 'update_accommodation_availability' ), 10, 3 );
+
 		// Register admin page with higher priority to control menu order.
 		add_action( 'admin_menu', array( $this, 'register_admin_page' ), self::ADMIN_MENU_PRIORITY );
 
@@ -183,9 +186,10 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	public function render_accommodation_meta_box( $post ) {
 		wp_nonce_field( 'aiohm_save_accommodation_meta', 'aiohm_accommodation_meta_nonce' );
 
-		$price           = get_post_meta( $post->ID, '_price', true );
-		$earlybird_price = get_post_meta( $post->ID, '_earlybird_price', true );
-		$type            = get_post_meta( $post->ID, '_type', true );
+		$price           = get_post_meta( $post->ID, '_aiohm_booking_accommodation_price', true );
+		$earlybird_price = get_post_meta( $post->ID, '_aiohm_booking_accommodation_earlybird_price', true );
+		$type            = get_post_meta( $post->ID, '_aiohm_booking_accommodation_type', true );
+		$max_guests      = get_post_meta( $post->ID, '_aiohm_booking_accommodation_max_guests', true );
 		?>
 		<p>
 			<label for="aiohm_price"><?php esc_html_e( 'Standard Price:', 'aiohm-booking-pro' ); ?></label>
@@ -198,6 +202,10 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		<p>
 			<label for="aiohm_type"><?php esc_html_e( 'Type:', 'aiohm-booking-pro' ); ?></label>
 			<input type="text" id="aiohm_type" name="aiohm_type" value="<?php echo esc_attr( $type ); ?>" />
+		</p>
+		<p>
+			<label for="aiohm_max_guests"><?php esc_html_e( 'Maximum Guests:', 'aiohm-booking-pro' ); ?></label>
+			<input type="number" id="aiohm_max_guests" name="aiohm_max_guests" value="<?php echo esc_attr( $max_guests ); ?>" min="1" max="50" step="1" />
 		</p>
 		<?php
 	}
@@ -218,9 +226,10 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			return;
 		}
 
-		update_post_meta( $post_id, '_price', sanitize_text_field( wp_unslash( $_POST['aiohm_price'] ?? 0 ) ) );
-		update_post_meta( $post_id, '_earlybird_price', sanitize_text_field( wp_unslash( $_POST['aiohm_earlybird_price'] ?? 0 ) ) );
-		update_post_meta( $post_id, '_type', sanitize_text_field( wp_unslash( $_POST['aiohm_type'] ?? 'unit' ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_accommodation_price', sanitize_text_field( wp_unslash( $_POST['aiohm_price'] ?? 0 ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_accommodation_earlybird_price', sanitize_text_field( wp_unslash( $_POST['aiohm_earlybird_price'] ?? 0 ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_accommodation_type', sanitize_text_field( wp_unslash( $_POST['aiohm_type'] ?? 'unit' ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_accommodation_max_guests', intval( $_POST['aiohm_max_guests'] ?? 2 ) );
 	}
 
 	/**
@@ -370,7 +379,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	protected function get_default_settings() {
 		return array(
 			'accommodation_type'              => 'unit',
-			'available_accommodations'        => 7,
+			'available_accommodations'        => 1,
 			'allow_private_all'               => false,
 			'default_price'                   => 0,
 			'default_earlybird_price'         => 0,
@@ -432,7 +441,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		$settings        = $this->get_module_settings();
 		$global_settings = AIOHM_BOOKING_Settings::get_all(); // Use direct call instead of cached version
 
-		$available_accommodations = intval( $global_settings['available_accommodations'] ?? 7 );
+		$available_accommodations = intval( $global_settings['available_accommodations'] ?? 1 );
 		$accommodation_price      = floatval( $settings['default_price'] ?? 0 );
 		$currency                 = esc_attr( $this->get_currency_setting() );
 		$allow_private            = ! empty( $settings['allow_private_all'] );
@@ -497,9 +506,9 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 				$updated_post_id = wp_update_post( $post_data, true );
 
 				if ( ! is_wp_error( $updated_post_id ) ) {
-					update_post_meta( $updated_post_id, '_earlybird_price', sanitize_text_field( $accommodation['earlybird_price'] ?? '' ) );
-					update_post_meta( $updated_post_id, '_price', sanitize_text_field( $accommodation['price'] ?? '' ) );
-					update_post_meta( $updated_post_id, '_type', sanitize_text_field( $accommodation['type'] ?? 'unit' ) );
+					update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_earlybird_price', sanitize_text_field( $accommodation['earlybird_price'] ?? '' ) );
+					update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_price', sanitize_text_field( $accommodation['price'] ?? '' ) );
+					update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_type', sanitize_text_field( $accommodation['type'] ?? 'unit' ) );
 				}
 			}
 
@@ -648,9 +657,9 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		}
 
 		// Update post meta using DTO values.
-		update_post_meta( $post_id, '_price', $dto->price );
-		update_post_meta( $post_id, '_earlybird_price', $dto->earlybird_price );
-		update_post_meta( $post_id, '_type', $dto->type );
+		update_post_meta( $post_id, '_aiohm_booking_accommodation_price', $dto->price );
+		update_post_meta( $post_id, '_aiohm_booking_accommodation_earlybird_price', $dto->earlybird_price );
+		update_post_meta( $post_id, '_aiohm_booking_accommodation_type', $dto->type );
 
 		wp_send_json_success( array( 'message' => __( 'Accommodation saved successfully!', 'aiohm-booking-pro' ) ) );
 	}
@@ -1162,8 +1171,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	 */
 	public function get_accommodation_display_data( $post ) {
 		$custom_title = get_the_title( $post->ID );
-		$type         = get_post_meta( $post->ID, '_type', true ) ? get_post_meta( $post->ID, '_type', true ) : 'unit';
-		$number       = get_post_meta( $post->ID, '_accommodation_number', true ) ? get_post_meta( $post->ID, '_accommodation_number', true ) : 1;
+		$type         = get_post_meta( $post->ID, '_aiohm_booking_accommodation_type', true ) ? get_post_meta( $post->ID, '_aiohm_booking_accommodation_type', true ) : 'unit';
+		$number       = get_post_meta( $post->ID, '_aiohm_booking_accommodation_number', true ) ? get_post_meta( $post->ID, '_aiohm_booking_accommodation_number', true ) : 1;
 
 		// Use custom title if set, otherwise generate default.
 		$display_title = ! empty( trim( $custom_title ) ) ? $custom_title : self::generate_default_title( $type, $number );
@@ -1174,8 +1183,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			'custom_title'    => $custom_title,
 			'default_title'   => self::generate_default_title( $type, $number ),
 			'description'     => $post->post_content,
-			'earlybird_price' => get_post_meta( $post->ID, '_earlybird_price', true ),
-			'price'           => get_post_meta( $post->ID, '_price', true ),
+			'earlybird_price' => get_post_meta( $post->ID, '_aiohm_booking_accommodation_earlybird_price', true ),
+			'price'           => get_post_meta( $post->ID, '_aiohm_booking_accommodation_price', true ),
 			'type'            => $type,
 			'number'          => $number,
 			'is_custom_title' => ! empty( trim( $custom_title ) ),
@@ -1289,14 +1298,14 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 				if ( $post_id && ! is_wp_error( $post_id ) ) {
 					// Add accommodation meta.
-					update_post_meta( $post_id, '_accommodation_number', $i );
-					update_post_meta( $post_id, '_type', $accommodation_type );
-					update_post_meta( $post_id, '_price', floatval( $global_settings['default_price'] ?? 0 ) );
-					update_post_meta( $post_id, '_earlybird_price', floatval( $global_settings['default_earlybird_price'] ?? 0 ) );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_number', $i );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_type', $accommodation_type );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_price', floatval( $global_settings['default_price'] ?? 0 ) );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_earlybird_price', floatval( $global_settings['default_earlybird_price'] ?? 0 ) );
 
 					// Add missing meta fields required by calendar system.
-					update_post_meta( $post_id, '_aiohm_accommodation_units', 1 ); // Default to 1 unit per accommodation.
-					update_post_meta( $post_id, '_aiohm_accommodation_room_id', $post_id ); // Use post ID as room ID.
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_units', 1 ); // Default to 1 unit per accommodation.
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_max_guests', 2 ); // Default maximum guests.
 
 					// Add the new post to our array.
 					$new_post = get_post( $post_id );
@@ -1332,9 +1341,9 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		$accommodations_array = array();
 
 		foreach ( $accommodation_posts as $post ) {
-			$accommodation_number = get_post_meta( $post->ID, '_accommodation_number', true );
-			$accommodation_type   = get_post_meta( $post->ID, '_type', true );
-			$units                = get_post_meta( $post->ID, '_aiohm_accommodation_units', true );
+			$accommodation_number = get_post_meta( $post->ID, '_aiohm_booking_accommodation_number', true );
+			$accommodation_type   = get_post_meta( $post->ID, '_aiohm_booking_accommodation_type', true );
+			$units                = get_post_meta( $post->ID, '_aiohm_booking_accommodation_units', true );
 
 			$accommodations_array[] = array(
 				'id'     => $post->ID,
@@ -1402,11 +1411,12 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 				);
 
 				if ( $post_id ) {
-					update_post_meta( $post_id, '_accommodation_number', $new_number );
-					update_post_meta( $post_id, '_type', $accommodation_type );
-					update_post_meta( $post_id, '_price', floatval( $global_settings['default_price'] ?? 0 ) );
-					update_post_meta( $post_id, '_earlybird_price', floatval( $global_settings['default_earlybird_price'] ?? 0 ) );
-					update_post_meta( $post_id, '_aiohm_accommodation_units', 1 );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_number', $new_number );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_type', $accommodation_type );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_price', floatval( $global_settings['default_price'] ?? 0 ) );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_earlybird_price', floatval( $global_settings['default_earlybird_price'] ?? 0 ) );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_units', 1 );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_max_guests', 2 ); // Default maximum guests.
 
 				}
 			}
@@ -1552,4 +1562,118 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 		return $all_fields;
 	}
+
+	/**
+	 * Update accommodation availability when payment is completed
+	 *
+	 * This method is called when the 'aiohm_booking_payment_completed' action is triggered
+	 * for accommodation bookings. It updates the calendar cell statuses to reflect that
+	 * the accommodation units are now booked.
+	 *
+	 * @param int    $order_id      Order ID.
+	 * @param string $payment_method Payment method used.
+	 * @param mixed  $payment_data  Additional payment data.
+	 */
+	public function update_accommodation_availability( $order_id, $payment_method, $payment_data ) {
+		global $wpdb;
+
+		// Get order details from the database
+		$table_name = $wpdb->prefix . 'aiohm_booking_order';
+		$order = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for plugin functionality
+			$wpdb->prepare( 'SELECT * FROM ' . esc_sql( $table_name ) . ' WHERE id = %d', $order_id ),
+			ARRAY_A
+		);
+
+		if ( ! $order ) {
+			return;
+		}
+
+		// Only process accommodation orders
+		if ( 'accommodation' !== $order['mode'] ) {
+			return;
+		}
+
+		// Check if order is already marked as paid
+		if ( 'paid' !== $order['status'] ) {
+			return;
+		}
+
+		// Get accommodation details from order data
+		$checkin_date = $order['check_in_date'];
+		$checkout_date = $order['check_out_date'];
+		$units_qty = intval( $order['units_qty'] );
+
+		if ( empty( $checkin_date ) || empty( $checkout_date ) || $units_qty <= 0 ) {
+			return;
+		}
+
+		// Get accommodation IDs from order metadata or determine which accommodations were booked
+		// For now, we'll assume the booking was for specific accommodation units
+		// This may need to be enhanced based on how accommodation selections are stored
+		$accommodation_ids = array();
+
+		// Try to get accommodation IDs from order notes (stored during booking creation)
+		if ( ! empty( $order['notes'] ) ) {
+			// Look for "Accommodation IDs: " followed by JSON
+			if ( preg_match( '/Accommodation IDs:\s*(\[.*?\])/', $order['notes'], $matches ) ) {
+				$decoded_ids = json_decode( $matches[1], true );
+				if ( is_array( $decoded_ids ) ) {
+					$accommodation_ids = array_map( 'intval', $decoded_ids );
+				}
+			}
+		}
+
+		// Fallback: get the first N accommodations based on units_qty
+		if ( empty( $accommodation_ids ) ) {
+			$available_accommodations = AIOHM_BOOKING_Accommodation_Service::get_accommodations();
+			$accommodation_ids = array_slice( $available_accommodations, 0, $units_qty );
+		}
+
+		if ( empty( $accommodation_ids ) ) {
+			return;
+		}
+
+		// Update calendar cell statuses
+		$this->update_calendar_for_accommodation_booking( $checkin_date, $checkout_date, $accommodation_ids, $order_id );
+	}
+
+	/**
+	 * Update calendar data when an accommodation booking is confirmed
+	 *
+	 * @param string $checkin_date     Check-in date.
+	 * @param string $checkout_date    Check-out date.
+	 * @param array  $accommodation_ids Array of accommodation IDs.
+	 * @param int    $order_id         Order ID.
+	 */
+	private function update_calendar_for_accommodation_booking( $checkin_date, $checkout_date, $accommodation_ids, $order_id ) {
+		$cell_statuses = get_option( 'aiohm_booking_cell_statuses', array() );
+
+		$checkin  = new DateTime( $checkin_date );
+		$checkout = new DateTime( $checkout_date );
+
+		// Loop through each date in the booking
+		$current_date = clone $checkin;
+		while ( $current_date < $checkout ) {
+			$date_string = $current_date->format( 'Y-m-d' );
+
+			// Update status for each accommodation
+			foreach ( $accommodation_ids as $accommodation_id ) {
+				$cell_key = $accommodation_id . '_' . $date_string . '_full';
+				$cell_statuses[ $cell_key ] = array(
+					'status'     => 'booked',
+					'booking_id' => $order_id,
+					'price'      => 0, // Could be enhanced to store booking price
+				);
+			}
+
+			$current_date->modify( '+1 day' );
+		}
+
+		// Save updated calendar data
+		update_option( 'aiohm_booking_cell_statuses', $cell_statuses );
+
+		// Clear accommodation service cache to ensure statistics are updated
+		AIOHM_BOOKING_Accommodation_Service::clear_cache();
+	}
 }
+

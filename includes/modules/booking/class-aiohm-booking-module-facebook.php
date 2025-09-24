@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * AIOHM Booking Facebook Integration Module Class
  *
  * Handles Facebook Graph API integration for importing event data including
- * event details, location, date/time, description, and cover images.
+ * event details, date/time, description, and cover images.
  *
  * @since 1.2.3
  */
@@ -107,12 +107,6 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 				'description' => 'Download and import Facebook event cover images',
 				'default'     => true,
 			),
-			'default_location_fallback' => array(
-				'type'        => 'text',
-				'label'       => 'Default Location Fallback',
-				'description' => 'Default location to use when Facebook event has no location',
-				'default'     => '',
-			),
 		);
 	}
 
@@ -131,7 +125,6 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 			'facebook_app_secret'       => '',
 			'facebook_access_token'     => '',
 			'import_cover_images'       => true,
-			'default_location_fallback' => '',
 		);
 	}
 
@@ -337,7 +330,6 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 		return array(
 			'name'        => $data['name'] ?? '',
 			'start_time'  => $data['start_time'] ?? '',
-			'location'    => isset( $data['place']['name'] ) ? $data['place']['name'] : '',
 			'description' => wp_trim_words( $data['description'] ?? '', 20 ),
 		);
 	}
@@ -405,33 +397,6 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 			$event_time = $datetime->format( 'H:i' );
 		}
 
-		// Extract location information.
-		$location = '';
-		if ( isset( $facebook_data['place'] ) ) {
-			$place    = $facebook_data['place'];
-			$location = $place['name'] ?? '';
-
-			// Add location details if available.
-			if ( isset( $place['location'] ) ) {
-				$location_details = array();
-				if ( ! empty( $place['location']['street'] ) ) {
-					$location_details[] = $place['location']['street'];
-				}
-				if ( ! empty( $place['location']['city'] ) ) {
-					$location_details[] = $place['location']['city'];
-				}
-
-				if ( ! empty( $location_details ) ) {
-					$location .= ' - ' . implode( ', ', $location_details );
-				}
-			}
-		}
-
-		// Use fallback location if none provided.
-		if ( empty( $location ) && ! empty( $settings['default_location_fallback'] ) ) {
-			$location = $settings['default_location_fallback'];
-		}
-
 		// Estimate attendance for available seats.
 		$available_seats = 50; // Default.
 		if ( isset( $facebook_data['attending_count'] ) || isset( $facebook_data['interested_count'] ) ) {
@@ -444,7 +409,6 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 		return array(
 			'title'              => sanitize_text_field( $facebook_data['name'] ?? '' ),
 			'description'        => sanitize_textarea_field( $facebook_data['description'] ?? '' ),
-			'location'           => sanitize_text_field( $location ),
 			'event_date'         => $event_date,
 			'event_time'         => $event_time,
 			'available_seats'    => $available_seats,

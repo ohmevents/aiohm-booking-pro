@@ -170,6 +170,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 		}
 	}
 
+	/* <fs_premium_only> */
 	/**
 	 * Process Stripe payment (direct from sandwich form)
 	 */
@@ -232,6 +233,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			);
 		}
 	}
+	/* </fs_premium_only> */
 
 	/**
 	 * Send booking notification for free users (direct from sandwich form)
@@ -586,6 +588,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 		return ob_get_clean();
 	}
 
+	/* <fs_premium_only> */
 	/**
 	 * Get Stripe payment HTML
 	 */
@@ -604,6 +607,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 		// Use the Stripe module's payment form rendering method
 		return $stripe_module->get_payment_form_html( $booking_id );
 	}
+	/* </fs_premium_only> */
 
 	/**
 	 * Create a pending order and send notification when moving to checkout step
@@ -657,7 +661,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 
 			// Get selected items
 			$selected_events = $form_data['selected_events'] ?? array();
-			$selected_accommodations = $form_data['selected_accommodations'] ?? array();
+			$selected_accommodations = $form_data['selected_accommodations'] ?? $form_data['accommodations'] ?? array();
 
 			// Determine mode
 			$mode = 'accommodation';
@@ -672,6 +676,15 @@ class AIOHM_BOOKING_Checkout_Ajax {
 
 			// Notes
 			$notes = sanitize_textarea_field( $form_data['notes'] ?? '' );
+
+			// Store accommodation IDs in notes for payment completion processing
+			if ( ! empty( $selected_accommodations ) ) {
+				if ( empty( $notes ) ) {
+					$notes = 'Accommodation IDs: ' . wp_json_encode( $selected_accommodations );
+				} else {
+					$notes .= "\n\nAccommodation IDs: " . wp_json_encode( $selected_accommodations );
+				}
+			}
 
 			// Insert pending order
 			global $wpdb;

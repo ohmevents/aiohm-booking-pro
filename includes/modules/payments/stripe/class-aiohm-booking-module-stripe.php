@@ -87,6 +87,9 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 	 */
 	public function init_hooks() {
 		add_action( 'wp_ajax_aiohm_booking_test_stripe', array( $this, 'test_stripe_connection' ) );
+		add_action( 'wp_ajax_aiohm_booking_save_stripe_settings', array( $this, 'save_stripe_settings' ) );
+		add_action( 'admin_init', array( $this, 'handle_settings_form_submission' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 
 		if ( ! $this->is_enabled() || ! $this->can_use_premium() ) {
 			return;
@@ -108,7 +111,7 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 	/**
 	 * Enqueue admin assets.
 	 */
-	protected function enqueue_admin_assets() {
+	public function enqueue_admin_assets() {
 		$screen = get_current_screen();
 		if ( ! $screen ) {
 			return;
@@ -156,7 +159,7 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 			'aiohm_stripe_settings',
 			array(
 				'ajax_url'             => admin_url( 'admin-ajax.php' ),
-				'nonce'                => wp_create_nonce( 'aiohm_booking_admin_nonce' ),
+				'nonce'                => AIOHM_BOOKING_Security_Helper::create_nonce( 'admin_nonce' ),
 				'test_connection_text' => __( 'Test Connection', 'aiohm-booking-pro' ),
 				'testing_text'         => __( 'Testing...', 'aiohm-booking-pro' ),
 				'success_text'         => __( '✓ Success', 'aiohm-booking-pro' ),
@@ -342,18 +345,10 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 			$settings  = $this->get_settings();
 			$test_mode = ! empty( $settings['stripe_test_mode'] );
 
-			// Get secret key - try MVP compatibility first
-			$secret_key = '';
-			if ( ! empty( $settings['stripe_secret_key'] ) ) {
-				// MVP format - single key
-				$secret_key = $settings['stripe_secret_key'];
-			} elseif ( $test_mode && ! empty( $settings['stripe_secret_key_test'] ) ) {
-				// Modular format - test key
-				$secret_key = $settings['stripe_secret_key_test'];
-			} elseif ( ! $test_mode && ! empty( $settings['stripe_secret_key_live'] ) ) {
-				// Modular format - live key
-				$secret_key = $settings['stripe_secret_key_live'];
-			}
+			// Get secret key based on test mode
+			$secret_key = $test_mode
+				? ( $settings['stripe_secret_key_test'] ?? '' )
+				: ( $settings['stripe_secret_key_live'] ?? '' );
 
 			if ( empty( $secret_key ) ) {
 				return new WP_Error( 'stripe_config_error', __( 'Stripe secret key not configured', 'aiohm-booking-pro' ) );
@@ -482,16 +477,10 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 			$settings  = $this->get_settings();
 			$test_mode = ! empty( $settings['stripe_test_mode'] );
 
-			// Check if using test/live mode fields or simple fields.
-			if ( isset( $settings['stripe_secret_key_test'] ) || isset( $settings['stripe_secret_key_live'] ) ) {
-				// Use test/live mode fields.
-				$secret_key = $test_mode
-					? ( $settings['stripe_secret_key_test'] ?? '' )
-					: ( $settings['stripe_secret_key_live'] ?? '' );
-			} else {
-				// Fall back to simple field names for MVP compatibility.
-				$secret_key = $settings['stripe_secret_key'] ?? '';
-			}
+			// Get secret key based on test mode
+			$secret_key = $test_mode
+				? ( $settings['stripe_secret_key_test'] ?? '' )
+				: ( $settings['stripe_secret_key_live'] ?? '' );
 
 			if ( empty( $secret_key ) ) {
 				wp_send_json_error( array( 'message' => __( 'Stripe secret key not configured', 'aiohm-booking-pro' ) ) );
@@ -813,20 +802,13 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 		$settings  = $this->get_settings();
 		$test_mode = ! empty( $settings['stripe_test_mode'] );
 
-		// Check if using test/live mode fields or simple fields.
-		if ( isset( $settings['stripe_secret_key_test'] ) || isset( $settings['stripe_secret_key_live'] ) ) {
-			// Use test/live mode fields.
-			$secret_key = $test_mode
-				? ( $settings['stripe_secret_key_test'] ?? '' )
-				: ( $settings['stripe_secret_key_live'] ?? '' );
-			$public_key = $test_mode
-				? ( $settings['stripe_public_key_test'] ?? '' )
-				: ( $settings['stripe_public_key_live'] ?? '' );
-		} else {
-			// Fall back to simple field names for MVP compatibility.
-			$secret_key = $settings['stripe_secret_key'] ?? '';
-			$public_key = $settings['stripe_public_key'] ?? '';
-		}
+		// Get keys based on test mode
+		$secret_key = $test_mode
+			? ( $settings['stripe_secret_key_test'] ?? '' )
+			: ( $settings['stripe_secret_key_live'] ?? '' );
+		$public_key = $test_mode
+			? ( $settings['stripe_public_key_test'] ?? '' )
+			: ( $settings['stripe_public_key_live'] ?? '' );
 
 		return array(
 			'secret_key' => $secret_key,
@@ -992,16 +974,10 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 			$settings  = $this->get_settings();
 			$test_mode = ! empty( $settings['stripe_test_mode'] );
 
-			// Check if using test/live mode fields or simple fields.
-			if ( isset( $settings['stripe_secret_key_test'] ) || isset( $settings['stripe_secret_key_live'] ) ) {
-				// Use test/live mode fields.
-				$secret_key = $test_mode
-					? ( $settings['stripe_secret_key_test'] ?? '' )
-					: ( $settings['stripe_secret_key_live'] ?? '' );
-			} else {
-				// Fall back to simple field names for MVP compatibility.
-				$secret_key = $settings['stripe_secret_key'] ?? '';
-			}
+			// Get secret key based on test mode
+			$secret_key = $test_mode
+				? ( $settings['stripe_secret_key_test'] ?? '' )
+				: ( $settings['stripe_secret_key_live'] ?? '' );
 
 			if ( empty( $secret_key ) ) {
 				wp_send_json_error( array( 'message' => __( 'Stripe secret key not configured', 'aiohm-booking-pro' ) ) );
@@ -1041,6 +1017,122 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 					'message' => sprintf( __( 'Connection test failed: %s', 'aiohm-booking-pro' ), $e->getMessage() ),
 				)
 			);
+		}
+	}
+
+	/**
+	 * Handle settings form submission (non-AJAX)
+	 */
+	public function handle_settings_form_submission() {
+		if ( ! isset( $_POST['save_stripe_settings'] ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) ), 'aiohm_booking_save_settings' ) ) {
+			add_action( 'admin_notices', function() {
+				echo '<div class="notice notice-error"><p>Security check failed.</p></div>';
+			});
+			return;
+		}
+
+		$this->save_stripe_settings_data();
+	}
+
+	/**
+	 * AJAX handler for saving Stripe settings
+	 */
+	public function save_stripe_settings() {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_ajax_security( 'admin_nonce', 'manage_options' ) ) {
+			return;
+		}
+
+		$this->save_stripe_settings_data();
+	}
+
+	/**
+	 * Common method to save Stripe settings data
+	 */
+	private function save_stripe_settings_data() {
+		$settings = array();
+
+		// Define the Stripe settings fields
+		$field_mapping = array(
+			'stripe_test_mode'            => 'checkbox',
+			'stripe_publishable_key'      => 'text',
+			'stripe_secret_key'           => 'text',
+			'stripe_publishable_key_test' => 'text',
+			'stripe_secret_key_test'      => 'text',
+			'stripe_publishable_key_live' => 'text',
+			'stripe_secret_key_live'      => 'text',
+			'stripe_webhook_secret'       => 'text',
+			'stripe_payment_methods'      => 'array',
+			'stripe_capture_method'       => 'text',
+		);
+
+		foreach ( $field_mapping as $field => $type ) {
+			$value = '';
+
+			// Check for settings in different possible locations
+			if ( isset( $_POST['aiohm_booking_settings'][$field] ) ) {
+				$value = wp_unslash( $_POST['aiohm_booking_settings'][$field] );
+			} elseif ( isset( $_POST[$field] ) ) {
+				$value = wp_unslash( $_POST[$field] );
+			}
+
+			// Sanitize based on type
+			switch ( $type ) {
+				case 'checkbox':
+					$settings[$field] = ! empty( $value ) ? '1' : '0';
+					break;
+				case 'array':
+					$settings[$field] = is_array( $value ) ? array_map( 'sanitize_text_field', $value ) : array( 'card' );
+					break;
+				case 'text':
+				default:
+					$settings[$field] = sanitize_text_field( $value );
+					break;
+			}
+		}
+
+		// Get current main settings
+		$main_settings = get_option( 'aiohm_booking_settings', array() );
+		
+		// Merge with existing settings
+		$main_settings = array_merge( $main_settings, $settings );
+
+		// Save to database
+		$updated = update_option( 'aiohm_booking_settings', $main_settings );
+
+		// Verify the save was successful by checking if any actual data was saved
+		$saved_settings = get_option( 'aiohm_booking_settings', array() );
+		$data_saved = false;
+		foreach ( $settings as $key => $value ) {
+			if ( isset( $saved_settings[$key] ) && $saved_settings[$key] === $value ) {
+				$data_saved = true;
+				break;
+			}
+		}
+
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			if ( $updated || $data_saved ) {
+				wp_send_json_success( array( 'message' => __( 'Stripe settings saved successfully!', 'aiohm-booking-pro' ) ) );
+			} else {
+				wp_send_json_error( array( 'message' => __( 'Failed to save Stripe settings. Please try again.', 'aiohm-booking-pro' ) ) );
+			}
+		} else {
+			if ( $updated || $data_saved ) {
+				add_action( 'admin_notices', function() {
+					echo '<div class="notice notice-success"><p>' . esc_html__( 'Stripe settings saved successfully!', 'aiohm-booking-pro' ) . '</p></div>';
+				});
+			} else {
+				add_action( 'admin_notices', function() {
+					echo '<div class="notice notice-error"><p>' . esc_html__( 'Failed to save Stripe settings.', 'aiohm-booking-pro' ) . '</p></div>';
+				});
+			}
 		}
 	}
 
@@ -1474,18 +1566,10 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 		$settings  = $this->get_settings();
 		$test_mode = ! empty( $settings['stripe_test_mode'] );
 
-		// Get publishable key
-		$publishable_key = '';
-		if ( ! empty( $settings['stripe_publishable_key'] ) ) {
-			// MVP format - single key
-			$publishable_key = $settings['stripe_publishable_key'];
-		} elseif ( $test_mode && ! empty( $settings['stripe_publishable_key_test'] ) ) {
-			// Modular format - test key
-			$publishable_key = $settings['stripe_publishable_key_test'];
-		} elseif ( ! $test_mode && ! empty( $settings['stripe_publishable_key_live'] ) ) {
-			// Modular format - live key
-			$publishable_key = $settings['stripe_publishable_key_live'];
-		}
+		// Get publishable key based on test mode
+		$publishable_key = $test_mode
+			? ( $settings['stripe_publishable_key_test'] ?? '' )
+			: ( $settings['stripe_publishable_key_live'] ?? '' );
 
 		if ( empty( $publishable_key ) ) {
 			return '<div class="payment-error">' . esc_html__( 'Stripe publishable key not configured.', 'aiohm-booking-pro' ) . '</div>';

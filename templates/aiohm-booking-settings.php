@@ -89,13 +89,13 @@ $data['enable_ai_analytics'] = safe_setting_check( $settings['enable_ai_analytic
 $data['enable_css_manager']  = safe_setting_check( $settings['enable_css_manager'] ?? true ); // Default to true..
 
 // Settings defaults and compatibility..
-$data['available_rooms'] = $settings['available_rooms'] ?? $settings['available_accommodations'] ?? 7;
+$data['available_rooms'] = $settings['available_rooms'] ?? $settings['available_accommodations'] ?? 1;
 $data['allow_private']   = safe_setting_check( $settings['allow_private_all'] ?? null );
 
 // Form customization settings..
 $data['form_primary_color'] = $settings['form_primary_color'] ?? $settings['brand_color'] ?? '#457d59';
 $data['form_text_color']    = $settings['form_text_color'] ?? $settings['font_color'] ?? '#333333';
-$data['deposit']            = $settings['deposit_percentage'] ?? $settings['deposit_percent'] ?? 30;
+$data['deposit']            = $settings['deposit_percentage'] ?? $settings['deposit_percent'] ?? 0;
 
 // Early bird settings.
 $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earlybird_days'] ) : 30;
@@ -635,7 +635,7 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 			<p>Configure your booking system settings using the cards below.</p>
 		</div>
 		<div class="aiohm-settings-grid">
-		<?php // Shortcode instructions - always show. ?>.
+		<?php // Shortcode instructions - always show ?>
 		<div class="aiohm-booking-card aiohm-card aiohm-mb-8" id="aiohm-shortcode-instructions">
 		<!-- Removed drag handle to eliminate conflicts -->
 		<div class="aiohm-card-header aiohm-card__header">
@@ -663,7 +663,7 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 				<code class="aiohm-shortcode-code" id="shortcode-main">[aiohm_booking]</code>
 				<span class="aiohm-shortcode-badge">Main</span>
 			</div>
-			<p class="aiohm-shortcode-description">Unified booking form with intelligent tab-based navigation. Automatically adapts to show events and/or accommodations based on enabled modules. Includes complete booking flow: selection, contact details, and checkout.<br><br><strong>Examples:</strong><br><code>[aiohm_booking]</code> - Auto mode (shows all enabled modules)<br><code>[aiohm_booking enable_tickets="true" enable_accommodations="false"]</code> - Events only<br><code>[aiohm_booking enable_accommodations="true" enable_tickets="false"]</code> - Accommodations only</p>
+			<p class="aiohm-shortcode-description">Unified booking form with intelligent tab-based navigation. Automatically adapts to show events and/or accommodations based on enabled modules. Includes complete booking flow: selection, contact details, and checkout.</p>
 			</div>
 
 			<div class="aiohm-shortcode-item">
@@ -733,7 +733,7 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 
 
 	<!-- Facebook Integration Configuration Section -->
-	<?php // Facebook Integration Configuration - always show . ?>.
+	<?php // Facebook Integration Configuration - always show ?>
 	<div class="aiohm-booking-card aiohm-card aiohm-mb-8 aiohm-masonry-card" id="aiohm-facebook-settings" data-module="facebook">
 		<div class="aiohm-masonry-drag-handle">
 			<span class="dashicons dashicons-menu"></span>
@@ -829,10 +829,10 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 			</div>
 		</div>
 	</div>
-	<?php // End Facebook Integration Configuration . ?>.
+	<?php // End Facebook Integration Configuration ?>
 
 	<!-- Global Booking Settings Section -->
-	<?php // Global Booking Settings - always show . ?>.
+	<?php // Global Booking Settings - always show ?>
 	<div class="aiohm-booking-card aiohm-card aiohm-mb-8" id="aiohm-booking-settings">
 		<!-- Removed drag handle to eliminate conflicts -->
 		<div class="aiohm-card-header aiohm-card__header">
@@ -898,13 +898,58 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 			<div class="aiohm-form-group">
 				<label class="aiohm-form-label">Timezone</label>
 				<select name="aiohm_booking_settings[timezone]" class="aiohm-form-select">
+				<!-- Europe -->
 				<option value="Europe/Bucharest" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/Bucharest' ); ?>>🇷🇴 Europe/Bucharest (GMT+2)</option>
 				<option value="Europe/London" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/London' ); ?>>🇬🇧 Europe/London (GMT+0)</option>
-				<option value="America/New_York" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'America/New_York' ); ?>>🇺🇸 America/New_York (GMT-5)</option>
 				<option value="Europe/Paris" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/Paris' ); ?>>🇫🇷 Europe/Paris (GMT+1)</option>
+				<option value="Europe/Berlin" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/Berlin' ); ?>>🇩🇪 Europe/Berlin (GMT+1)</option>
+				<option value="Europe/Rome" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/Rome' ); ?>>🇮🇹 Europe/Rome (GMT+1)</option>
+				<option value="Europe/Madrid" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/Madrid' ); ?>>🇪🇸 Europe/Madrid (GMT+1)</option>
+				<option value="Europe/Amsterdam" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/Amsterdam' ); ?>>🇳🇱 Europe/Amsterdam (GMT+1)</option>
+				<option value="Europe/Zurich" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/Zurich' ); ?>>🇨🇭 Europe/Zurich (GMT+1)</option>
+				<option value="Europe/Vienna" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/Vienna' ); ?>>🇦🇹 Europe/Vienna (GMT+1)</option>
+				<option value="Europe/Stockholm" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/Stockholm' ); ?>>🇸🇪 Europe/Stockholm (GMT+1)</option>
+				<option value="Europe/Moscow" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Europe/Moscow' ); ?>>🇷🇺 Europe/Moscow (GMT+3)</option>
+				
+				<!-- Americas -->
+				<option value="America/New_York" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'America/New_York' ); ?>>🇺🇸 America/New_York (GMT-5)</option>
 				<option value="America/Los_Angeles" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'America/Los_Angeles' ); ?>>🇺🇸 America/Los_Angeles (GMT-8)</option>
+				<option value="America/Chicago" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'America/Chicago' ); ?>>🇺🇸 America/Chicago (GMT-6)</option>
+				<option value="America/Denver" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'America/Denver' ); ?>>🇺🇸 America/Denver (GMT-7)</option>
+				<option value="America/Toronto" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'America/Toronto' ); ?>>🇨🇦 America/Toronto (GMT-5)</option>
+				<option value="America/Vancouver" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'America/Vancouver' ); ?>>🇨🇦 America/Vancouver (GMT-8)</option>
+				<option value="America/Mexico_City" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'America/Mexico_City' ); ?>>🇲🇽 America/Mexico_City (GMT-6)</option>
+				<option value="America/Sao_Paulo" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'America/Sao_Paulo' ); ?>>🇧🇷 America/Sao_Paulo (GMT-3)</option>
+				<option value="America/Buenos_Aires" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'America/Buenos_Aires' ); ?>>🇦🇷 America/Buenos_Aires (GMT-3)</option>
+				
+				<!-- Asia -->
+				<option value="Asia/Bangkok" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Bangkok' ); ?>>🇹🇭 Asia/Bangkok (GMT+7)</option>
 				<option value="Asia/Tokyo" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Tokyo' ); ?>>🇯🇵 Asia/Tokyo (GMT+9)</option>
+				<option value="Asia/Shanghai" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Shanghai' ); ?>>🇨🇳 Asia/Shanghai (GMT+8)</option>
+				<option value="Asia/Hong_Kong" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Hong_Kong' ); ?>>🇭🇰 Asia/Hong_Kong (GMT+8)</option>
+				<option value="Asia/Singapore" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Singapore' ); ?>>🇸🇬 Asia/Singapore (GMT+8)</option>
+				<option value="Asia/Seoul" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Seoul' ); ?>>🇰🇷 Asia/Seoul (GMT+9)</option>
+				<option value="Asia/Manila" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Manila' ); ?>>🇵🇭 Asia/Manila (GMT+8)</option>
+				<option value="Asia/Jakarta" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Jakarta' ); ?>>🇮🇩 Asia/Jakarta (GMT+7)</option>
+				<option value="Asia/Kuala_Lumpur" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Kuala_Lumpur' ); ?>>🇲🇾 Asia/Kuala_Lumpur (GMT+8)</option>
+				<option value="Asia/Ho_Chi_Minh" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Ho_Chi_Minh' ); ?>>🇻🇳 Asia/Ho_Chi_Minh (GMT+7)</option>
+				<option value="Asia/Kolkata" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Kolkata' ); ?>>🇮🇳 Asia/Kolkata (GMT+5:30)</option>
+				<option value="Asia/Dubai" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Dubai' ); ?>>🇦🇪 Asia/Dubai (GMT+4)</option>
+				<option value="Asia/Tel_Aviv" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Asia/Tel_Aviv' ); ?>>🇮🇱 Asia/Tel_Aviv (GMT+2)</option>
+				
+				<!-- Africa -->
+				<option value="Africa/Cairo" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Africa/Cairo' ); ?>>🇪🇬 Africa/Cairo (GMT+2)</option>
+				<option value="Africa/Johannesburg" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Africa/Johannesburg' ); ?>>🇿🇦 Africa/Johannesburg (GMT+2)</option>
+				<option value="Africa/Lagos" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Africa/Lagos' ); ?>>🇳🇬 Africa/Lagos (GMT+1)</option>
+				<option value="Africa/Casablanca" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Africa/Casablanca' ); ?>>🇲🇦 Africa/Casablanca (GMT+1)</option>
+				
+				<!-- Oceania -->
 				<option value="Australia/Sydney" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Australia/Sydney' ); ?>>🇦🇺 Australia/Sydney (GMT+10)</option>
+				<option value="Australia/Melbourne" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Australia/Melbourne' ); ?>>🇦🇺 Australia/Melbourne (GMT+10)</option>
+				<option value="Australia/Perth" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Australia/Perth' ); ?>>🇦🇺 Australia/Perth (GMT+8)</option>
+				<option value="Pacific/Auckland" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Pacific/Auckland' ); ?>>🇳🇿 Pacific/Auckland (GMT+12)</option>
+				<option value="Pacific/Fiji" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Pacific/Fiji' ); ?>>🇫🇯 Pacific/Fiji (GMT+12)</option>
+				<option value="Pacific/Honolulu" <?php selected( $settings['timezone'] ?? 'Europe/Bucharest', 'Pacific/Honolulu' ); ?>>🇺🇸 Pacific/Honolulu (GMT-10)</option>
 				</select>
 				<small class="description">Set the timezone for bookings and date calculations</small>
 			</div>
@@ -924,10 +969,23 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 
 		<div class="aiohm-form-actions">
 			<?php submit_button( 'Save Global Settings', 'primary', 'save_booking_settings', false, array( 'class' => 'aiohm-btn aiohm-btn--primary aiohm-booking-settings-save-btn' ) ); ?>
+			
+			<div class="aiohm-reset-section" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+				<h4 style="color: #d63638; margin-bottom: 10px;">⚠️ Danger Zone</h4>
+				<p style="margin-bottom: 15px; color: #666;">
+					<strong>Reset Plugin Data:</strong> This will permanently delete all events, accommodations, bookings, and settings. 
+					This action cannot be undone!
+				</p>
+				<button type="button" id="aiohm-reset-plugin-data" class="button button-secondary" 
+						style="background: #d63638; color: white; border-color: #d63638;" 
+						onclick="aiohm_confirm_reset_plugin_data()">
+					🗑️ Reset All Plugin Data
+				</button>
+			</div>
 		</div>
 		</div>
 	</div>
-	<?php // End Global Booking Settings . ?>.
+	<?php // End Global Booking Settings ?>
 
 
 	</div> <!-- Close aiohm-settings-grid -->

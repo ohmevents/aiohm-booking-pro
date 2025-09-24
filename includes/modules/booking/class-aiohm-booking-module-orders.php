@@ -525,8 +525,8 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 			return; // Tickets module disabled, don't show the table
 		}
 
-		// Get events data
-		$events_data = get_option( 'aiohm_booking_events_data', array() );
+		// Get events data using compatible method
+		$events_data = AIOHM_BOOKING_Module_Tickets::get_events_data();
 		if ( empty( $events_data ) ) {
 			return; // No events configured, don't show the table
 		}

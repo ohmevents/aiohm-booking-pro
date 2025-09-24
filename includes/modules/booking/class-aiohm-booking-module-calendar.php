@@ -39,7 +39,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	const PERIOD_TYPE_MONTH   = 'month';
 	const PERIOD_TYPE_QUARTER = 'quarter';
 	const PERIOD_TYPE_CUSTOM  = 'custom';
-	const DEFAULT_ROOM_COUNT  = 7;
+	const DEFAULT_ROOM_COUNT  = 1;
 	const DEFAULT_PERIOD_DAYS = 6;
 
 	// Calendar Properties.
@@ -391,7 +391,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 				'label'       => sprintf( __( 'Number of %s', 'aiohm-booking-pro' ), $this->get_accommodation_plural_name() ),
 				/* translators: %s: accommodation plural name (e.g., "rooms", "units") */
 				'description' => sprintf( __( 'How many %s to display in the calendar', 'aiohm-booking-pro' ), strtolower( $this->get_accommodation_plural_name() ) ),
-				'default'     => 7,
+				'default'     => 1,
 				'min'         => 1,
 				'max'         => 20,
 			),
@@ -1410,7 +1410,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 
 			// Clear accommodation-specific calendar data.
 			$settings                 = get_option( 'aiohm_booking_settings', array() );
-			$available_accommodations = intval( $settings['available_accommodations'] ?? 7 );
+			$available_accommodations = intval( $settings['available_accommodations'] ?? 1 );
 
 			for ( $i = 1; $i <= $available_accommodations; $i++ ) {
 				if ( delete_option( "aiohm_booking_calendar_accommodation_{$i}" ) ) {

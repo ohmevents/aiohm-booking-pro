@@ -10,7 +10,7 @@
  * Plugin Name: AIOHM Booking Pro
  * Plugin URI:  https://wordpress.org/plugins/aiohm-booking/
  * Description: Professional event booking and accommodation management system. Streamlined booking experience for events and accommodations with secure Stripe payments and comprehensive utilities.
- * Version:     2.0.2
+ * Version:     2.0.3
  * Author:      OHM Events Agency
  * Author URI:  https://www.ohm.events
  * Text Domain: aiohm-booking-pro
@@ -463,7 +463,7 @@ if ( function_exists( 'aiohm_booking_fs' ) ) {
 
     }
 }
-define( 'AIOHM_BOOKING_VERSION', '2.0.2' );
+define( 'AIOHM_BOOKING_VERSION', '2.0.3' );
 define( 'AIOHM_BOOKING_FILE', __FILE__ );
 define( 'AIOHM_BOOKING_DIR', __DIR__ . '/' );
 define( 'AIOHM_BOOKING_URL', plugins_url( '', __FILE__ ) . '/' );
@@ -722,6 +722,7 @@ class AIOHM_Booking {
         require_once AIOHM_BOOKING_DIR . 'includes/core/class-aiohm-booking-module-settings-manager.php';
         require_once AIOHM_BOOKING_DIR . 'includes/core/class-aiohm-booking-utilities.php';
         require_once AIOHM_BOOKING_DIR . 'includes/core/class-aiohm-booking-checkout-ajax.php';
+        require_once AIOHM_BOOKING_DIR . 'includes/core/class-aiohm-booking-accommodation-service.php';
         // Load field renderer system.
         require_once AIOHM_BOOKING_DIR . 'includes/core/field-renderers/class-text-field-renderer.php';
         require_once AIOHM_BOOKING_DIR . 'includes/core/field-renderers/class-number-field-renderer.php';
@@ -762,7 +763,7 @@ class AIOHM_Booking {
                 'decimal_separator'     => '.',
                 'thousand_separator'    => ',',
                 'plugin_language'       => 'en',
-                'deposit_percentage'    => 30,
+                'deposit_percentage'    => 0,
                 'min_age'               => 18,
             );
             update_option( 'aiohm_booking_settings', $default_settings );
@@ -918,7 +919,7 @@ function aiohm_booking_fs_uninstall_cleanup() {
 add_action( 'init', function() {
     // Check if we're in demo mode (WordPress Playground or explicitly set)
     $is_demo = get_option( 'aiohm_booking_demo_mode' ) || 
-               (isset( $_SERVER['HTTP_HOST'] ) && strpos( $_SERVER['HTTP_HOST'], 'playground.wordpress.net' ) !== false);
+               (isset( $_SERVER['HTTP_HOST'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ), 'playground.wordpress.net' ) !== false);
     
     if ( $is_demo ) {
         // Enable Pro features for demo
@@ -986,13 +987,13 @@ function aiohm_booking_initialize_demo_data() {
     $events_data = array(
         array(
             'title' => 'Yoga Retreat Weekend',
-            'event_date' => date('Y-m-d', strtotime('+15 days')),
+            'event_date' => gmdate('Y-m-d', strtotime('+15 days')),
             'event_time' => '09:00',
-            'event_end_date' => date('Y-m-d', strtotime('+17 days')),
+            'event_end_date' => gmdate('Y-m-d', strtotime('+17 days')),
             'event_end_time' => '17:00',
             'price' => 150,
             'early_bird_price' => 120,
-            'early_bird_date' => date('Y-m-d', strtotime('+5 days')),
+            'early_bird_date' => gmdate('Y-m-d', strtotime('+5 days')),
             'available_seats' => 25,
             'description' => 'A rejuvenating weekend yoga retreat in the mountains with meditation and wellness activities.',
             'event_type' => 'Retreat',
@@ -1003,12 +1004,12 @@ function aiohm_booking_initialize_demo_data() {
         ),
         array(
             'title' => 'Photography Workshop',
-            'event_date' => date('Y-m-d', strtotime('+25 days')),
+            'event_date' => gmdate('Y-m-d', strtotime('+25 days')),
             'event_time' => '10:00',
             'event_end_time' => '16:00',
             'price' => 80,
             'early_bird_price' => 65,
-            'early_bird_date' => date('Y-m-d', strtotime('+10 days')),
+            'early_bird_date' => gmdate('Y-m-d', strtotime('+10 days')),
             'available_seats' => 15,
             'description' => 'Learn professional photography techniques from award-winning photographers.',
             'event_type' => 'Workshop',
@@ -1018,7 +1019,7 @@ function aiohm_booking_initialize_demo_data() {
         ),
         array(
             'title' => 'Cooking Masterclass',
-            'event_date' => date('Y-m-d', strtotime('+30 days')),
+            'event_date' => gmdate('Y-m-d', strtotime('+30 days')),
             'event_time' => '14:00',
             'event_end_time' => '18:00',
             'price' => 95,
@@ -1083,7 +1084,6 @@ function aiohm_booking_initialize_demo_data() {
     );
     
     // Save data to WordPress options
-    update_option( 'aiohm_booking_events_data', $events_data, false );
     update_option( 'aiohm_booking_accommodations_data', $accommodations_data, false );
     update_option( 'aiohm_booking_settings', $demo_settings, false );
     

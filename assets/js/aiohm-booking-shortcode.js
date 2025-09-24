@@ -24,6 +24,7 @@
             this.initializeShortcodes();
             this.applyCalendarColors();
             this.applyUserColors();
+            this.checkInitialDateSelection();
         },
 
         bindEvents: function() {
@@ -48,6 +49,9 @@
                 } else {
                 }
             });
+
+            // Date change handlers for accommodation availability filtering - use hidden inputs from accommodation selection and contact form
+            $(document).on('change.aiohm-shortcode', '#checkinHidden, #checkoutHidden, #customer_arrival_date, #customer_departure_date', this.handleDateChange);
         },
 
         // Apply calendar colors from admin settings to frontend calendar
@@ -166,6 +170,11 @@
 
             // Initialize modern booking forms
             $('.aiohm-booking-modern').each(function() {
+                AIOHM_Booking_Shortcode.initBookingForm($(this));
+            });
+
+            // Initialize sandwich booking forms
+            $('.aiohm-booking-sandwich-form').each(function() {
                 AIOHM_Booking_Shortcode.initBookingForm($(this));
             });
         },
@@ -309,11 +318,11 @@
                             AIOHM_Booking_Shortcode.showMessage(response.data.message, 'success');
                             $form[0].reset();
 
-                            // Refresh the calendar to show updated availability
-                            var $calendar = $wrapper.find('.aiohm-booking-calendar-container');
-                            if ($calendar.length) {
-                                AIOHM_Booking_Shortcode.initCalendar($calendar);
-                            }
+                            // Note: Calendar refresh disabled to preserve visual effects
+                            // var $calendar = $wrapper.find('.aiohm-booking-calendar-container');
+                            // if ($calendar.length) {
+                            //     AIOHM_Booking_Shortcode.initCalendar($calendar);
+                            // }
                         }
                     } else {
                         AIOHM_Booking_Shortcode.showMessage(response.data.message, 'error');
@@ -357,6 +366,89 @@
             }
 
             return isValid;
+        },
+
+        handleDateChange: function(e) {
+            // Check dates from both accommodation selection (step 1) and contact form (step 2)
+            var arrivalDate = $('#checkinHidden').val() || $('#customer_arrival_date').val();
+            var departureDate = $('#checkoutHidden').val() || $('#customer_departure_date').val();
+
+            // Only update if both dates are selected
+            if (arrivalDate && departureDate) {
+                // Prevent multiple simultaneous AJAX calls
+                if (AIOHM_Booking_Shortcode.isUpdatingAccommodationSelection) {
+                    return;
+                }
+                AIOHM_Booking_Shortcode.isUpdatingAccommodationSelection = true;
+
+                // Find the accommodation selection section and update it
+                var $accommodationSection = $('.aiohm-booking-accommodation-selection');
+                if ($accommodationSection.length) {
+                    // Add loading state
+                    $accommodationSection.addClass('loading');
+
+                    // Make AJAX request to get updated accommodation selection
+                    $.ajax({
+                        url: aiohm_booking.ajax_url,
+                        type: 'POST',
+                        data: {
+                            action: 'aiohm_booking_update_accommodation_selection',
+                            nonce: aiohm_booking.nonce,
+                            arrival_date: arrivalDate,
+                            departure_date: departureDate
+                        },
+                        success: function(response) {
+                            if (response.success && response.data.html) {
+                                // Replace only the accommodation list section to preserve calendar state
+                                var $accommodationList = $accommodationSection.find('.aiohm-booking-form-section');
+                                
+                                if ($accommodationList.length) {
+                                    // Extract only the accommodation list part from the response HTML
+                                    var $tempDiv = $('<div>').html(response.data.html);
+                                    var $newAccommodationList = $tempDiv.find('.aiohm-booking-form-section');
+                                    
+                                    if ($newAccommodationList.length) {
+                                        $accommodationList.replaceWith($newAccommodationList);
+                                    } else {
+                                        // Fallback: replace entire section if accommodation list not found
+                                        $accommodationSection.html(response.data.html);
+                                    }
+                                } else {
+                                    // Fallback: replace entire section if accommodation list not found
+                                    $accommodationSection.html(response.data.html);
+                                }
+
+                                // Note: Calendar is NOT re-initialized to preserve visual effects like selected day blink
+                            } else {
+                                // AJAX response not successful or missing HTML
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            // Error updating accommodation selection
+                        },
+                        complete: function() {
+                            $accommodationSection.removeClass('loading');
+                            AIOHM_Booking_Shortcode.isUpdatingAccommodationSelection = false;
+                        }
+                    });
+                } else {
+                    // Accommodation section not found
+                }
+            } else {
+                // Not both dates selected yet
+            }
+        },
+
+        checkInitialDateSelection: function() {
+            var $arrivalDate = $('#checkinHidden');
+            var $departureDate = $('#checkoutHidden');
+            var arrivalDate = $arrivalDate.val();
+            var departureDate = $departureDate.val();
+
+            // If both dates are already selected, trigger the update
+            if (arrivalDate && departureDate) {
+                this.handleDateChange();
+            }
         },
 
         showLoading: function($container) {
@@ -776,7 +868,7 @@
             }
 
             // Get currency from user settings
-            var currency = pricingData.currency || 'RON';
+            var currency = pricingData.currency;
 
             // Get the currently selected accommodation (if any)
             var selectedAccommodation = this.getSelectedAccommodation();
@@ -1013,7 +1105,8 @@
                 
                 // Get original pricing
                 const originalPrice = parseFloat($checkbox.attr('data-price') || 0);
-                const currency = $priceDisplay.text().replace(/[0-9.,]/g, ''); // Extract currency symbol
+                const pricingContainer = $('.aiohm-pricing-container');
+                const currency = pricingContainer.data('currency');
                 
                 let totalSpecialPrice = 0;
                 let hasSpecialPricing = false;
@@ -1332,6 +1425,11 @@
                     if (window.AIOHMBookingPricingSummary && window.AIOHMBookingPricingSummary.updateAccommodationSpecialPricing) {
                         window.AIOHMBookingPricingSummary.updateAccommodationSpecialPricing($checkinInput.val(), dateString);
                     }
+
+                    // Trigger accommodation selection update since both dates are now selected
+                    setTimeout(function() {
+                        AIOHM_Booking_Shortcode.handleDateChange();
+                    }, 10);
                 }
             } else {
                 // Reset selection - start over with new check-in
@@ -1434,12 +1532,10 @@
                         // Trigger change events on hidden fields to notify all systems
                         $form.find('#checkoutHidden').trigger('change');
                         
-                        // Update pricing summary with new dates if available
-                        var $checkinInput = $form.find('input[name="checkin_date"]');
-                        var $checkoutInput = $form.find('input[name="checkout_date"]');
-                        if (window.AIOHMBookingPricingSummary && window.AIOHMBookingPricingSummary.updateAccommodationSpecialPricing) {
-                            window.AIOHMBookingPricingSummary.updateAccommodationSpecialPricing($checkinInput.val(), $checkoutInput.val());
-                        }
+                        // Also trigger handleDateChange to check for date updates
+                        setTimeout(function() {
+                            self.handleDateChange();
+                        }, 10);
                     }, 50);
                 }
             });
@@ -1469,6 +1565,27 @@
             var checkinDate = $form.find('input[name="checkin_date"]').val();
             var duration = parseInt($form.find('#stay_duration').val()) || 1;
 
+            // If no check-in date is set, automatically set check-out based on today + duration
+            if (!checkinDate && $calendar.length) {
+                var today = new Date();
+                var checkoutDate = new Date(today);
+                checkoutDate.setDate(today.getDate() + duration);
+                
+                var checkoutDateString = checkoutDate.getFullYear() + '-' +
+                                       ('0' + (checkoutDate.getMonth() + 1)).slice(-2) + '-' +
+                                       ('0' + checkoutDate.getDate()).slice(-2);
+                
+                // Set the check-out date in all possible fields
+                $form.find('input[name="checkout_date"], #checkoutHidden').val(checkoutDateString).trigger('change');
+                
+                // Update check-out display
+                var $checkoutDisplay = $form.find('#checkoutDisplay, #pricingCheckoutDisplay').first();
+                if ($checkoutDisplay.length) {
+                    $checkoutDisplay.text(this.formatDisplayDate(checkoutDateString));
+                }
+                return; // Exit early since we don't have check-in set
+            }
+
             if (checkinDate && $calendar.length) {
                 // Calculate checkout date based on duration
                 var startDate = new Date(checkinDate);
@@ -1480,7 +1597,7 @@
                                        ('0' + endDate.getDate()).slice(-2);
 
                 // Update checkout input
-                $form.find('input[name="checkout_date"]').val(checkoutDateString);
+                $form.find('input[name="checkout_date"], #checkoutHidden').val(checkoutDateString).trigger('change');
 
                 // Update display
                 var $checkoutDisplay = $form.find('#checkoutDisplay, #pricingCheckoutDisplay').first();
@@ -1490,6 +1607,11 @@
 
                 // Update visual selection
                 this.updateCalendarSelection($calendar, checkinDate, checkoutDateString);
+
+                // Trigger date change check
+                setTimeout(function() {
+                    AIOHM_Booking_Shortcode.handleDateChange();
+                }, 10);
             }
         },
 
@@ -1565,6 +1687,11 @@
 
                             // Update checkout display
                             self.updateCheckoutDisplay();
+
+                            // Trigger accommodation availability check after checkout is updated
+                            setTimeout(function() {
+                                self.handleDateChange();
+                            }, 10);
                         });
                     }
 
@@ -1607,6 +1734,30 @@
             var checkinDate = $('#checkinHidden').val();
             var duration = parseInt($('#stay_duration').val()) || 1;
 
+            // If no check-in date is set, automatically set check-out based on today + duration
+            if (!checkinDate) {
+                var today = new Date();
+                var checkoutDate = new Date(today);
+                checkoutDate.setDate(today.getDate() + duration);
+                
+                var checkoutFormatted = checkoutDate.getFullYear() + '-' +
+                    String(checkoutDate.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(checkoutDate.getDate()).padStart(2, '0');
+                
+                // Set the check-out date in both possible hidden fields
+                $('#checkoutHidden, input[name="checkout_date"]').val(checkoutFormatted).trigger('change');
+                
+                // Update check-out display
+                var formattedCheckout = checkoutDate.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                $('#checkoutDisplay, #pricingCheckoutDisplay').text(formattedCheckout);
+                return; // Exit early since we don't have check-in set
+            }
+
             if (checkinDate) {
                 var checkin = new Date(checkinDate);
                 var checkout = new Date(checkin);
@@ -1619,16 +1770,16 @@
                     day: 'numeric'
                 });
 
-                $('#checkoutDisplay').text(formattedCheckout);
+                $('#checkoutDisplay, #pricingCheckoutDisplay').text(formattedCheckout);
 
                 // Update hidden checkout field
                 var checkoutFormatted = checkout.getFullYear() + '-' +
                     String(checkout.getMonth() + 1).padStart(2, '0') + '-' +
                     String(checkout.getDate()).padStart(2, '0');
-                $('#checkoutHidden').val(checkoutFormatted).trigger('change');
+                $('#checkoutHidden, input[name="checkout_date"]').val(checkoutFormatted).trigger('change');
             } else {
-                $('#checkoutDisplay').text('Select check-in first');
-                $('#checkoutHidden').val('').trigger('change');
+                $('#checkoutDisplay, #pricingCheckoutDisplay').text('Select check-in first');
+                $('#checkoutHidden, input[name="checkout_date"]').val('').trigger('change');
             }
         }
     };
@@ -1662,7 +1813,9 @@
                     $(mutation.addedNodes).each(function() {
                         var $node = $(this);
                         if ($node.hasClass && ($node.hasClass('aiohm-booking-shortcode-wrapper') ||
-                            $node.find('.aiohm-booking-shortcode-wrapper').length)) {
+                            $node.find('.aiohm-booking-shortcode-wrapper').length ||
+                            $node.hasClass('aiohm-booking-sandwich-form') ||
+                            $node.find('.aiohm-booking-sandwich-form').length)) {
                             AIOHM_Booking_Shortcode.initializeShortcodes();
                         }
                     });
@@ -1993,10 +2146,10 @@
         const checkoutInput = $('#checkoutHidden, input[name="checkout_date"]').first();
         const selectedUnits = $('.accommodation-checkbox:checked, .unit-checkbox:checked');
         const exclusiveCheckbox = $('#private_all_checkbox');
-        const pricingSummary = $('.pricing-summary');
+        const pricingSummary = $('.aiohm-pricing-container');
 
         // Get settings from pricing summary data
-        const currency = pricingSummary.data('currency') || 'RON';
+        const currency = pricingSummary.data('currency');
         const depositPercent = pricingSummary.data('deposit-percent') || 30;
         const earlybirdDays = parseInt(pricingSummary.data('earlybird-days')) || 30;
 
@@ -2135,7 +2288,7 @@
 
             // Update the displayed price
             if ($priceDisplay.length > 0) {
-                const currency = pricingSummary.data('currency') || 'RON';
+                const currency = pricingSummary.data('currency');
                 $priceDisplay.text(currency + ' ' + displayPrice.toFixed(2));
             }
         });
@@ -2503,6 +2656,7 @@
 
     // Store the last availability check to prevent conflicts
     AIOHM_Booking_Shortcode.lastAvailabilityCheck = null;
+    AIOHM_Booking_Shortcode.isUpdatingAccommodationSelection = false;
 
     // Get unit statuses for multiple units in one call
     AIOHM_Booking_Shortcode.getUnitStatuses = function(unitRequests, date, dayUnits) {

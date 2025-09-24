@@ -63,7 +63,7 @@ class AccommodationSettingsDTO {
 		$dto->accommodation_type       = isset( $data['accommodation_type'] ) ?
 			sanitize_key( $data['accommodation_type'] ) : 'room';
 		$dto->available_accommodations = isset( $data['available_accommodations'] ) ?
-			intval( $data['available_accommodations'] ) : 7;
+			intval( $data['available_accommodations'] ) : 1;
 		$dto->allow_private_all        = ! empty( $data['allow_private_all'] );
 		$dto->default_price            = isset( $data['default_price'] ) ?
 			floatval( $data['default_price'] ) : 0;
@@ -79,7 +79,7 @@ class AccommodationSettingsDTO {
 		// Validate accommodation count.
 		if ( $dto->available_accommodations < AIOHM_BOOKING_Module_Accommodation::MIN_ACCOMMODATIONS ||
 			$dto->available_accommodations > AIOHM_BOOKING_Module_Accommodation::MAX_ACCOMMODATIONS ) {
-			$dto->available_accommodations = 7;
+			$dto->available_accommodations = 1;
 		}
 
 		// Validate prices.

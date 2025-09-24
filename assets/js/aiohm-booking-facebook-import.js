@@ -193,7 +193,6 @@
                             <div class="aiohm-event-info">
                                 <p><strong>Name:</strong> ${escapeHtml(info.name || 'N/A')}</p>
                                 <p><strong>Date:</strong> ${formatEventDate(info.start_time)}</p>
-                                <p><strong>Location:</strong> ${escapeHtml(info.location || 'N/A')}</p>
                                 <p><strong>Description:</strong> ${escapeHtml(info.description || 'N/A')}</p>
                             </div>
                         </div>
@@ -273,7 +272,6 @@
         // Populate form fields
         $(`input[name="${prefix}[title]"]`).val(eventData.title || '');
         $(`textarea[name="${prefix}[description]"]`).val(eventData.description || '');
-        $(`input[name="${prefix}[location]"]`).val(eventData.location || '');
         $(`input[name="${prefix}[event_date]"]`).val(eventData.event_date || '');
         $(`input[name="${prefix}[event_time]"]`).val(eventData.event_time || '');
         $(`input[name="${prefix}[available_seats]"]`).val(eventData.available_seats || 50);
@@ -282,7 +280,7 @@
         $(`input[name="${prefix}[early_bird_date]"]`).val(eventData.early_bird_date || '');
 
         // Trigger change events for any dependent functionality
-        $(`input[name="${prefix}[title]"], input[name="${prefix}[location]"]`).trigger('change');
+        $(`input[name="${prefix}[title]"]`).trigger('change');
 
         // Add visual feedback
         const $eventBox = $(`.aiohm-event-item, .aiohm-booking-event-settings`).eq(eventIndex);

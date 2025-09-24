@@ -1,0 +1,359 @@
+/**
+ * AI Modules CSS - Shared styling for all AI provider modules
+ *
+ * @package AIOHM_Booking_PRO
+ * @since 2.0.0
+ */
+
+/* ==========================================================================
+   AI PROVIDER CARDS AND SETTINGS
+   ========================================================================== */
+
+/* AI Provider Configuration Cards */
+.aiohm-ai-provider-card {
+    background: var(--ohm-white);
+    border: 1px solid var(--ohm-gray-200);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-6);
+    margin-bottom: var(--spacing-4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.aiohm-ai-provider-card:hover {
+    border-color: var(--ohm-primary);
+    box-shadow: 0 4px 12px rgba(69, 125, 89, 0.1);
+}
+
+/* AI Provider Header */
+.aiohm-ai-provider-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
+    padding-bottom: var(--spacing-3);
+    border-bottom: 1px solid var(--ohm-gray-100);
+}
+
+.aiohm-ai-provider-icon {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ohm-gray-50);
+    border-radius: var(--border-radius);
+}
+
+.aiohm-ai-provider-info h3 {
+    margin: 0;
+    font-size: var(--ohm-font-size-lg);
+    font-weight: var(--ohm-font-weight-semibold);
+    color: var(--ohm-gray-800);
+}
+
+.aiohm-ai-provider-info p {
+    margin: var(--spacing-1) 0 0;
+    font-size: var(--ohm-font-size-sm);
+    color: var(--ohm-gray-600);
+}
+
+/* AI Provider Actions */
+.aiohm-provider-actions {
+    display: flex;
+    gap: var(--spacing-3);
+    align-items: center;
+    margin-top: var(--spacing-4);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--ohm-gray-100);
+}
+
+/* Connection Result Display */
+.aiohm-connection-result {
+    margin-top: var(--spacing-3);
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius);
+    font-size: var(--ohm-font-size-sm);
+    min-height: 20px;
+}
+
+.aiohm-connection-result.success {
+    background: var(--alert-success);
+    color: var(--alert-success-text);
+    border: 1px solid var(--ohm-primary);
+}
+
+.aiohm-connection-result.error {
+    background: var(--alert-danger);
+    color: var(--alert-danger-text);
+    border: 1px solid #dc3545;
+}
+
+.aiohm-connection-result.info {
+    background: var(--alert-info);
+    color: var(--alert-info-text);
+    border: 1px solid var(--ohm-secondary);
+}
+
+.aiohm-connection-result.warning {
+    background: var(--alert-warning);
+    color: var(--alert-warning-text);
+    border: 1px solid #fd7e14;
+}
+
+/* Empty state */
+.aiohm-connection-result:empty {
+    display: none;
+}
+
+/* ==========================================================================
+   AI ANALYTICS COMPONENTS
+   ========================================================================== */
+
+/* AI Analytics Dashboard */
+.aiohm-ai-analytics-dashboard {
+    background: var(--ohm-white);
+    border: 1px solid var(--ohm-gray-200);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-6);
+    margin: var(--spacing-4) 0;
+}
+
+.aiohm-ai-analytics-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-4);
+    padding-bottom: var(--spacing-3);
+    border-bottom: 1px solid var(--ohm-gray-100);
+}
+
+.aiohm-ai-analytics-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--ohm-font-size-lg);
+    font-weight: var(--ohm-font-weight-semibold);
+    color: var(--ohm-gray-800);
+    margin: 0;
+}
+
+.aiohm-ai-analytics-controls {
+    display: flex;
+    gap: var(--spacing-2);
+    align-items: center;
+}
+
+/* AI Query Interface */
+.aiohm-ai-query-form {
+    margin-bottom: var(--spacing-4);
+}
+
+.aiohm-ai-query-input {
+    width: 100%;
+    min-height: 100px;
+    padding: var(--spacing-3);
+    border: 1px solid var(--ohm-gray-300);
+    border-radius: var(--border-radius);
+    font-size: var(--ohm-font-size-sm);
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.aiohm-ai-query-input:focus {
+    outline: none;
+    border-color: var(--ohm-primary);
+    box-shadow: 0 0 0 3px rgba(69, 125, 89, 0.1);
+}
+
+.aiohm-ai-query-input::placeholder {
+    color: var(--ohm-gray-500);
+    font-style: italic;
+}
+
+/* AI Response Display */
+.aiohm-ai-response {
+    background: var(--ohm-gray-50);
+    border: 1px solid var(--ohm-gray-200);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-4);
+    margin-top: var(--spacing-3);
+    font-size: var(--ohm-font-size-sm);
+    line-height: var(--ohm-line-height-relaxed);
+}
+
+.aiohm-ai-response.loading {
+    position: relative;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ohm-gray-500);
+}
+
+.aiohm-ai-response.loading::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--ohm-gray-300);
+    border-top: 2px solid var(--ohm-primary);
+    border-radius: 50%;
+    animation: ai-spin 1s linear infinite;
+}
+
+@keyframes ai-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* AI Insights Grid */
+.aiohm-ai-insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-4);
+}
+
+.aiohm-ai-insight-card {
+    background: var(--ohm-white);
+    border: 1px solid var(--ohm-gray-200);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-4);
+    transition: all 0.2s ease;
+}
+
+.aiohm-ai-insight-card:hover {
+    border-color: var(--ohm-primary);
+    box-shadow: 0 2px 8px rgba(69, 125, 89, 0.1);
+}
+
+.aiohm-ai-insight-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-2);
+}
+
+.aiohm-ai-insight-title {
+    font-size: var(--ohm-font-size-base);
+    font-weight: var(--ohm-font-weight-semibold);
+    color: var(--ohm-gray-800);
+    margin: 0;
+}
+
+.aiohm-ai-insight-content {
+    font-size: var(--ohm-font-size-sm);
+    color: var(--ohm-gray-600);
+    line-height: var(--ohm-line-height-relaxed);
+}
+
+/* ==========================================================================
+   AI EVENT IMPORT COMPONENTS
+   ========================================================================== */
+
+.aiohm-ai-event-import {
+    background: var(--ohm-white);
+    border: 1px solid var(--ohm-gray-200);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-6);
+    margin: var(--spacing-4) 0;
+}
+
+.aiohm-ai-event-import-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
+}
+
+.aiohm-ai-event-import-header h3 {
+    margin: 0;
+    font-size: var(--ohm-font-size-lg);
+    font-weight: var(--ohm-font-weight-semibold);
+    color: var(--ohm-gray-800);
+}
+
+.aiohm-url-input-group {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-4);
+}
+
+.aiohm-url-input {
+    flex: 1;
+    padding: var(--spacing-3);
+    border: 1px solid var(--ohm-gray-300);
+    border-radius: var(--border-radius);
+    font-size: var(--ohm-font-size-sm);
+}
+
+.aiohm-url-input:focus {
+    outline: none;
+    border-color: var(--ohm-primary);
+    box-shadow: 0 0 0 3px rgba(69, 125, 89, 0.1);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .aiohm-provider-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .aiohm-provider-actions .aiohm-btn {
+        justify-content: center;
+    }
+    
+    .aiohm-ai-analytics-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-3);
+    }
+    
+    .aiohm-ai-analytics-controls {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .aiohm-url-input-group {
+        flex-direction: column;
+    }
+    
+    .aiohm-ai-insights-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   PROVIDER-SPECIFIC STYLING
+   ========================================================================== */
+
+/* OpenAI Provider */
+.aiohm-ai-provider-card.openai .aiohm-ai-provider-icon {
+    background: linear-gradient(135deg, #74aa9c 0%, #457d59 100%);
+    color: white;
+}
+
+/* Gemini Provider */
+.aiohm-ai-provider-card.gemini .aiohm-ai-provider-icon {
+    background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+    color: white;
+}
+
+/* ShareAI Provider */
+.aiohm-ai-provider-card.shareai .aiohm-ai-provider-icon {
+    background: linear-gradient(135deg, #7d9b77 0%, #5a7354 100%);
+    color: white;
+}
+
+/* Ollama Provider */
+.aiohm-ai-provider-card.ollama .aiohm-ai-provider-icon {
+    background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
+    color: white;
+}

@@ -175,6 +175,10 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		// AJAX handler for getting checkout HTML with booking ID.
 		add_action( 'wp_ajax_aiohm_booking_get_checkout_html', array( $this, 'ajax_get_checkout_html' ) );
 		add_action( 'wp_ajax_nopriv_aiohm_booking_get_checkout_html', array( $this, 'ajax_get_checkout_html' ) );
+
+		// AJAX handler for updating accommodation selection based on dates.
+		add_action( 'wp_ajax_aiohm_booking_update_accommodation_selection', array( $this, 'ajax_update_accommodation_selection' ) );
+		add_action( 'wp_ajax_nopriv_aiohm_booking_update_accommodation_selection', array( $this, 'ajax_update_accommodation_selection' ) );
 	}
 
 	/**
@@ -388,7 +392,6 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		return ob_get_clean();
 	}
 
-
 	/**
 	 * Get settings fields for the module.
 	 *
@@ -480,9 +483,6 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 			<div class="aiohm-shortcode-generator">
 				<div class="generator-tabs">
 					<button class="generator-tab active" data-tab="booking-form"><?php esc_html_e( 'Booking Form', 'aiohm-booking-pro' ); ?></button>
-					<button class="generator-tab" data-tab="accommodations"><?php esc_html_e( 'Accommodations', 'aiohm-booking-pro' ); ?></button>
-					<button class="generator-tab" data-tab="checkout"><?php esc_html_e( 'Checkout', 'aiohm-booking-pro' ); ?></button>
-					<button class="generator-tab" data-tab="events"><?php esc_html_e( 'Events List', 'aiohm-booking-pro' ); ?></button>
 				</div>
 				
 				<div class="generator-content">
@@ -517,79 +517,6 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 							<code id="booking-form-shortcode">[aiohm_booking]</code>
 						</div>
 					</div>
-					
-					<!-- Accommodations Tab -->
-					<div class="tab-content" id="accommodations-tab">
-						<h4><?php esc_html_e( 'Accommodations Shortcode', 'aiohm-booking-pro' ); ?></h4>
-						<div class="shortcode-options">
-							<div class="option-group">
-								<label><?php esc_html_e( 'Display Style:', 'aiohm-booking-pro' ); ?></label>
-								<select id="accommodations-style">
-									<option value="compact"><?php esc_html_e( 'Compact', 'aiohm-booking-pro' ); ?></option>
-									<option value="full"><?php esc_html_e( 'Full', 'aiohm-booking-pro' ); ?></option>
-									<option value="minimal"><?php esc_html_e( 'Minimal', 'aiohm-booking-pro' ); ?></option>
-								</select>
-							</div>
-							<div class="option-group">
-								<label><?php esc_html_e( 'Button Text:', 'aiohm-booking-pro' ); ?></label>
-								<input type="text" id="accommodations-button-text" value="Book Now" placeholder="Book Now">
-							</div>
-							<div class="option-group">
-								<label><?php esc_html_e( 'Show Prices:', 'aiohm-booking-pro' ); ?></label>
-								<input type="checkbox" id="accommodations-show-prices" checked>
-							</div>
-						</div>
-						<div class="generated-shortcode">
-							<code id="accommodations-shortcode">[aiohm_booking_accommodations]</code>
-						</div>
-					</div>
-					
-					<!-- Checkout Tab -->
-					<div class="tab-content" id="checkout-tab">
-						<h4><?php esc_html_e( 'Checkout Shortcode', 'aiohm-booking-pro' ); ?></h4>
-						<div class="shortcode-options">
-							<div class="option-group">
-								<label><?php esc_html_e( 'Show Order Summary:', 'aiohm-booking-pro' ); ?></label>
-								<input type="checkbox" id="checkout-summary" checked>
-							</div>
-							<div class="option-group">
-								<label><?php esc_html_e( 'Payment Methods:', 'aiohm-booking-pro' ); ?></label>
-								<select id="checkout-methods">
-									<option value="all"><?php esc_html_e( 'All Available', 'aiohm-booking-pro' ); ?></option>
-									<!-- Payment method options will be populated dynamically based on available modules -->
-								</select>
-							</div>
-						</div>
-						<div class="generated-shortcode">
-							<code id="checkout-shortcode">[aiohm_booking_checkout]</code>
-						</div>
-					</div>
-					
-					<!-- Events List Tab -->
-					<div class="tab-content" id="events-tab">
-						<h4><?php esc_html_e( 'Events List Shortcode', 'aiohm-booking-pro' ); ?></h4>
-						<div class="shortcode-options">
-							<div class="option-group">
-								<label><?php esc_html_e( 'Number of Events:', 'aiohm-booking-pro' ); ?></label>
-								<input type="number" id="events-count" value="10" min="1" max="50">
-							</div>
-							<div class="option-group">
-								<label><?php esc_html_e( 'Layout:', 'aiohm-booking-pro' ); ?></label>
-								<select id="events-layout">
-									<option value="list"><?php esc_html_e( 'List', 'aiohm-booking-pro' ); ?></option>
-									<option value="grid"><?php esc_html_e( 'Grid', 'aiohm-booking-pro' ); ?></option>
-									<option value="cards"><?php esc_html_e( 'Cards', 'aiohm-booking-pro' ); ?></option>
-								</select>
-							</div>
-							<div class="option-group">
-								<label><?php esc_html_e( 'Show Dates:', 'aiohm-booking-pro' ); ?></label>
-								<input type="checkbox" id="events-dates" checked>
-							</div>
-						</div>
-						<div class="generated-shortcode">
-							<code id="events-shortcode">[aiohm_booking_events]</code>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -617,49 +544,15 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 				
 				<div class="shortcode-item">
 					<div class="shortcode-header">
-						<h4>[aiohm_booking_checkout]</h4>
+						<h4>[aiohm_booking_success]</h4>
 						<span class="shortcode-badge free"><?php esc_html_e( 'Free', 'aiohm-booking-pro' ); ?></span>
 					</div>
-					<p><?php esc_html_e( 'Checkout page with order summary and payment processing', 'aiohm-booking-pro' ); ?></p>
+					<p><?php esc_html_e( 'Success page displayed after booking completion', 'aiohm-booking-pro' ); ?></p>
 					<div class="shortcode-attributes">
 						<strong><?php esc_html_e( 'Attributes:', 'aiohm-booking-pro' ); ?></strong>
 						<ul>
-							<li><code>show_summary</code> - <?php esc_html_e( 'Show order summary (true/false)', 'aiohm-booking-pro' ); ?></li>
-							<li><code>payment_methods</code> - <?php esc_html_e( 'Allowed payment methods', 'aiohm-booking-pro' ); ?></li>
-							<li><code>redirect_url</code> - <?php esc_html_e( 'Success redirect URL', 'aiohm-booking-pro' ); ?></li>
-						</ul>
-					</div>
-				</div>
-				
-				<div class="shortcode-item">
-					<div class="shortcode-header">
-						<h4>[aiohm_booking_events]</h4>
-						<span class="shortcode-badge free"><?php esc_html_e( 'Free', 'aiohm-booking-pro' ); ?></span>
-					</div>
-					<p><?php esc_html_e( 'List of upcoming events with booking links', 'aiohm-booking-pro' ); ?></p>
-					<div class="shortcode-attributes">
-						<strong><?php esc_html_e( 'Attributes:', 'aiohm-booking-pro' ); ?></strong>
-						<ul>
-							<li><code>count</code> - <?php esc_html_e( 'Number of events to show', 'aiohm-booking-pro' ); ?></li>
-							<li><code>layout</code> - <?php esc_html_e( 'Display layout (list, grid, cards)', 'aiohm-booking-pro' ); ?></li>
-							<li><code>show_dates</code> - <?php esc_html_e( 'Show event dates (true/false)', 'aiohm-booking-pro' ); ?></li>
-							<li><code>category</code> - <?php esc_html_e( 'Filter by event category', 'aiohm-booking-pro' ); ?></li>
-						</ul>
-					</div>
-				</div>
-				
-				<div class="shortcode-item">
-					<div class="shortcode-header">
-						<h4>[aiohm_booking_accommodations]</h4>
-						<span class="shortcode-badge free"><?php esc_html_e( 'Free', 'aiohm-booking-pro' ); ?></span>
-					</div>
-					<p><?php esc_html_e( 'Displays accommodations booking form for hotels, rentals, and stays', 'aiohm-booking-pro' ); ?></p>
-					<div class="shortcode-attributes">
-						<strong><?php esc_html_e( 'Attributes:', 'aiohm-booking-pro' ); ?></strong>
-						<ul>
-							<li><code>style</code> - <?php esc_html_e( 'Display style (compact, full, minimal)', 'aiohm-booking-pro' ); ?></li>
-							<li><code>button_text</code> - <?php esc_html_e( 'Custom button text (default: Book Now)', 'aiohm-booking-pro' ); ?></li>
-							<li><code>show_prices</code> - <?php esc_html_e( 'Show pricing information (true/false)', 'aiohm-booking-pro' ); ?></li>
+							<li><code>theme</code> - <?php esc_html_e( 'Visual theme (default, minimal, modern, classic)', 'aiohm-booking-pro' ); ?></li>
+							<li><code>show_details</code> - <?php esc_html_e( 'Show booking details (true/false)', 'aiohm-booking-pro' ); ?></li>
 						</ul>
 					</div>
 				</div>
@@ -694,7 +587,8 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 	protected function render_module_features() {
 		?>
 		<ul>
-			<li><strong><?php esc_html_e( 'Multiple Shortcodes:', 'aiohm-booking-pro' ); ?></strong> <?php esc_html_e( 'Booking forms, calendars, checkout, and event lists', 'aiohm-booking-pro' ); ?></li>
+			<li><strong><?php esc_html_e( 'Main Shortcode:', 'aiohm-booking-pro' ); ?></strong> <?php esc_html_e( '[aiohm_booking] - Auto-adapting booking form', 'aiohm-booking-pro' ); ?></li>
+			<li><strong><?php esc_html_e( 'Success Page:', 'aiohm-booking-pro' ); ?></strong> <?php esc_html_e( '[aiohm_booking_success] - Booking confirmation display', 'aiohm-booking-pro' ); ?></li>
 			<li><strong><?php esc_html_e( 'Visual Generator:', 'aiohm-booking-pro' ); ?></strong> <?php esc_html_e( 'Easy-to-use shortcode generator', 'aiohm-booking-pro' ); ?></li>
 			<li><strong><?php esc_html_e( 'Flexible Attributes:', 'aiohm-booking-pro' ); ?></strong> <?php esc_html_e( 'Extensive customization options for each shortcode', 'aiohm-booking-pro' ); ?></li>
 			<li><strong><?php esc_html_e( 'Auto Asset Loading:', 'aiohm-booking-pro' ); ?></strong> <?php esc_html_e( 'Automatically load required CSS/JS files', 'aiohm-booking-pro' ); ?></li>
@@ -752,7 +646,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 			$should_load_events = false;
 
 			// Load events assets on frontend if shortcode is present
-			if ( ! $is_admin_context && $post && isset( $post->post_content ) && has_shortcode( $post->post_content, 'aiohm_booking_events' ) ) {
+			if ( ! $is_admin_context && $post && isset( $post->post_content ) && has_shortcode( $post->post_content, 'aiohm_booking' ) ) {
 				$should_load_events = true;
 			}
 
@@ -1157,7 +1051,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 			// Fallback to old range system if no accommodations found.
 			if ( empty( $accommodations ) ) {
 				$settings                 = get_option( 'aiohm_booking_settings', array() );
-				$available_accommodations = intval( $settings['available_accommodations'] ?? 7 );
+				$available_accommodations = intval( $settings['available_accommodations'] ?? 1 );
 				$accommodations           = range( 0, $available_accommodations - 1 );
 			}
 
@@ -1338,6 +1232,13 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 			$notes = sanitize_textarea_field( $form_data['special_requests'] ?? '' );
 		}
 
+		// Store accommodation IDs in notes for payment completion processing
+		if ( empty( $notes ) ) {
+			$notes = 'Accommodation IDs: ' . wp_json_encode( $accommodations );
+		} else {
+			$notes .= "\n\nAccommodation IDs: " . wp_json_encode( $accommodations );
+		}
+
 		// Validate that we have accommodations selected.
 		if ( empty( $accommodations ) ) {
 			wp_send_json_error( array( 'message' => 'Please select at least one accommodation' ) );
@@ -1382,7 +1283,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		// Get pricing settings and currency.
 		$settings           = get_option( 'aiohm_booking_settings', array() );
 		$currency           = $settings['currency'] ?? 'USD';
-		$deposit_percentage = floatval( $settings['deposit_percentage'] ?? 30 );
+		$deposit_percentage = floatval( $settings['deposit_percentage'] ?? 0 );
 		$earlybird_days     = intval( $settings['early_bird_days'] ?? $settings['earlybird_days'] ?? 30 );
 
 		// Calculate early bird eligibility.
@@ -1449,7 +1350,9 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 				$earlybird_price     = 0;
 
 				// Get regular price.
-				if ( isset( $post_meta['_price'][0] ) && ! empty( $post_meta['_price'][0] ) ) {
+				if ( isset( $post_meta['_aiohm_booking_accommodation_price'][0] ) && ! empty( $post_meta['_aiohm_booking_accommodation_price'][0] ) ) {
+					$regular_price = floatval( $post_meta['_aiohm_booking_accommodation_price'][0] );
+				} elseif ( isset( $post_meta['_price'][0] ) && ! empty( $post_meta['_price'][0] ) ) {
 					$regular_price = floatval( $post_meta['_price'][0] );
 				} elseif ( isset( $post_meta['price'][0] ) && ! empty( $post_meta['price'][0] ) ) {
 					$regular_price = floatval( $post_meta['price'][0] );
@@ -1458,7 +1361,9 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 				}
 
 				// Get early bird price.
-				if ( isset( $post_meta['_earlybird_price'][0] ) && ! empty( $post_meta['_earlybird_price'][0] ) ) {
+				if ( isset( $post_meta['_aiohm_booking_accommodation_earlybird_price'][0] ) && ! empty( $post_meta['_aiohm_booking_accommodation_earlybird_price'][0] ) ) {
+					$earlybird_price = floatval( $post_meta['_aiohm_booking_accommodation_earlybird_price'][0] );
+				} elseif ( isset( $post_meta['_earlybird_price'][0] ) && ! empty( $post_meta['_earlybird_price'][0] ) ) {
 					$earlybird_price = floatval( $post_meta['_earlybird_price'][0] );
 				} elseif ( isset( $post_meta['earlybird_price'][0] ) && ! empty( $post_meta['earlybird_price'][0] ) ) {
 					$earlybird_price = floatval( $post_meta['earlybird_price'][0] );
@@ -1486,8 +1391,6 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		}
 
 		$deposit_amount = $total_price * ( $deposit_percentage / 100 );
-
-		// Log pricing calculation for debugging.
 
 		// Save booking to database.
 		global $wpdb;
@@ -1843,8 +1746,6 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		if ( class_exists( 'AIOHM_BOOKING_Accommodation_Service' ) ) {
 			AIOHM_BOOKING_Accommodation_Service::clear_cache();
 		}
-
-		// Log calendar update for debugging.
 	}
 
 	/**
@@ -2165,7 +2066,7 @@ Best regards,
 		$fake_post                    = new stdClass();
 		$fake_post->ID                = -1;
 		$fake_post->post_title        = 'AIOHM Booking Preview';
-		$fake_post->post_content      = $shortcode_type === 'events' ? '[aiohm_booking_events]' : '[aiohm_booking_accommodations]';
+		$fake_post->post_content      = $shortcode_type === 'events' ? '[aiohm_booking mode="tickets"]' : '[aiohm_booking mode="accommodations"]';
 		$fake_post->post_type         = 'page';
 		$fake_post->post_status       = 'publish';
 		$fake_post->comment_status    = 'closed';
@@ -2459,7 +2360,7 @@ Best regards,
 		$form_type = isset( $_POST['form_type'] ) ? sanitize_text_field( wp_unslash( $_POST['form_type'] ) ) : 'accommodations'; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
 		$page_slug  = $form_type === 'tickets' ? 'aiohm-events-preview' : 'aiohm-accommodations-preview';
 		$page_title = $form_type === 'tickets' ? 'AIOHM Events Preview' : 'AIOHM Accommodations Preview';
-		$shortcode  = $form_type === 'tickets' ? '[aiohm_booking_events]' : '[aiohm_booking_accommodations]';
+		$shortcode  = $form_type === 'tickets' ? '[aiohm_booking mode="tickets"]' : '[aiohm_booking mode="accommodations"]';
 
 		// Check if page already exists
 		$existing_page = get_page_by_path( $page_slug );
@@ -2623,6 +2524,91 @@ Best regards,
 
 		// Return the HTML as JSON response for proper handling
 		wp_send_json_success( array( 'html' => $checkout_html ) );
+	}
+
+	/**
+	 * AJAX handler for updating accommodation selection based on selected dates
+	 */
+	public function ajax_update_accommodation_selection() {
+		// Verify security using centralized helper (only nonce for frontend)
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_ajax_nonce( 'frontend_nonce' ) ) {
+			return; // Error response already sent by helper
+		}
+
+		$arrival_date   = isset( $_POST['arrival_date'] ) ? sanitize_text_field( wp_unslash( $_POST['arrival_date'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by security helper
+		$departure_date = isset( $_POST['departure_date'] ) ? sanitize_text_field( wp_unslash( $_POST['departure_date'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by security helper
+
+		if ( empty( $arrival_date ) || empty( $departure_date ) ) {
+			wp_send_json_error( array( 'message' => 'Missing date parameters' ) );
+		}
+
+		// Validate date formats
+		if ( ! AIOHM_BOOKING_Validation::validate_date( $arrival_date ) || ! AIOHM_BOOKING_Validation::validate_date( $departure_date ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid date format' ) );
+		}
+
+		// Set up template variables that the accommodation selection template expects
+		$pricing       = get_option( 'aiohm_booking_pricing', array() );
+		$product_names = get_option( 'aiohm_booking_product_names', array() );
+
+		// Get accommodation module settings for default price
+		$accommodation_settings = get_option( 'aiohm_booking_accommodation_settings', array() );
+
+		// Get early bird settings from helper
+		$early_bird_settings      = AIOHM_BOOKING_Early_Bird_Helper::get_accommodation_early_bird_settings();
+		$enable_early_bird        = $early_bird_settings['enabled'];
+		$early_bird_days          = $early_bird_settings['days'];
+		$default_early_bird_price = $early_bird_settings['default_price'];
+
+		// Set defaults.
+		$singular = $product_names['singular_cap'] ?? 'Room';
+		$plural   = $product_names['plural_cap'] ?? 'Rooms';
+
+		// Get currency from general settings (not pricing settings) - same as event selection
+		$global_settings = get_option( 'aiohm_booking_settings', array() );
+		$currency        = $global_settings['currency'] ?? 'USD';
+
+		$p = array( 'currency' => $currency );
+		// Get base price from accommodation module settings first, then fallback to accommodation_price from pricing
+		$base_acc_price = floatval( $accommodation_settings['default_price'] ?? $pricing['accommodation_price'] ?? 100 );
+
+		// Get calendar colors for CSS variables.
+		$admin_colors    = get_option( 'aiohm_booking_calendar_colors', array() );
+		$default_colors  = array(
+			'free'     => '#ffffff',
+			'booked'   => '#e74c3c',
+			'pending'  => '#f39c12',
+			'external' => '#6c5ce7',
+			'blocked'  => '#4b5563',
+			'special'  => '#007cba',
+			'private'  => '#28a745',
+		);
+		$calendar_colors = array_merge( $default_colors, $admin_colors );
+
+		// Get brand color for calendar styling
+		$main_settings = get_option( 'aiohm_booking_settings', array() );
+		$brand_color   = $main_settings['brand_color'] ?? $main_settings['form_primary_color'] ?? '#457d59';
+
+		// Get form settings for text and brand colors - match sandwich header logic
+		$form_settings = get_option( 'aiohm_booking_form_settings', array() );
+
+		// Simulate POST data for the accommodation selection template
+		$_POST['arrival_date']   = $arrival_date;
+		$_POST['departure_date'] = $departure_date;
+
+		// Generate the accommodation selection HTML
+		ob_start();
+		include AIOHM_BOOKING_DIR . 'templates/partials/aiohm-booking-accommodation-selection.php';
+		$html = ob_get_clean();
+
+		// Clean up simulated POST data
+		unset( $_POST['arrival_date'], $_POST['departure_date'] );
+
+		if ( empty( $html ) ) {
+			wp_send_json_error( array( 'message' => 'Failed to generate accommodation selection HTML' ) );
+		}
+
+		wp_send_json_success( array( 'html' => $html ) );
 	}
 }
 

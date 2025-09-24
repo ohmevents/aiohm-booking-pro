@@ -150,8 +150,8 @@ class AIOHM_BOOKING_Template_Helper {
 	private function get_price_settings() {
 		return array(
 			'currency'          => $this->settings['currency'] ?? 'EUR',
-			'ticket_price'      => floatval( $this->settings['tickets_price'] ?? 50 ),
-			'deposit_percent'   => intval( $this->settings['deposit_percentage'] ?? $this->settings['deposit_percent'] ?? 30 ),
+			'ticket_price'      => floatval( $this->settings['tickets_price'] ?? 0 ),
+			'deposit_percent'   => intval( $this->settings['deposit_percentage'] ?? $this->settings['deposit_percent'] ?? 0 ),
 			'allow_private_all' => ! empty( $this->settings['accommodations_allow_private'] ) || ! empty( $this->settings['allow_private_all'] ),
 			'earlybird_days'    => intval( $this->settings['early_bird_days'] ?? $this->settings['earlybird_days'] ?? 30 ),
 		);
@@ -330,7 +330,7 @@ class AIOHM_BOOKING_Template_Helper {
 		}
 
 		// Get available accommodations count from settings.
-		$available_accommodations = intval( $this->settings['available_accommodations'] ?? 7 );
+		$available_accommodations = intval( $this->settings['available_accommodations'] ?? 1 );
 
 		// Get accommodation posts using the module's cached method.
 		$accommodation_posts = $accommodation_module->get_cached_accommodations( $available_accommodations );

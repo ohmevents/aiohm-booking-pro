@@ -28,7 +28,7 @@
             this.isSubmitting = false;
             
             // Configuration
-            this.currency = 'RON';
+            this.currency = null;
             this.depositPercent = 50;
             this.earlybirdDays = 30;
             this.checkoutUrl = '';
@@ -110,7 +110,7 @@
         loadConfiguration() {
             if (!this.pricingContainer) return;
             
-            this.currency = this.pricingContainer.dataset.currency || 'RON';
+            this.currency = this.pricingContainer.dataset.currency;
             this.depositPercent = parseInt(this.pricingContainer.dataset.depositPercent) || 50;
             this.earlybirdDays = parseInt(this.pricingContainer.dataset.earlybirdDays) || 30;
             this.checkoutUrl = this.pricingContainer.dataset.checkoutUrl || '';

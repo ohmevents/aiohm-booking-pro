@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get events data and settings.
-$events_data     = get_option( 'aiohm_booking_events_data', array() );
+$events_data     = AIOHM_BOOKING_Module_Tickets::get_events_data();
 $global_settings = get_option( 'aiohm_booking_settings', array() );
 
 // Check if multiple event bookings are enabled
@@ -48,13 +48,34 @@ usort(
 		return 0 !== $date_comparison ? $date_comparison : strcmp( $a['event_time'] ?? '', $b['event_time'] ?? '' );
 	}
 );
+
+// Get form settings for text and brand colors - match accommodation template logic
+$form_settings = get_option( 'aiohm_booking_form_settings', array() );
+$main_settings = get_option( 'aiohm_booking_settings', array() );
+
+// Get unified brand color from main settings (shared across all contexts) - same as accommodation template
+$unified_brand_color = $main_settings['brand_color'] ?? $main_settings['form_primary_color'] ?? null;
+
+// Use unified color if available, otherwise fall back to form settings - same as accommodation template
+$brand_color = $unified_brand_color ?? $form_settings['form_primary_color'] ?? '#457d59';
+$text_color  = $form_settings['form_text_color'] ?? '#ffffff';
+
+// Set CSS variables via wp_localize_script for JavaScript to handle
+wp_localize_script(
+	'aiohm-booking-shortcode',
+	'aiohm_booking_colors',
+	array(
+		'brand_color' => $brand_color,
+		'text_color'  => $text_color,
+	)
+);
 ?>
 
 <div class="aiohm-booking-event-selection-card">
-	<div class="aiohm-booking-card-header">
+	<div class="aiohm-booking-shortcode-card-header">
 		<div class="aiohm-booking-card-title-section">
-			<h3 class="aiohm-booking-card-title"><?php esc_html_e( 'Event Selection', 'aiohm-booking-pro' ); ?></h3>
-			<p class="aiohm-booking-card-subtitle"><?php esc_html_e( 'Select an event to purchase tickets. Choose your ticket quantity below.', 'aiohm-booking-pro' ); ?></p>
+			<h3 class="aiohm-section-title"><?php esc_html_e( 'Event Selection', 'aiohm-booking-pro' ); ?></h3>
+			<p class="aiohm-section-subtitle"><?php esc_html_e( 'Select an event to purchase tickets. Choose your ticket quantity below.', 'aiohm-booking-pro' ); ?></p>
 		</div>
 	</div>
 
@@ -92,7 +113,12 @@ usort(
 				$event_end_time           = ! empty( $event['event_end_time'] ) ? date_i18n( $time_format, strtotime( $event['event_end_time'] ) ) : '';
 
 				$available_seats = isset( $event['available_seats'] ) ? intval( $event['available_seats'] ) : 50;
-				$currency        = $global_settings['currency'] ?? 'EUR';
+				$currency        = $global_settings['currency'] ?? '';
+				
+				// Debug: If currency is empty, use fallback to avoid undefined
+				if ( empty( $currency ) ) {
+					$currency = 'GBP'; // Temporary fallback
+				}
 
 				// Use global settings as defaults for early bird days and deposit percentage
 				$early_bird_days    = ! empty( $event['early_bird_days'] ) ? intval( $event['early_bird_days'] ) : intval( $global_settings['early_bird_days'] ?? 30 );

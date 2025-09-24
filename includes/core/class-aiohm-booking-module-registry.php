@@ -210,7 +210,7 @@ class AIOHM_BOOKING_Module_Registry {
 
 								// Check if this is a premium module and user doesn't have premium access
 								$is_premium_module  = isset( $definition['is_premium'] ) && $definition['is_premium'];
-								$has_premium_access = function_exists( 'aiohm_booking_fs' ) && aiohm_booking_fs()->can_use_premium_code__premium_only();
+								$has_premium_access = function_exists( 'aiohm_booking_fs' ) && (aiohm_booking_fs()->is_paying() || aiohm_booking_fs()->is_premium());
 
 
 								if ( ! $is_premium_module || $has_premium_access ) {

@@ -16,7 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 $global_settings = get_option( 'aiohm_booking_settings', array() );
 $pricing         = get_option( 'aiohm_booking_pricing', array() );
 $pricing_config  = $pricing['prices'] ?? array();
-$currency        = $pricing_config['currency'] ?? $global_settings['currency'] ?? 'RON';
+$currency        = $pricing_config['currency'] ?? $global_settings['currency'] ?? '';
+
+// Debug: If currency is empty, use fallback to avoid undefined
+if ( empty( $currency ) ) {
+    $currency = 'GBP'; // Temporary fallback
+}
 $deposit_percent = $pricing_config['deposit_percent'] ?? 50;
 $earlybird_days  = $pricing_config['earlybird_days'] ?? 30;
 ?>

@@ -95,7 +95,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 			include_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		return function_exists( 'is_plugin_active' ) && is_plugin_active( 'eventon/eventon.php' );
+		return function_exists( 'is_plugin_active' ) && is_plugin_active( 'eventON/eventon.php' );
 	}
 
 	/**
@@ -142,7 +142,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 		$eventon_posts = get_posts( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for EventON integration, limited to 100 posts, ordering by event date meta key necessary
 			array(
 				'post_type'      => 'ajde_events',
-				'post_status'    => 'publish',
+				'post_status'    => array( 'publish', 'future' ), // Include both published and scheduled events
 				'posts_per_page' => 100,
 				'orderby'        => 'meta_value',
 				'meta_key'       => 'evcal_srow', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Essential for chronological EventON event ordering
@@ -178,7 +178,6 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 		// Get EventOn meta data
 		$start_date = get_post_meta( $post->ID, 'evcal_srow', true );
 		$end_date   = get_post_meta( $post->ID, 'evcal_erow', true );
-		$location   = get_post_meta( $post->ID, 'evcal_location_name', true );
 		$all_day    = get_post_meta( $post->ID, 'evcal_allday', true );
 
 		// Convert timestamps to readable dates
@@ -204,7 +203,6 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 			'time'        => $time_display,
 			'start_date'  => $start_datetime,
 			'end_date'    => $end_datetime,
-			'location'    => $location,
 			'all_day'     => (bool) $all_day,
 		);
 	}
@@ -390,8 +388,8 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 			);
 		}
 
-		// Get current AIOHM booking events
-		$existing_events = get_option( 'aiohm_booking_events_data', array() );
+		// Get current AIOHM booking events using compatible method
+		$existing_events = AIOHM_BOOKING_Module_Tickets::get_events_data();
 
 		// Check if event already exists (by EventOn ID)
 		foreach ( $existing_events as $existing_event ) {
@@ -417,7 +415,6 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 			'price'           => 0, // Default price, user can modify later
 			'capacity'        => 50, // Default capacity, user can modify later
 			'available_seats' => 50,
-			'location'        => $event_data['location'] ?: '',
 			'eventon_id'      => $event_id, // Keep reference to original EventOn event
 			'import_source'   => 'eventon',
 			'import_date'     => current_time( 'mysql' ),
@@ -426,8 +423,17 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 		// Add the new event to existing events
 		$existing_events[] = $new_event;
 
-		// Save updated events data
-		update_option( 'aiohm_booking_events_data', $existing_events );
+		// Save using modern CPT approach if tickets module is available
+		$tickets_module = AIOHM_BOOKING_Module_Registry::get_module_instance( 'tickets' );
+		
+		if ( $tickets_module && method_exists( $tickets_module, 'create_event_cpt' ) ) {
+			// Create CPT version of the event
+			$post_id = $tickets_module->create_event_cpt( $new_event );
+			if ( $post_id && ! is_wp_error( $post_id ) ) {
+				// Save EventON specific meta
+				update_post_meta( $post_id, '_eventon_id', $new_event['eventon_id'] );
+			}
+		}
 
 		return array(
 			'success'  => true,

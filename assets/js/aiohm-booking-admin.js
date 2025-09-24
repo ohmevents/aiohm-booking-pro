@@ -9,22 +9,12 @@
         },
 
         bindEvents: function() {
-            // Add new event button
-            $(document).on('click', '.aiohm-add-event', function(e) {
+            // Handle add event button
+            $(document).on('click', '.aiohm-add-event-btn', function(e) {
                 e.preventDefault();
-                AIOHM_Booking_Admin.addEvent();
-            });
-
-            // Remove event button
-            $(document).on('click', '.aiohm-remove-event', function(e) {
-                e.preventDefault();
-                AIOHM_Booking_Admin.removeEvent($(this));
-            });
-
-            // Toggle event details
-            $(document).on('click', '.aiohm-toggle-details', function(e) {
-                e.preventDefault();
-                AIOHM_Booking_Admin.toggleEventDetails($(this));
+                if (typeof AIOHM_Booking_Settings_Admin !== 'undefined' && AIOHM_Booking_Settings_Admin.addNewEvent) {
+                    AIOHM_Booking_Settings_Admin.addNewEvent();
+                }
             });
 
             // Toggle event details for tickets module
@@ -33,10 +23,34 @@
                 AIOHM_Booking_Admin.toggleEventDetails($(this));
             });
 
-            // Handle individual event save buttons
-            $(document).on('click', '.aiohm-individual-save-btn', function(e) {
+            // Handle individual event save buttons (only for event buttons with data-event-index)
+            $(document).on('click', '.aiohm-individual-save-btn[data-event-index]', function(e) {
                 e.preventDefault();
                 AIOHM_Booking_Admin.handleIndividualEventSave($(this));
+            });
+
+            // Handle add teacher button
+            $(document).on('click', '.aiohm-add-teacher-btn', function(e) {
+                e.preventDefault();
+                AIOHM_Booking_Admin.addTeacher($(this));
+            });
+
+            // Handle upload photo button
+            $(document).on('click', '.aiohm-upload-photo-btn', function(e) {
+                e.preventDefault();
+                AIOHM_Booking_Admin.uploadTeacherPhoto($(this));
+            });
+
+            // Handle remove photo button
+            $(document).on('click', '.aiohm-remove-photo-btn', function(e) {
+                e.preventDefault();
+                AIOHM_Booking_Admin.removeTeacherPhoto($(this));
+            });
+
+            // Handle remove teacher button
+            $(document).on('click', '.aiohm-remove-teacher-btn', function(e) {
+                e.preventDefault();
+                AIOHM_Booking_Admin.removeTeacher($(this));
             });
 
             // Handle date input changes
@@ -353,6 +367,219 @@
                 complete: function() {
                     // Re-enable button
                     $button.prop('disabled', false);
+                }
+            });
+        },
+
+        addTeacher: function($button) {
+            const eventIndex = $button.data('event-index');
+            const $eventCard = $button.closest('.aiohm-booking-event-settings');
+            const $teachersContainer = $eventCard.find('.aiohm-teachers-container');
+            
+            // Get current teacher count
+            const currentTeachers = $teachersContainer.find('.aiohm-teacher-item').length;
+            const newTeacherIndex = currentTeachers;
+            
+            // Create new teacher HTML with proper upload functionality
+            const teacherHtml = `
+                <div class="aiohm-teacher-item" data-teacher-index="${newTeacherIndex}">
+                    <div class="aiohm-teacher-details">
+                        <div class="aiohm-columns-2">
+                            <div class="aiohm-form-group">
+                                <label>Name</label>
+                                <input type="text" name="events[${eventIndex}][teachers][${newTeacherIndex}][name]" value="" placeholder="Enter teacher name">
+                            </div>
+                            <div class="aiohm-form-group">
+                                <label>Photo</label>
+                                <div class="aiohm-teacher-photo-upload">
+                                    <div class="aiohm-photo-preview aiohm-hidden" id="teacher-photo-preview-${eventIndex}-${newTeacherIndex}">
+                                        <img src="" alt="Teacher" class="aiohm-teacher-photo-img">
+                                        <button type="button" class="aiohm-remove-photo-btn" data-event-index="${eventIndex}" data-teacher-index="${newTeacherIndex}">
+                                            <span class="dashicons dashicons-no"></span>
+                                        </button>
+                                    </div>
+                                    <div class="aiohm-photo-upload-controls" id="teacher-photo-upload-${eventIndex}-${newTeacherIndex}">
+                                        <input type="hidden" name="events[${eventIndex}][teachers][${newTeacherIndex}][photo]" value="" id="teacher-photo-input-${eventIndex}-${newTeacherIndex}">
+                                        <button type="button" class="button aiohm-upload-photo-btn" data-event-index="${eventIndex}" data-teacher-index="${newTeacherIndex}">
+                                            <span class="dashicons dashicons-camera"></span>
+                                            Upload Photo
+                                        </button>
+                                        <p class="aiohm-photo-hint">Recommended: 200x200px, JPG/PNG format</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="button button-secondary aiohm-remove-teacher-btn" data-teacher-index="${newTeacherIndex}">
+                            <span class="dashicons dashicons-trash"></span>
+                            Remove Teacher
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add to container
+            $teachersContainer.append(teacherHtml);
+            
+            // Hide the "no teachers" message if it exists
+            $eventCard.find('.aiohm-no-teachers').hide();
+        },
+
+        uploadTeacherPhoto: function($button) {
+            const eventIndex = $button.data('event-index');
+            const teacherIndex = $button.data('teacher-index');
+            
+            // Create a file input element
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml';
+            
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Create a FileReader to read the file
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const imageUrl = event.target.result;
+                        
+                        // Update the photo input and preview
+                        const $photoInput = $(`#teacher-photo-input-${eventIndex}-${teacherIndex}`);
+                        const $photoPreview = $(`#teacher-photo-preview-${eventIndex}-${teacherIndex}`);
+                        const $uploadControls = $(`#teacher-photo-upload-${eventIndex}-${teacherIndex}`);
+                        
+                        // Set the image URL
+                        $photoInput.val(imageUrl);
+                        $photoPreview.find('.aiohm-teacher-photo-img').attr('src', imageUrl);
+                        
+                        // Show preview, hide upload controls
+                        $photoPreview.removeClass('aiohm-hidden');
+                        $uploadControls.addClass('aiohm-hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            
+            // Trigger file selection
+            fileInput.click();
+        },
+
+        removeTeacherPhoto: function($button) {
+            const eventIndex = $button.data('event-index');
+            const teacherIndex = $button.data('teacher-index');
+            
+            // Clear the photo input and preview
+            const $photoInput = $(`#teacher-photo-input-${eventIndex}-${teacherIndex}`);
+            const $photoPreview = $(`#teacher-photo-preview-${eventIndex}-${teacherIndex}`);
+            const $uploadControls = $(`#teacher-photo-upload-${eventIndex}-${teacherIndex}`);
+            
+            // Clear values
+            $photoInput.val('');
+            $photoPreview.find('.aiohm-teacher-photo-img').attr('src', '');
+            
+            // Hide preview, show upload controls
+            $photoPreview.addClass('aiohm-hidden');
+            $uploadControls.removeClass('aiohm-hidden');
+        },
+
+        removeTeacher: function($button) {
+            const $teacherItem = $button.closest('.aiohm-teacher-item');
+            const $teachersContainer = $teacherItem.closest('.aiohm-teachers-container');
+            
+            // Remove the teacher item
+            $teacherItem.remove();
+            
+            // Check if there are any teachers left
+            if ($teachersContainer.find('.aiohm-teacher-item').length === 0) {
+                // Show the "no teachers" message
+                $teachersContainer.siblings('.aiohm-no-teachers').show();
+            }
+        },
+
+        // Handle individual event save
+        handleIndividualEventSave: function($button) {
+            const eventIndex = $button.data('event-index');
+            const $eventCard = $button.closest('.aiohm-booking-event-settings');
+            
+            if (eventIndex === undefined) {
+                alert('Error: Could not determine event index.');
+                return;
+            }
+            
+            // Show loading state
+            const originalText = $button.text();
+            $button.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Saving...');
+            
+            // Serialize form data for this specific event
+            const $form = $eventCard.closest('form');
+            const formData = new FormData($form[0]);
+            
+            // Prepare data for AJAX
+            const ajaxData = {
+                action: 'aiohm_booking_save_individual_event',
+                nonce: aiohm_booking_admin.nonce,
+                event_index: eventIndex,
+                events: {}
+            };
+            
+            // Extract only the event data for this specific event
+            const eventData = {};
+            for (let [key, value] of formData.entries()) {
+                if (key.startsWith(`events[${eventIndex}]`)) {
+                    // Parse the field name to extract the nested structure  
+                    const fieldMatch = key.match(/^events\[(\d+)\](.+)$/);
+                    if (fieldMatch) {
+                        const fieldName = fieldMatch[2];
+                        
+                        // Handle nested fields like [teachers][0][name]
+                        if (fieldName.includes('[')) {
+                            const nestedMatch = fieldName.match(/^\[(.+?)\]\[(\d+)\]\[(.+)\]$/);
+                            if (nestedMatch) {
+                                const [, parentField, index, subField] = nestedMatch;
+                                if (!eventData[parentField]) eventData[parentField] = [];
+                                if (!eventData[parentField][index]) eventData[parentField][index] = {};
+                                eventData[parentField][index][subField] = value;
+                            }
+                        } else {
+                            // Handle simple fields like [title] 
+                            const simpleField = fieldName.match(/^\[(.+)\]$/);
+                            if (simpleField) {
+                                eventData[simpleField[1]] = value;
+                            } else {
+                                eventData[fieldName] = value;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            ajaxData.events[eventIndex] = eventData;
+            
+            // Make AJAX request
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: ajaxData,
+                success: function(response) {
+                    // Reset button
+                    $button.prop('disabled', false).html(originalText);
+                    
+                    if (response.success) {
+                        // Show success feedback
+                        $button.html('<span class="dashicons dashicons-yes"></span> Saved!');
+                        setTimeout(function() {
+                            $button.html(originalText);
+                        }, 2000);
+                    } else {
+                        // Show error message
+                        const errorMsg = response.data && response.data.message ? response.data.message : 'Unknown error occurred';
+                        alert('Failed to save event: ' + errorMsg);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Reset button
+                    $button.prop('disabled', false).html(originalText);
+                    
+                    // Show error message
+                    alert('Failed to save event: ' + error);
                 }
             });
         }

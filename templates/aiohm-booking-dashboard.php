@@ -251,7 +251,7 @@ $safe_number_format = function ( $number, $decimals = 0 ) {
 						<p style="margin: 0 0 15px 0; color: #856404;"><?php esc_html_e( 'To unlock Stripe payments and premium features, you need a Pro license.', 'aiohm-booking-pro' ); ?></p>
 						<div style="display: flex; gap: 10px; align-items: center;">
 							<a href="<?php echo esc_url( $upgrade_url ); ?>" class="aiohm-step-button aiohm-step-button-premium" style="background: #007cba; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-								<?php echo $button_text; ?>
+								<?php echo esc_html( $button_text ); ?>
 							</a>
 							<a href="https://freemius.com/wordpress/20270/" target="_blank" style="color: #007cba; text-decoration: none; font-size: 14px;">
 								<?php esc_html_e( 'Learn More →', 'aiohm-booking-pro' ); ?>

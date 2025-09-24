@@ -204,6 +204,7 @@ class AIOHM_BOOKING_Admin_Settings {
 				),
 			);
 
+			/* <fs_premium_only> */
 			// Add AI-related settings only for premium users
 			if ( function_exists( 'aiohm_booking_fs' ) && aiohm_booking_fs()->can_use_premium_code__premium_only() ) {
 				$ai_settings = array(
@@ -281,6 +282,7 @@ class AIOHM_BOOKING_Admin_Settings {
 
 				self::$settings_schema = array_merge( self::$settings_schema, $payment_settings );
 			}
+			/* </fs_premium_only> */
 		}
 
 		return self::$settings_schema;

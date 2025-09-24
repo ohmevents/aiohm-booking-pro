@@ -391,12 +391,12 @@ class AIOHM_BOOKING_Accommodation_Counter {
 
 				if ( $post_id && ! is_wp_error( $post_id ) ) {
 					// Add accommodation meta
-					update_post_meta( $post_id, '_accommodation_number', $i );
-					update_post_meta( $post_id, '_type', $accommodation_type );
-					update_post_meta( $post_id, '_price', $default_price );
-					update_post_meta( $post_id, '_earlybird_price', $default_earlybird_price );
-					update_post_meta( $post_id, '_aiohm_accommodation_units', 1 );
-					update_post_meta( $post_id, '_aiohm_accommodation_room_id', $post_id );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_number', $i );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_type', $accommodation_type );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_price', $default_price );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_earlybird_price', $default_earlybird_price );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_units', 1 );
+					update_post_meta( $post_id, '_aiohm_booking_accommodation_max_guests', 2 ); // Default maximum guests
 				}
 			}
 		}

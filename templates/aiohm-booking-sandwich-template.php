@@ -113,16 +113,6 @@ $aiohm_booking_events_context = $is_events_context;
 					
 					<?php if ( $show_events ) : ?>
 					<div class="aiohm-booking-selection-section aiohm-booking-event-selection">
-						<h3 class="aiohm-booking-section-title">
-							<?php
-							// Adjust title based on what's enabled
-							if ( $show_events && $show_accommodations ) {
-								esc_html_e( 'Select Your Events', 'aiohm-booking-pro' );
-							} else {
-								esc_html_e( 'Select Your Events', 'aiohm-booking-pro' );
-							}
-							?>
-						</h3>
 						<?php include AIOHM_BOOKING_DIR . 'templates/partials/aiohm-booking-event-selection.php'; ?>
 					</div>
 					<?php endif; ?>

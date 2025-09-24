@@ -120,7 +120,9 @@ $settings = isset( $settings ) ? $settings : AIOHM_BOOKING_Settings::get_all();
 				<span class="dashicons dashicons-admin-links"></span>
 				<span class="btn-text">Test Connection</span>
 			</button>
-			<?php submit_button( 'Save Stripe Settings', 'primary', 'save_stripe_settings', false, array( 'class' => 'aiohm-btn aiohm-btn--save' ) ); ?>
+			<button type="button" name="save_stripe_settings" class="button button-primary aiohm-btn aiohm-btn--save">
+				Save Stripe Settings
+			</button>
 		</div>
 	</div>
 

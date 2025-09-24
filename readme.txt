@@ -3,7 +3,7 @@ Contributors: ohm-events, aiohm, freemius
 Tags: booking, events, tickets, calendar, accommodation
 Requires at least: 6.2
 Tested up to: 6.8
-Stable tag: 2.0.1
+Stable tag: 2.0.3
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -227,6 +227,21 @@ The plugin uses a modular architecture. Enable only what you need:
 6. **Email Notifications** - Professional communication system
 
 == Changelog ==
+
+= 2.0.3 =
+* **MAJOR ARCHITECTURAL UPGRADE**: Migrated events from array storage to Custom Post Type (aiohm_booking_event) for consistency with accommodations
+* **FEATURE**: Automatic migration system converts existing events to CPT while maintaining backward compatibility
+* **ENHANCEMENT**: Unified data architecture - both events and accommodations now use identical Custom Post Type patterns
+* **COMPLETION**: All shortcodes now fully functional - completed registration of aiohm_booking_accommodations, aiohm_booking_events, and aiohm_booking_checkout
+* **SCALABILITY**: Enhanced performance with database indexing and WordPress-native query systems
+* **DEVELOPER**: Cross-module compatible data access methods for consistent API across all booking functionality
+* **INTEGRATION**: Updated all modules (Orders, EventON Integration) to use unified CPT architecture
+
+= 2.0.2 =
+* **BUGFIX**: Fixed invoice generation to properly display all items from booking summary mini-cards
+* **ENHANCEMENT**: Improved upgrade button positioning for better user experience
+* **CLEANUP**: Removed all debug console.log statements for production readiness
+* **MAINTENANCE**: Updated plugin version constants and improved code quality
 
 = 1.2.8 =
 * **BUGFIX**: Fixed Stripe payment redirect issue - Payment now properly redirects to Stripe hosted checkout instead of showing success popup

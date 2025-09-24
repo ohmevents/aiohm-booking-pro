@@ -84,6 +84,9 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 
 		// Add AJAX handler for saving masonry card order.
 		add_action( 'wp_ajax_aiohm_save_masonry_order', array( $this, 'ajax_save_masonry_order' ) );
+
+		// Add AJAX handler for resetting plugin data.
+		add_action( 'wp_ajax_aiohm_booking_reset_plugin_data', array( $this, 'ajax_reset_plugin_data' ) );
 	}
 
 	/**
@@ -272,7 +275,18 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 				'facebook_app_secret',
 			);
 
-			// Payment module settings are now handled by their respective modules
+			// Payment module settings - Add Stripe settings (always allow if Stripe module exists)
+			$stripe_module_file = AIOHM_BOOKING_DIR . 'includes/modules/payments/stripe/class-aiohm-booking-module-stripe.php';
+			if ( file_exists( $stripe_module_file ) ) {
+				$allowed_settings = array_merge(
+					$allowed_settings,
+					array(
+						'stripe_publishable_key',
+						'stripe_secret_key',
+						'stripe_webhook_secret',
+					)
+				);
+			}
 
 			if ( AIOHM_BOOKING_Utilities::is_module_available( 'gemini' ) ) {
 				$allowed_settings = array_merge(
@@ -557,7 +571,7 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 		return array(
 			'currency'           => 'USD',
 			'plugin_language'    => 'en',
-			'deposit_percentage' => 30,
+			'deposit_percentage' => 0,
 			'min_age'            => 0,
 		);
 	}
@@ -571,6 +585,90 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 		// Settings module is always enabled.
 		return true;
 	}
+
+	/**
+	 * AJAX handler for resetting all plugin data
+	 * 
+	 * @since 2.0.3
+	 */
+	public function ajax_reset_plugin_data() {
+		// Verify nonce and capabilities
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_save_settings' ) ) {
+			wp_send_json_error( array( 'message' => 'Security verification failed.' ) );
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ) );
+			return;
+		}
+
+		global $wpdb;
+
+		try {
+			// Delete all plugin options
+			$plugin_options = array(
+				'aiohm_booking_settings',
+				'aiohm_booking_events_migrated',
+				'aiohm_booking_tickets_settings',
+				'aiohm_booking_accommodation_settings',
+				'aiohm_booking_calendar_settings',
+				'aiohm_booking_tickets_form_settings',
+				'aiohm_booking_accommodation_form_settings',
+				'aiohm_booking_ticket_settings',
+				'aiohm_booking_ticket_types',
+				'aiohm_booking_private_events',
+				'aiohm_booking_cell_statuses',
+				'aiohm_booking_ai_analytics_settings',
+				'aiohm_booking_openai_settings',
+				'aiohm_booking_gemini_settings',
+				'aiohm_booking_ollama_settings',
+				'aiohm_booking_shareai_settings',
+				'aiohm_booking_stripe_settings',
+			);
+
+			foreach ( $plugin_options as $option ) {
+				delete_option( $option );
+			}
+
+			// Delete all Custom Post Types
+			$cpt_types = array( 'aiohm_accommodation', 'aiohm_booking_event' );
+			foreach ( $cpt_types as $post_type ) {
+				$posts = get_posts( array(
+					'post_type'      => $post_type,
+					'posts_per_page' => -1,
+					'post_status'    => 'any',
+				) );
+				foreach ( $posts as $post ) {
+					wp_delete_post( $post->ID, true );
+				}
+			}
+
+			// Delete custom tables
+			$tables_to_delete = array(
+				$wpdb->prefix . 'aiohm_booking_order',
+				$wpdb->prefix . 'aiohm_booking_calendar_data',
+				$wpdb->prefix . 'aiohm_booking_email_logs',
+			);
+
+			foreach ( $tables_to_delete as $table ) {
+				$wpdb->query( "DROP TABLE IF EXISTS " . esc_sql( $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange
+			}
+
+			// Clear any transients
+			$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aiohm_%' OR option_name LIKE '_transient_timeout_aiohm_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+
+			wp_send_json_success( array( 
+				'message' => 'All plugin data has been successfully reset.',
+				'redirect' => admin_url( 'admin.php?page=aiohm-booking-settings' )
+			) );
+
+		} catch ( Exception $e ) {
+			wp_send_json_error( array( 'message' => 'Error during reset: ' . $e->getMessage() ) );
+		}
+	}
+
 }
 
 // Register the Settings module.

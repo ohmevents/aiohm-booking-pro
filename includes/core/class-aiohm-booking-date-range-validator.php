@@ -327,7 +327,7 @@ class AIOHM_BOOKING_Date_Range_Validator {
 		}
 
 		foreach ( $custom_events as $event_post ) {
-			$event_date = get_post_meta( $event_post->ID, '_event_date', true );
+			$event_date = get_post_meta( $event_post->ID, '_aiohm_booking_tickets_event_date', true );
 			if ( $this->is_valid_date_format( $event_date ) ) {
 				$existing_events[ $event_date ] = array(
 					'is_private_event'  => true,

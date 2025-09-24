@@ -25,7 +25,7 @@ $calendar_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'calen
 
 // Get settings and accommodations.
 $settings              = get_option( 'aiohm_booking_settings', array() );
-$unit_count            = intval( $settings['available_accommodations'] ?? 7 );
+$unit_count            = intval( $settings['available_accommodations'] ?? 1 );
 $accommodation_details = get_option( 'aiohm_booking_accommodations_details', array() );
 
 // Create unit data for calendar (use calendar module's units if available).

@@ -118,6 +118,16 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		$this->ticket_settings = $this->get_ticket_settings();
 		$this->ticket_types    = $this->get_ticket_types();
 
+		// Register the Custom Post Type for events.
+		add_action( 'init', array( $this, 'register_event_cpt' ) );
+
+		// Run migration from array to CPT (runs once)
+		add_action( 'init', array( $this, 'migrate_events_to_cpt' ) );
+
+		// Add meta boxes to the CPT edit screen.
+		add_action( 'add_meta_boxes', array( $this, 'add_event_meta_boxes' ) );
+		add_action( 'save_post_aiohm_booking_event', array( $this, 'save_event_meta_data' ) );
+
 		// Handle event details form submission.
 		add_action( 'admin_init', array( $this, 'save_events_data' ) );
 
@@ -126,11 +136,10 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		add_action( 'wp_ajax_aiohm_booking_delete_event', array( $this, 'ajax_delete_event' ) );
 		add_action( 'wp_ajax_aiohm_booking_increment_event_count', array( $this, 'ajax_increment_event_count' ) );
 		add_action( 'wp_ajax_aiohm_booking_update_ticket_stats', array( $this, 'ajax_update_ticket_stats' ) );
+		add_action( 'wp_ajax_aiohm_clone_event', array( $this, 'ajax_clone_event' ) );
+		add_action( 'wp_ajax_aiohm_add_new_event', array( $this, 'ajax_add_new_event' ) );
 
-		// EventON integration AJAX handlers
-		if ( class_exists( 'EventON' ) || ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'eventON/eventon.php' ) ) ) {
-			add_action( 'wp_ajax_aiohm_booking_get_eventon_events_list', array( $this, 'ajax_get_eventon_events_list' ) );
-		}
+		// EventON integration is now handled by dedicated EventON integration module
 
 		// Event booking submission handlers (for frontend checkout)
 		add_action( 'wp_ajax_aiohm_booking_submit_event', array( $this, 'ajax_process_event_booking' ) );
@@ -288,6 +297,411 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	}
 
 	/**
+	 * Register the 'aiohm_booking_event' Custom Post Type.
+	 */
+	public function register_event_cpt() {
+		$labels = array(
+			'name'              => _x( 'Events', 'Post Type General Name', 'aiohm-booking-pro' ),
+			'singular_name'     => _x( 'Event', 'Post Type Singular Name', 'aiohm-booking-pro' ),
+			'menu_name'         => __( 'Events', 'aiohm-booking-pro' ),
+			'name_admin_bar'    => __( 'Event', 'aiohm-booking-pro' ),
+			'archives'          => __( 'Event Archives', 'aiohm-booking-pro' ),
+			'attributes'        => __( 'Event Attributes', 'aiohm-booking-pro' ),
+			'parent_item_colon' => __( 'Parent Event:', 'aiohm-booking-pro' ),
+			'all_items'         => __( 'All Events', 'aiohm-booking-pro' ),
+			'add_new_item'      => __( 'Add New Event', 'aiohm-booking-pro' ),
+			'add_new'           => __( 'Add New', 'aiohm-booking-pro' ),
+			'new_item'          => __( 'New Event', 'aiohm-booking-pro' ),
+			'edit_item'         => __( 'Edit Event', 'aiohm-booking-pro' ),
+			'update_item'       => __( 'Update Event', 'aiohm-booking-pro' ),
+			'view_item'         => __( 'View Event', 'aiohm-booking-pro' ),
+			'view_items'        => __( 'View Events', 'aiohm-booking-pro' ),
+			'search_items'      => __( 'Search Event', 'aiohm-booking-pro' ),
+		);
+		$args   = array(
+			'label'           => __( 'Event', 'aiohm-booking-pro' ),
+			'description'     => __( 'Events for booking and ticket sales.', 'aiohm-booking-pro' ),
+			'labels'          => $labels,
+			'supports'        => array( 'title', 'editor', 'thumbnail', 'custom-fields' ),
+			'hierarchical'    => false,
+			'public'          => true,
+			'show_ui'         => true,
+			'show_in_menu'    => 'aiohm-booking-pro', // Show under the main AIOHM menu.
+			'menu_icon'       => 'dashicons-calendar-alt',
+			'capability_type' => 'post',
+		);
+
+		register_post_type( 'aiohm_booking_event', $args );
+	}
+
+	/**
+	 * Add meta boxes for the event CPT.
+	 */
+	public function add_event_meta_boxes() {
+		add_meta_box(
+			'aiohm_event_details',
+			__( 'Event Details', 'aiohm-booking-pro' ),
+			array( $this, 'render_event_meta_box' ),
+			'aiohm_booking_event',
+			'normal',
+			'high'
+		);
+	}
+
+	/**
+	 * Render the content of the event details meta box.
+	 *
+	 * @param WP_Post $post The post object.
+	 */
+	public function render_event_meta_box( $post ) {
+		wp_nonce_field( 'aiohm_save_event_meta', 'aiohm_event_meta_nonce' );
+
+		$event_date         = get_post_meta( $post->ID, '_aiohm_booking_tickets_event_date', true );
+		$event_time         = get_post_meta( $post->ID, '_aiohm_booking_tickets_event_time', true );
+		$event_end_date     = get_post_meta( $post->ID, '_aiohm_booking_tickets_event_end_date', true );
+		$event_end_time     = get_post_meta( $post->ID, '_aiohm_booking_tickets_event_end_time', true );
+		$price              = get_post_meta( $post->ID, '_aiohm_booking_tickets_price', true );
+		$early_bird_price   = get_post_meta( $post->ID, '_aiohm_booking_tickets_early_bird_price', true );
+		$early_bird_date    = get_post_meta( $post->ID, '_aiohm_booking_tickets_early_bird_date', true );
+		$available_seats    = get_post_meta( $post->ID, '_aiohm_booking_tickets_available_seats', true );
+		$event_type         = get_post_meta( $post->ID, '_aiohm_booking_tickets_event_type', true );
+		$deposit_percentage = get_post_meta( $post->ID, '_aiohm_booking_tickets_deposit_percentage', true );
+
+		?>
+		<table class="form-table">
+			<tr>
+				<th><label for="aiohm_event_event_date"><?php esc_html_e( 'Event Date', 'aiohm-booking-pro' ); ?></label></th>
+				<td><input type="date" id="aiohm_event_event_date" name="aiohm_event_event_date" value="<?php echo esc_attr( $event_date ); ?>" /></td>
+			</tr>
+			<tr>
+				<th><label for="aiohm_event_event_time"><?php esc_html_e( 'Event Time', 'aiohm-booking-pro' ); ?></label></th>
+				<td><input type="time" id="aiohm_event_event_time" name="aiohm_event_event_time" value="<?php echo esc_attr( $event_time ); ?>" /></td>
+			</tr>
+			<tr>
+				<th><label for="aiohm_event_event_end_date"><?php esc_html_e( 'End Date', 'aiohm-booking-pro' ); ?></label></th>
+				<td><input type="date" id="aiohm_event_event_end_date" name="aiohm_event_event_end_date" value="<?php echo esc_attr( $event_end_date ); ?>" /></td>
+			</tr>
+			<tr>
+				<th><label for="aiohm_event_event_end_time"><?php esc_html_e( 'End Time', 'aiohm-booking-pro' ); ?></label></th>
+				<td><input type="time" id="aiohm_event_event_end_time" name="aiohm_event_event_end_time" value="<?php echo esc_attr( $event_end_time ); ?>" /></td>
+			</tr>
+			<tr>
+				<th><label for="aiohm_event_price"><?php esc_html_e( 'Price', 'aiohm-booking-pro' ); ?></label></th>
+				<td><input type="number" id="aiohm_event_price" name="aiohm_event_price" value="<?php echo esc_attr( $price ); ?>" step="0.01" /></td>
+			</tr>
+			<tr>
+				<th><label for="aiohm_event_early_bird_price"><?php esc_html_e( 'Early Bird Price', 'aiohm-booking-pro' ); ?></label></th>
+				<td><input type="number" id="aiohm_event_early_bird_price" name="aiohm_event_early_bird_price" value="<?php echo esc_attr( $early_bird_price ); ?>" step="0.01" /></td>
+			</tr>
+			<tr>
+				<th><label for="aiohm_event_early_bird_date"><?php esc_html_e( 'Early Bird Date', 'aiohm-booking-pro' ); ?></label></th>
+				<td><input type="date" id="aiohm_event_early_bird_date" name="aiohm_event_early_bird_date" value="<?php echo esc_attr( $early_bird_date ); ?>" /></td>
+			</tr>
+			<tr>
+				<th><label for="aiohm_event_available_seats"><?php esc_html_e( 'Available Seats', 'aiohm-booking-pro' ); ?></label></th>
+				<td><input type="number" id="aiohm_event_available_seats" name="aiohm_event_available_seats" value="<?php echo esc_attr( $available_seats ); ?>" /></td>
+			</tr>
+			<tr>
+				<th><label for="aiohm_event_event_type"><?php esc_html_e( 'Event Type', 'aiohm-booking-pro' ); ?></label></th>
+				<td><input type="text" id="aiohm_event_event_type" name="aiohm_event_event_type" value="<?php echo esc_attr( $event_type ); ?>" /></td>
+			</tr>
+			<tr>
+				<th><label for="aiohm_event_deposit_percentage"><?php esc_html_e( 'Deposit Percentage', 'aiohm-booking-pro' ); ?></label></th>
+				<td><input type="number" id="aiohm_event_deposit_percentage" name="aiohm_event_deposit_percentage" value="<?php echo esc_attr( $deposit_percentage ); ?>" step="1" min="0" max="100" /></td>
+			</tr>
+		</table>
+		<?php
+	}
+
+	/**
+	 * Save meta data for the event CPT.
+	 *
+	 * @param int $post_id The ID of the post being saved.
+	 */
+	public function save_event_meta_data( $post_id ) {
+		if ( ! isset( $_POST['aiohm_event_event_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_event_event_meta_nonce'] ) ), 'aiohm_save_event_meta' ) ) {
+			return;
+		}
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+		if ( isset( $_POST['post_type'] ) && 'aiohm_booking_event' == sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) && ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
+		update_post_meta( $post_id, '_aiohm_booking_tickets_event_date', sanitize_text_field( wp_unslash( $_POST['aiohm_event_event_date'] ?? '' ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_tickets_event_time', sanitize_text_field( wp_unslash( $_POST['aiohm_event_event_time'] ?? '' ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_date', sanitize_text_field( wp_unslash( $_POST['aiohm_event_event_end_date'] ?? '' ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_time', sanitize_text_field( wp_unslash( $_POST['aiohm_event_event_end_time'] ?? '' ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_tickets_price', sanitize_text_field( wp_unslash( $_POST['aiohm_event_price'] ?? 0 ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_price', sanitize_text_field( wp_unslash( $_POST['aiohm_event_early_bird_price'] ?? 0 ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_date', sanitize_text_field( wp_unslash( $_POST['aiohm_event_early_bird_date'] ?? '' ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_tickets_available_seats', sanitize_text_field( wp_unslash( $_POST['aiohm_event_available_seats'] ?? 0 ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_tickets_event_type', sanitize_text_field( wp_unslash( $_POST['aiohm_event_event_type'] ?? '' ) ) );
+		update_post_meta( $post_id, '_aiohm_booking_tickets_deposit_percentage', sanitize_text_field( wp_unslash( $_POST['aiohm_event_deposit_percentage'] ?? 0 ) ) );
+	}
+
+	/**
+	 * Migrate existing array-based events to Custom Post Type
+	 * This should be called once during plugin update or manually
+	 */
+	public function migrate_events_to_cpt() {
+		// Check if migration has already been done
+		if ( get_option( 'aiohm_booking_events_migrated', false ) ) {
+			return;
+		}
+
+		// Get existing events from array storage
+		$events_data = get_option( 'aiohm_booking_events_data', array() );
+		
+		if ( empty( $events_data ) ) {
+			// Mark as migrated even if no events to migrate
+			update_option( 'aiohm_booking_events_migrated', true );
+			return;
+		}
+
+		foreach ( $events_data as $index => $event ) {
+			// Create new event post
+			$post_id = wp_insert_post(
+				array(
+					'post_title'   => sanitize_text_field( $event['title'] ?? "Event " . ($index + 1) ),
+					'post_content' => sanitize_textarea_field( $event['description'] ?? '' ),
+					'post_status'  => 'publish',
+					'post_type'    => 'aiohm_booking_event',
+					'menu_order'   => $index,
+				)
+			);
+
+			if ( $post_id && ! is_wp_error( $post_id ) ) {
+				// Migrate all event meta data
+				update_post_meta( $post_id, '_aiohm_booking_tickets_event_date', sanitize_text_field( $event['event_date'] ?? '' ) );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_event_time', sanitize_text_field( $event['event_time'] ?? '' ) );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_date', sanitize_text_field( $event['event_end_date'] ?? '' ) );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_time', sanitize_text_field( $event['event_end_time'] ?? '' ) );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_price', floatval( $event['price'] ?? 0 ) );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_price', floatval( $event['early_bird_price'] ?? 0 ) );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_date', sanitize_text_field( $event['early_bird_date'] ?? '' ) );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_available_seats', intval( $event['available_seats'] ?? 0 ) );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_event_type', sanitize_text_field( $event['event_type'] ?? '' ) );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_deposit_percentage', intval( $event['deposit_percentage'] ?? 0 ) );
+			}
+		}
+
+		// Mark migration as complete
+		update_option( 'aiohm_booking_events_migrated', true );
+		
+		// Keep the original array data for a transition period
+		// Admin can manually delete 'aiohm_booking_events_data' option after confirming migration worked
+	}
+
+	/**
+	 * Get events from Custom Post Type (new method)
+	 * 
+	 * @param int $count Number of events to retrieve (-1 for all)
+	 * @return array Array of event post objects
+	 */
+	public function get_events_from_cpt( $count = -1 ) {
+		$args = array(
+			'post_type'      => 'aiohm_booking_event',
+			'posts_per_page' => $count,
+			'post_status'    => 'publish',
+			'orderby'        => 'menu_order',
+			'order'          => 'ASC',
+			'no_found_rows'  => true,
+			'cache_results'  => false,
+		);
+
+		return get_posts( $args );
+	}
+
+	/**
+	 * Get event display data from CPT post (matches accommodation pattern)
+	 * 
+	 * @param WP_Post $post Event post object
+	 * @return array Display data for the event
+	 */
+	public function get_event_display_data( $post ) {
+		return array(
+			'id'                => $post->ID,
+			'title'             => $post->post_title,
+			'description'       => $post->post_content,
+			'event_date'        => get_post_meta( $post->ID, '_aiohm_booking_tickets_event_date', true ),
+			'event_time'        => get_post_meta( $post->ID, '_aiohm_booking_tickets_event_time', true ),
+			'event_end_date'    => get_post_meta( $post->ID, '_aiohm_booking_tickets_event_end_date', true ),
+			'event_end_time'    => get_post_meta( $post->ID, '_aiohm_booking_tickets_event_end_time', true ),
+			'price'             => get_post_meta( $post->ID, '_aiohm_booking_tickets_price', true ),
+			'early_bird_price'  => get_post_meta( $post->ID, '_aiohm_booking_tickets_early_bird_price', true ),
+			'early_bird_date'   => get_post_meta( $post->ID, '_aiohm_booking_tickets_early_bird_date', true ),
+			'available_seats'   => get_post_meta( $post->ID, '_aiohm_booking_tickets_available_seats', true ),
+			'event_type'        => get_post_meta( $post->ID, '_aiohm_booking_tickets_event_type', true ),
+			'deposit_percentage'=> get_post_meta( $post->ID, '_aiohm_booking_tickets_deposit_percentage', true ),
+			'teachers'          => get_post_meta( $post->ID, '_teachers', true ) ?: array(),
+		);
+	}
+
+	/**
+	 * Get events data from CPT only (no backward compatibility)
+	 * Auto-creates default event if none exist, like accommodations do.
+	 * 
+	 * @return array Events data in the old format for template compatibility
+	 */
+	public function get_events_data_compatible() {
+		$events_data = array();
+
+		// Get events from CPT only
+		$event_posts = $this->get_events_from_cpt();
+
+		// Auto-create default event if none exist (like accommodations)
+		if ( empty( $event_posts ) ) {
+			$event_posts = $this->ensure_default_event();
+		}
+
+		if ( ! empty( $event_posts ) ) {
+			// Convert CPT events to array format for template compatibility
+			foreach ( $event_posts as $post ) {
+				$event_data = $this->get_event_display_data( $post );
+				$events_data[] = array(
+					'title'              => $event_data['title'],
+					'description'        => $event_data['description'],
+					'event_date'         => $event_data['event_date'],
+					'event_time'         => $event_data['event_time'],
+					'event_end_date'     => $event_data['event_end_date'],
+					'event_end_time'     => $event_data['event_end_time'],
+					'price'              => $event_data['price'],
+					'early_bird_price'   => $event_data['early_bird_price'],
+					'early_bird_date'    => $event_data['early_bird_date'],
+					'available_seats'    => $event_data['available_seats'],
+					'event_type'         => $event_data['event_type'],
+					'deposit_percentage' => $event_data['deposit_percentage'],
+					'teachers'           => $event_data['teachers'],
+					'post_id'            => $event_data['id'],
+				);
+			}
+		}
+
+		return $events_data;
+	}
+
+	/**
+	 * Static method to get events data - for use by other modules
+	 * 
+	 * @return array Events data array from CPT only
+	 */
+	public static function get_events_data() {
+		// Check if the tickets module instance exists
+		$tickets_module = AIOHM_BOOKING_Module_Registry::get_module_instance( 'tickets' );
+		
+		if ( $tickets_module && method_exists( $tickets_module, 'get_events_data_compatible' ) ) {
+			return $tickets_module->get_events_data_compatible();
+		}
+		
+		// Return empty array if module not available
+		return array();
+	}
+
+	/**
+	 * Ensure at least one default event exists (similar to accommodations)
+	 * Creates a default event when none exist
+	 * 
+	 * @return array Array of event post objects (containing the default event)
+	 */
+	private function ensure_default_event() {
+		$settings = $this->get_module_settings();
+		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		
+		// Get default values from settings
+		$default_title = 'Sample Workshop';
+		$default_price = 25; // Sample price
+		$default_early_bird_price = 20; // Sample early bird price
+		$default_seats = 50; // Reasonable default capacity
+		
+		// Create default dates (30 days from now)
+		$future_date = gmdate( 'Y-m-d', strtotime( '+30 days' ) );
+		$default_event_date = $future_date;
+		$default_event_time = '10:00';
+		$default_event_end_date = $future_date;
+		$default_event_end_time = '17:00';
+		$default_early_bird_date = gmdate( 'Y-m-d', strtotime( '+15 days' ) ); // Early bird until 15 days from now
+		$default_event_type = 'Workshop';
+		
+		// Create default event post
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => $default_title,
+				'post_content' => 'Join us for an exciting workshop experience! Learn new skills in a collaborative environment.',
+				'post_type'    => 'aiohm_booking_event',
+				'post_status'  => 'publish',
+				'menu_order'   => 1,
+			)
+		);
+
+		if ( $post_id && ! is_wp_error( $post_id ) ) {
+			// Add default event meta with proper sample data
+			update_post_meta( $post_id, '_aiohm_booking_tickets_event_date', $default_event_date );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_event_time', $default_event_time );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_date', $default_event_end_date );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_time', $default_event_end_time );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_price', $default_price );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_price', $default_early_bird_price );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_date', $default_early_bird_date );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_available_seats', $default_seats );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_event_type', $default_event_type );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_deposit_percentage', 0 ); // Default to 0% like accommodations
+
+			// Return the new post as an array
+			$new_post = get_post( $post_id );
+			if ( $new_post ) {
+				return array( $new_post );
+			}
+		}
+
+		return array();
+	}
+
+	/**
+	 * Create a new event using CPT (modern approach)
+	 * 
+	 * @param array $event_data Event data array
+	 * @return int|WP_Error Post ID on success, WP_Error on failure
+	 */
+	public function create_event_cpt( $event_data ) {
+		// Get the next menu_order
+		$existing_posts = get_posts( array(
+			'post_type'      => 'aiohm_booking_event',
+			'posts_per_page' => -1,
+			'post_status'    => 'publish',
+			'fields'         => 'ids',
+		) );
+		$next_menu_order = count( $existing_posts ) + 1;
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => sanitize_text_field( $event_data['title'] ?? '' ),
+				'post_content' => sanitize_textarea_field( $event_data['description'] ?? '' ),
+				'post_status'  => 'publish',
+				'post_type'    => 'aiohm_booking_event',
+				'menu_order'   => $next_menu_order,
+			)
+		);
+
+		if ( $post_id && ! is_wp_error( $post_id ) ) {
+			// Save event meta data
+			update_post_meta( $post_id, '_aiohm_booking_tickets_event_date', sanitize_text_field( $event_data['event_date'] ?? '' ) );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_event_time', sanitize_text_field( $event_data['event_time'] ?? '' ) );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_date', sanitize_text_field( $event_data['event_end_date'] ?? '' ) );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_time', sanitize_text_field( $event_data['event_end_time'] ?? '' ) );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_price', floatval( $event_data['price'] ?? 0 ) );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_price', floatval( $event_data['early_bird_price'] ?? 0 ) );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_date', sanitize_text_field( $event_data['early_bird_date'] ?? '' ) );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_available_seats', intval( $event_data['available_seats'] ?? 0 ) );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_event_type', sanitize_text_field( $event_data['event_type'] ?? '' ) );
+			update_post_meta( $post_id, '_aiohm_booking_tickets_deposit_percentage', intval( $event_data['deposit_percentage'] ?? 0 ) );
+		}
+
+		return $post_id;
+	}
+
+	/**
 	 * Register admin page in WordPress menu.
 	 *
 	 * Note: Menu is now handled centrally in AIOHM_BOOKING_Admin class to control order.
@@ -310,7 +724,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	public function render_admin_page() {
 		// Handle form submission for events data.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification handled in the condition below
-		if ( isset( $_POST['aiohm_tickets_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_tickets_nonce'] ) ), 'aiohm_tickets_save' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition
+		if ( isset( $_POST['aiohm_event_tickets_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_event_tickets_nonce'] ) ), 'aiohm_tickets_save' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition
 			$this->save_events_data();
 		}
 
@@ -319,20 +733,20 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification handled within the condition below
 		if ( ! empty( $_POST ) && ! defined( 'DOING_AJAX' ) && (
 			( isset( $_POST['action'] ) && sanitize_text_field( wp_unslash( $_POST['action'] ) ) === 'aiohm_save_form_settings' ) || // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by security helper
-			( isset( $_POST['aiohm_form_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_form_settings_nonce'] ) ), 'aiohm_form_settings_save' ) && ( isset( $_POST['aiohm_booking_form_settings'] ) || isset( $_POST['aiohm_booking_tickets_form_settings'] ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition
+			( isset( $_POST['aiohm_event_form_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_event_form_settings_nonce'] ) ), 'aiohm_form_settings_save' ) && ( isset( $_POST['aiohm_event_booking_form_settings'] ) || isset( $_POST['aiohm_event_booking_tickets_form_settings'] ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition
 		) ) {
-			if ( isset( $_POST['aiohm_form_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_form_settings_nonce'] ) ), 'aiohm_booking_save_form_settings' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition
+			if ( isset( $_POST['aiohm_event_form_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_event_form_settings_nonce'] ) ), 'aiohm_booking_save_form_settings' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition
 				AIOHM_BOOKING_Form_Settings_Handler::save_unified_form_settings();
 			}
 		}
 
 		// Handle booking settings submission.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification handled in the condition below
-		if ( isset( $_POST['form_submit'] ) && isset( $_POST['aiohm_booking_settings'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) ), 'aiohm_booking_settings' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition
+		if ( isset( $_POST['form_submit'] ) && isset( $_POST['aiohm_event_booking_settings'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) ), 'aiohm_booking_settings' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition
 			if ( current_user_can( 'manage_options' ) ) {
 				// Save the booking settings.
-				if ( isset( $_POST['aiohm_booking_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
-					AIOHM_BOOKING_Settings::update_multiple( array_map( 'sanitize_text_field', wp_unslash( $_POST['aiohm_booking_settings'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
+				if ( isset( $_POST['aiohm_event_booking_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
+					AIOHM_BOOKING_Settings::update_multiple( array_map( 'sanitize_text_field', wp_unslash( $_POST['aiohm_event_booking_settings'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
 				}
 
 				// Set transient for success message.
@@ -397,12 +811,10 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			<div class="aiohm-booking-admin-card">
 				<h3><?php esc_html_e( 'Event Statistics', 'aiohm-booking-pro' ); ?></h3>
 				<div class="aiohm-booking-orders-stats">
-					<?php
-					// Get events data for statistics
-					$events_data = get_option( 'aiohm_booking_events_data', array() );
-					$total_events = count( $events_data );
-
-					// Calculate upcoming events (events with dates in the future)
+				<?php
+				// Get events data for statistics using new compatible method
+				$events_data = $this->get_events_data_compatible();
+				$total_events = count( $events_data );					// Calculate upcoming events (events with dates in the future)
 					$upcoming_events = 0;
 					$current_date = current_time( 'Y-m-d' );
 
@@ -446,18 +858,24 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 				<form method="post" action="">
 				<?php wp_nonce_field( 'aiohm_tickets_save', 'aiohm_tickets_nonce' ); ?>
 				<?php
-				// Get saved events data
-				$events_data = get_option( 'aiohm_booking_events_data', array() );
+				// Get saved events data using compatible method
+				$events_data = $this->get_events_data_compatible();
 				$num_events = count( $events_data );
 
 				// Render events management interface
 				$this->render_event_boxes( $events_data, $num_events );
 				?>
-				<div class="aiohm-form-actions">
-					<button type="submit" class="button button-primary">
-						<span class="dashicons dashicons-saved"></span>
-						<?php esc_html_e( 'Save Events', 'aiohm-booking-pro' ); ?>
-					</button>
+				<!-- Add Event Banner -->
+				<div class="aiohm-add-more-banner aiohm-add-event-btn" style="cursor: pointer;">
+					<div class="aiohm-add-more-content">
+						<h4><?php esc_html_e( 'Need More Events?', 'aiohm-booking-pro' ); ?></h4>
+						<p><?php esc_html_e( 'Add more events to your booking system', 'aiohm-booking-pro' ); ?></p>
+						<span class="button button-primary aiohm-add-more-btn">
+							<span class="dashicons dashicons-plus-alt"></span>
+							<?php esc_html_e( 'Add New Event', 'aiohm-booking-pro' ); ?>
+						</span>
+						<br><small><?php esc_html_e( 'unlimited', 'aiohm-booking-pro' ); ?></small>
+					</div>
 				</div>
 				</form>
 			</div>
@@ -753,7 +1171,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	 */
 	private function get_ticket_stats() {
 		global $wpdb;
-		$events_data = get_option( 'aiohm_booking_events_data', array() );
+		$events_data = $this->get_events_data_compatible();
 		$today       = current_time( 'Y-m-d' );
 
 		$total_seats     = 0;
@@ -830,16 +1248,15 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 
 		$event_data = $posted_events[ $event_index ];
 
-		$events = get_option( 'aiohm_booking_events_data', array() );
+		$events = $this->get_events_data_compatible();
 
 		// Sanitize teachers data separately as it contains URLs and needs specific handling.
 		$teachers = isset( $event_data['teachers'] ) && is_array( $event_data['teachers'] ) ? $this->sanitize_teachers_data( $event_data['teachers'] ) : array();
 
-		$events[ $event_index ] = array(
+		$event_data_sanitized = array(
 			'title'              => substr( sanitize_text_field( $event_data['title'] ?? '' ), 0, 50 ),
 			'description'        => substr( sanitize_textarea_field( $event_data['description'] ?? '' ), 0, 150 ),
 			'teachers'           => $teachers,
-			'location'           => sanitize_text_field( $event_data['location'] ?? '' ),
 			'event_date'         => sanitize_text_field( $event_data['event_date'] ?? '' ),
 			'event_time'         => sanitize_text_field( $event_data['event_time'] ?? '' ),
 			'event_end_date'     => sanitize_text_field( $event_data['event_end_date'] ?? '' ),
@@ -853,6 +1270,42 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			'event_type'         => sanitize_text_field( $event_data['event_type'] ?? '' ),
 		);
 
+		// Try to save as CPT first
+		if ( isset( $events[ $event_index ]['post_id'] ) ) {
+			// Update existing event post
+			$post_id = $events[ $event_index ]['post_id'];
+			$updated = wp_update_post( array(
+				'ID'           => $post_id,
+				'post_title'   => $event_data_sanitized['title'],
+				'post_content' => $event_data_sanitized['description'],
+			) );
+			
+			if ( $updated && ! is_wp_error( $updated ) ) {
+				// Update meta fields
+				update_post_meta( $post_id, '_aiohm_booking_tickets_event_date', $event_data_sanitized['event_date'] );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_event_time', $event_data_sanitized['event_time'] );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_date', $event_data_sanitized['event_end_date'] );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_time', $event_data_sanitized['event_end_time'] );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_price', $event_data_sanitized['price'] );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_price', $event_data_sanitized['early_bird_price'] );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_date', $event_data_sanitized['early_bird_date'] );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_available_seats', $event_data_sanitized['available_seats'] );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_event_type', $event_data_sanitized['event_type'] );
+				update_post_meta( $post_id, '_aiohm_booking_tickets_deposit_percentage', $event_data_sanitized['deposit_percentage'] );
+				update_post_meta( $post_id, '_teachers', $event_data_sanitized['teachers'] );
+			}
+		} else {
+			// Create new event post
+			$post_id = $this->create_event_cpt( $event_data_sanitized );
+			if ( $post_id && ! is_wp_error( $post_id ) ) {
+				$event_data_sanitized['post_id'] = $post_id;
+				// Also save teachers meta
+				update_post_meta( $post_id, '_teachers', $event_data_sanitized['teachers'] );
+			}
+		}
+
+		// Update array storage for backward compatibility
+		$events[ $event_index ] = $event_data_sanitized;
 		update_option( 'aiohm_booking_events_data', $events );
 
 		wp_send_json_success( array( 'message' => 'Event saved successfully.' ) );
@@ -881,12 +1334,23 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			return;
 		}
 
-		// Delete from events data option.
-		$events_data = get_option( 'aiohm_booking_events_data', array() );
-		if ( isset( $events_data[ $event_index ] ) ) {
-			// Remove the event at the specified index.
-			array_splice( $events_data, $event_index, 1 );
-			update_option( 'aiohm_booking_events_data', $events_data );
+		// Delete from events data option and CPT
+		$events_data = $this->get_events_data_compatible();
+		
+		if ( ! isset( $events_data[ $event_index ] ) ) {
+			wp_send_json_error( array( 'message' => 'Event not found at index ' . $event_index . '. Total events: ' . count( $events_data ) ) );
+			return;
+		}
+		
+		$event_to_delete = $events_data[ $event_index ];
+		
+		// Delete the CPT post if it exists
+		if ( isset( $event_to_delete['post_id'] ) ) {
+			$delete_result = wp_delete_post( $event_to_delete['post_id'], true );
+			if ( false === $delete_result ) {
+				wp_send_json_error( array( 'message' => 'Failed to delete CPT post with ID: ' . $event_to_delete['post_id'] ) );
+				return;
+			}
 		}
 
 		// Decrement the number of events in global settings.
@@ -935,6 +1399,208 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		// We don't need to add an empty event to the data array, as the clone happens on the client-side.
 		// The next full save will persist the cloned data.
 		wp_send_json_success( array( 'message' => 'Event count incremented successfully.' ) );
+	}
+
+	/**
+	 * AJAX handler for cloning an event.
+	 *
+	 * @since 2.0.0
+	 */
+	public function ajax_clone_event() {
+		if ( ! check_ajax_referer( 'aiohm_booking_admin_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => 'Nonce verification failed.' ) );
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'You do not have permission to clone events.' ) );
+			return;
+		}
+
+		$event_id = isset( $_POST['event_id'] ) ? intval( wp_unslash( $_POST['event_id'] ) ) : -1; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above with check_ajax_referer
+
+		if ( $event_id < 0 ) {
+			wp_send_json_error( array( 'message' => 'Invalid event ID.' ) );
+			return;
+		}
+
+		// Get the original event data
+		$events_data = $this->get_events_data_compatible();
+		$original_event = null;
+		$original_index = null;
+
+		// Find the event by ID (post_id) or by array index
+		foreach ( $events_data as $index => $event ) {
+			// First try to match by post_id
+			if ( isset( $event['post_id'] ) && $event['post_id'] == $event_id ) {
+				$original_event = $event;
+				$original_index = $index;
+				break;
+			}
+			// If no post_id match and event_id is a valid array index, try that
+			if ( $event_id >= 0 && $event_id < count( $events_data ) && $index == $event_id ) {
+				$original_event = $event;
+				$original_index = $index;
+				break;
+			}
+		}
+
+		if ( $original_event === null ) {
+			wp_send_json_error( array( 'message' => 'Event not found.' ) );
+			return;
+		}
+
+		// Create a copy of the event data
+		$cloned_event = $original_event;
+
+		// Modify the cloned event to make it unique
+		$cloned_event['title'] = $this->generate_unique_event_title( $original_event['title'] );
+		$cloned_event['event_date'] = ''; // Clear the date so user can set a new one
+		$cloned_event['event_time'] = '';
+		$cloned_event['event_end_date'] = '';
+		$cloned_event['event_end_time'] = '';
+		$cloned_event['available_seats'] = $original_event['available_seats']; // Keep same capacity
+
+		// Create new CPT post for the cloned event
+		$cloned_post_id = $this->create_event_cpt( $cloned_event );
+
+		if ( is_wp_error( $cloned_post_id ) ) {
+			wp_send_json_error( array( 'message' => 'Failed to create cloned event: ' . $cloned_post_id->get_error_message() ) );
+			return;
+		}
+
+		// Add the post_id to the cloned event data
+		$cloned_event['post_id'] = $cloned_post_id;
+
+		// Add the cloned event to the events array
+		$events_data[] = $cloned_event;
+
+		// Update the events data in the database
+		update_option( 'aiohm_booking_events_data', $events_data );
+
+		// Update the number of events in global settings
+		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$num_events = intval( $global_settings['number_of_events'] ?? 0 );
+		$global_settings['number_of_events'] = $num_events + 1;
+		AIOHM_BOOKING_Settings::update( $global_settings );
+
+		// Get the edit URL for the cloned event
+		$edit_url = get_edit_post_link( $cloned_post_id, 'raw' );
+
+		wp_send_json_success(
+			array(
+				'message'      => 'Event cloned successfully!',
+				'redirect_url' => $edit_url,
+				'cloned_event' => $cloned_event,
+			)
+		);
+	}
+
+	/**
+	 * AJAX handler for adding a new event with default data.
+	 *
+	 * @since 2.0.0
+	 */
+	public function ajax_add_new_event() {
+		if ( ! check_ajax_referer( 'aiohm_booking_admin_nonce', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => 'Nonce verification failed.' ) );
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'You do not have permission to add events.' ) );
+			return;
+		}
+
+		// Create default event data (same as ensure_default_event)
+		$default_title = 'New Event';
+		$default_price = 25; // Sample price
+		$default_early_bird_price = 20; // Sample early bird price
+		$default_seats = 50; // Reasonable default capacity
+
+		// Create default dates (30 days from now)
+		$future_date = gmdate( 'Y-m-d', strtotime( '+30 days' ) );
+		$default_event_date = $future_date;
+		$default_event_time = '10:00';
+		$default_event_end_date = $future_date;
+		$default_event_end_time = '17:00';
+		$default_early_bird_date = gmdate( 'Y-m-d', strtotime( '+15 days' ) ); // Early bird until 15 days from now
+		$default_event_type = 'Workshop';
+
+		$new_event = array(
+			'title'              => $default_title,
+			'description'        => 'Add your event description here...',
+			'event_date'         => $default_event_date,
+			'event_time'         => $default_event_time,
+			'event_end_date'     => $default_event_end_date,
+			'event_end_time'     => $default_event_end_time,
+			'available_seats'    => $default_seats,
+			'price'              => $default_price,
+			'early_bird_price'   => $default_early_bird_price,
+			'early_bird_date'    => $default_early_bird_date,
+			'early_bird_days'    => '',
+			'deposit_percentage' => 0,
+			'event_type'         => $default_event_type,
+		);
+
+		// Create new CPT post for the event
+		$new_post_id = $this->create_event_cpt( $new_event );
+
+		if ( is_wp_error( $new_post_id ) ) {
+			wp_send_json_error( array( 'message' => 'Failed to create new event: ' . $new_post_id->get_error_message() ) );
+			return;
+		}
+
+		// Add the post_id to the event data
+		$new_event['post_id'] = $new_post_id;
+
+		// Clear any cached queries to ensure new event appears immediately
+		clean_post_cache( $new_post_id );
+		wp_cache_delete( 'aiohm_booking_event', 'posts' );
+
+		// Update the number of events in global settings
+		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$num_events = intval( $global_settings['number_of_events'] ?? 0 );
+		$global_settings['number_of_events'] = $num_events + 1;
+		AIOHM_BOOKING_Settings::update( $global_settings );
+
+		wp_send_json_success(
+			array(
+				'message'   => 'New event added successfully!',
+				'new_event' => $new_event,
+			)
+		);
+	}
+
+	/**
+	 * Generate a unique event title for cloned events.
+	 *
+	 * @since 2.0.0
+	 * @param string $original_title The original event title.
+	 * @return string A unique title for the cloned event.
+	 */
+	private function generate_unique_event_title( $original_title ) {
+		$base_title = trim( $original_title );
+		if ( empty( $base_title ) ) {
+			$base_title = 'Event';
+		}
+
+		// Check if title already ends with " (Copy)" or similar
+		if ( preg_match( '/^(.*)\s*\(Copy\s*(\d+)?\)$/', $base_title, $matches ) ) {
+			$base_name = trim( $matches[1] );
+			$copy_num = isset( $matches[2] ) ? intval( $matches[2] ) + 1 : 2;
+			return $base_name . ' (Copy ' . $copy_num . ')';
+		}
+
+		// Check if title already ends with a number in parentheses
+		if ( preg_match( '/^(.*)\s*\((\d+)\)$/', $base_title, $matches ) ) {
+			$base_name = trim( $matches[1] );
+			$num = intval( $matches[2] ) + 1;
+			return $base_name . ' (' . $num . ')';
+		}
+
+		// Default: add " (Copy)" suffix
+		return $base_title . ' (Copy)';
 	}
 
 	/**
@@ -989,7 +1655,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	 * Render a single event configuration box.
 	 *
 	 * Creates a clean, organized form for configuring individual event
-	 * details including title, description, location, date, time, and pricing.
+	 * details including title, description, date, time, and pricing.
 	 *
 	 * @since 2.0.0
 	 * @param int   $index Event index number.
@@ -1000,7 +1666,6 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			'event_type'         => '',
 			'title'              => '',
 			'description'        => '',
-			'location'           => '',
 			'event_date'         => '',
 			'event_time'         => '',
 			'event_end_date'     => '',
@@ -1242,7 +1907,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 
 							<div class="aiohm-form-group">
 								<label><?php esc_html_e( 'Deposit Percentage', 'aiohm-booking-pro' ); ?></label>
-								<input type="number" name="events[<?php echo esc_attr( $index ); ?>][deposit_percentage]" value="<?php echo esc_attr( $event['deposit_percentage'] ?? '' ); ?>" min="0" max="100" step="1" placeholder="<?php esc_attr_e( 'e.g. 30', 'aiohm-booking-pro' ); ?>" class="aiohm-number-input">
+								<input type="number" name="events[<?php echo esc_attr( $index ); ?>][deposit_percentage]" value="<?php echo esc_attr( $event['deposit_percentage'] ?? '' ); ?>" min="0" max="100" step="1" placeholder="<?php esc_attr_e( 'e.g. 0', 'aiohm-booking-pro' ); ?>" class="aiohm-number-input">
 								<small><?php esc_html_e( 'Percentage of total price required as deposit', 'aiohm-booking-pro' ); ?></small>
 							</div>
 						</div>
@@ -1324,11 +1989,11 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	public function save_events_data() {
 		// Only process if this form was submitted.
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification handled below
-		if ( ! isset( $_POST['aiohm_tickets_nonce'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification handled below
+		if ( ! isset( $_POST['aiohm_event_tickets_nonce'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification handled below
 			return false;
 		}
 
-		$nonce = isset( $_POST['aiohm_tickets_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['aiohm_tickets_nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
+		$nonce = isset( $_POST['aiohm_event_tickets_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['aiohm_event_tickets_nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
 		if ( ! wp_verify_nonce( $nonce, 'aiohm_tickets_save' ) ) {
 			wp_die( 'Security check failed' );
 		}
@@ -1337,15 +2002,19 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			wp_die( 'Insufficient permissions' );
 		}
 
+		// Save events using new CPT approach while maintaining backward compatibility
+		$existing_events = $this->get_events_data_compatible();
 		$events_data = array();
+		$saved_successfully = true;
+
 		if ( isset( $_POST['events'] ) && is_array( $_POST['events'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
 			$events_raw = map_deep( wp_unslash( $_POST['events'] ), 'sanitize_text_field' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
+			
 			foreach ( $events_raw as $index => $event ) {
-				$events_data[ $index ] = array(
+				$event_data = array(
 					'event_type'         => sanitize_text_field( $event['event_type'] ?? '' ),
 					'title'              => substr( sanitize_text_field( $event['title'] ?? '' ), 0, 50 ),
 					'description'        => substr( sanitize_textarea_field( $event['description'] ?? '' ), 0, 150 ),
-					'location'           => sanitize_text_field( $event['location'] ?? '' ),
 					'event_date'         => sanitize_text_field( $event['event_date'] ?? '' ),
 					'event_time'         => sanitize_text_field( $event['event_time'] ?? '' ),
 					'event_end_date'     => sanitize_text_field( $event['event_end_date'] ?? '' ),
@@ -1357,16 +2026,61 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 					'early_bird_days'    => intval( $event['early_bird_days'] ?? 0 ),
 					'deposit_percentage' => intval( $event['deposit_percentage'] ?? 0 ),
 				);
+
+				// Check if this is an update to existing event
+				if ( isset( $existing_events[ $index ]['post_id'] ) ) {
+					// Update existing CPT post
+					$post_id = $existing_events[ $index ]['post_id'];
+					$updated = wp_update_post( array(
+						'ID'           => $post_id,
+						'post_title'   => $event_data['title'],
+						'post_content' => $event_data['description'],
+					) );
+					
+					if ( $updated && ! is_wp_error( $updated ) ) {
+						// Update meta fields
+						update_post_meta( $post_id, '_aiohm_booking_tickets_event_date', $event_data['event_date'] );
+						update_post_meta( $post_id, '_aiohm_booking_tickets_event_time', $event_data['event_time'] );
+						update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_date', $event_data['event_end_date'] );
+						update_post_meta( $post_id, '_aiohm_booking_tickets_event_end_time', $event_data['event_end_time'] );
+						update_post_meta( $post_id, '_aiohm_booking_tickets_price', $event_data['price'] );
+						update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_price', $event_data['early_bird_price'] );
+						update_post_meta( $post_id, '_aiohm_booking_tickets_early_bird_date', $event_data['early_bird_date'] );
+						update_post_meta( $post_id, '_aiohm_booking_tickets_available_seats', $event_data['available_seats'] );
+						update_post_meta( $post_id, '_aiohm_booking_tickets_event_type', $event_data['event_type'] );
+						update_post_meta( $post_id, '_aiohm_booking_tickets_deposit_percentage', $event_data['deposit_percentage'] );
+						
+						$event_data['post_id'] = $post_id;
+						$events_data[ $index ] = $event_data;
+					} else {
+						$saved_successfully = false;
+						$events_data[ $index ] = $event_data;
+					}
+				} else {
+					// Create new CPT post
+					$post_id = $this->create_event_cpt( $event_data );
+					if ( is_wp_error( $post_id ) ) {
+						$saved_successfully = false;
+						// Fallback to array storage for this event
+						$events_data[ $index ] = $event_data;
+					} else {
+						// Add post_id to event data
+						$event_data['post_id'] = $post_id;
+						$events_data[ $index ] = $event_data;
+					}
+				}
 			}
 		}
 
-		update_option( 'aiohm_booking_events_data', $events_data );
-
-		// Show success message.
+		// Show success message
 		add_action(
 			'admin_notices',
-			function () {
-				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Events saved successfully!', 'aiohm-booking-pro' ) . '</p></div>';
+			function () use ( $saved_successfully ) {
+				if ( $saved_successfully ) {
+					echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Events saved successfully using modern Custom Post Type system!', 'aiohm-booking-pro' ) . '</p></div>';
+				} else {
+					echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'Events saved with some using fallback storage. Check server logs for any issues.', 'aiohm-booking-pro' ) . '</p></div>';
+				}
 			}
 		);
 
@@ -1444,26 +2158,13 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 							<label class="aiohm-booking-setting-label">Minimum Age Requirement</label>
 							<div class="aiohm-booking-setting-description">Minimum age for event ticket bookings</div>
 							<div class="aiohm-booking-setting-input">
-								<input type="number" name="aiohm_booking_settings[minimum_age]" value="<?php echo esc_attr( $global_settings['minimum_age'] ?? '18' ); ?>" min="0" max="99" step="1" placeholder="18">
+								<input type="number" name="aiohm_event_booking_settings[minimum_age]" value="<?php echo esc_attr( $global_settings['minimum_age'] ?? '18' ); ?>" min="0" max="99" step="1" placeholder="18">
 								<span class="aiohm-booking-setting-unit">years</span>
 							</div>
 						</div>
 					</div>
 
 
-					<div class="aiohm-booking-setting-item">
-						<div class="aiohm-booking-setting-icon">
-							<span class="dashicons dashicons-plus-alt"></span>
-						</div>
-						<div class="aiohm-booking-setting-content">
-							<label class="aiohm-booking-setting-label">Active Events</label>
-							<div class="aiohm-booking-setting-description">Number of events to activate</div>
-							<div class="aiohm-booking-setting-input">
-								<input type="number" name="aiohm_booking_settings[number_of_events]" value="<?php echo esc_attr( $global_settings['number_of_events'] ?? '5' ); ?>" min="1" max="20" step="1" placeholder="5">
-								<span class="aiohm-booking-setting-unit">events</span>
-							</div>
-						</div>
-					</div>
 
 					<div class="aiohm-booking-setting-item">
 						<div class="aiohm-booking-setting-icon">
@@ -1473,7 +2174,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 							<label class="aiohm-booking-setting-label">Default Ticket Price</label>
 							<div class="aiohm-booking-setting-description">Default price for event tickets when no specific price is set</div>
 							<div class="aiohm-booking-setting-input">
-								<input type="number" name="aiohm_booking_settings[ticket_price]" value="<?php echo esc_attr( $global_settings['ticket_price'] ?? '25' ); ?>" min="0" step="0.01" placeholder="25">
+								<input type="number" name="aiohm_event_booking_settings[ticket_price]" value="<?php echo esc_attr( $global_settings['ticket_price'] ?? '25' ); ?>" min="0" step="0.01" placeholder="25">
 								<span class="aiohm-booking-setting-unit"><?php echo esc_html( $currency ); ?></span>
 							</div>
 						</div>
@@ -1487,7 +2188,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 							<label class="aiohm-booking-setting-label">Default Events Early Bird Price</label>
 							<div class="aiohm-booking-setting-description">Default early bird price for events when no specific early bird price is set</div>
 							<div class="aiohm-booking-setting-input">
-								<input type="text" name="aiohm_booking_settings[aiohm_booking_events_early_bird_price]" value="<?php echo esc_attr( $global_settings['aiohm_booking_events_early_bird_price'] ?? '0' ); ?>" placeholder="0">
+								<input type="text" name="aiohm_event_booking_settings[aiohm_booking_events_early_bird_price]" value="<?php echo esc_attr( $global_settings['aiohm_booking_events_early_bird_price'] ?? '0' ); ?>" placeholder="0">
 								<span class="aiohm-booking-setting-unit"><?php echo esc_html( $currency ); ?></span>
 							</div>
 						</div>
@@ -1518,7 +2219,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 					?>
 					<a href="<?php echo esc_url( $upgrade_url ); ?>" class="button button-secondary aiohm-pro-upgrade-btn">
 						<span class="dashicons dashicons-star-filled"></span>
-						<?php echo $button_text; ?>
+						<?php echo esc_html( $button_text ); ?>
 					</a>
 				<?php endif; ?>
 			</div>
@@ -1645,8 +2346,8 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			$ticket_quantity = 1;
 		}
 
-		// Get event data from saved events
-		$events_data = get_option( 'aiohm_booking_events_data', array() );
+		// Get event data from saved events using compatible method
+		$events_data = $this->get_events_data_compatible();
 		if ( ! isset( $events_data[ $selected_event_index ] ) ) {
 			wp_send_json_error( array( 'message' => 'Selected event not found' ) );
 		}
@@ -1835,8 +2536,8 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		$buyer_email = sanitize_email( $form_data['email'] ?? '' );
 		$buyer_phone = sanitize_text_field( $form_data['phone'] ?? '' );
 
-		// Get event data from saved events
-		$events_data = get_option( 'aiohm_booking_events_data', array() );
+		// Get event data from saved events using compatible method
+		$events_data = $this->get_events_data_compatible();
 		if ( ! isset( $events_data[ $selected_event_index ] ) ) {
 			return new WP_Error( 'event_not_found', 'Selected event not found' );
 		}
@@ -1995,8 +2696,8 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			return; // Invalid event data
 		}
 
-		// Get current events data
-		$events = get_option( 'aiohm_booking_events_data', array() );
+		// Get current events data using compatible method
+		$events = $this->get_events_data_compatible();
 
 		if ( ! isset( $events[ $event_index ] ) ) {
 			return; // Event doesn't exist
@@ -2008,8 +2709,10 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 
 		$events[ $event_index ]['available_seats'] = $new_available;
 
-		// Save updated events data
-		update_option( 'aiohm_booking_events_data', $events );
+		// Update available seats in CPT if post_id exists
+		if ( isset( $events[ $event_index ]['post_id'] ) ) {
+			update_post_meta( $events[ $event_index ]['post_id'], '_aiohm_booking_tickets_available_seats', $new_available );
+		}
 	}
 
 	/**
@@ -2203,200 +2906,5 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	}
 
 
-	/**
-	 * AJAX handler for getting EventON events list.
-	 *
-	 * @since 1.2.5
-	 */
-	public function ajax_get_eventon_events_list() {
-		// Verify nonce and permissions
-		if ( ! check_ajax_referer( 'aiohm_booking_admin_nonce', 'nonce', false ) || ! current_user_can( 'manage_options' ) ) {
-			wp_die( -1 );
-		}
-
-		// Check if EventON is available
-		if ( ! class_exists( 'EventON' ) && ! ( function_exists( 'is_plugin_active' ) && is_plugin_active( 'eventON/eventon.php' ) ) ) {
-			wp_send_json_error( array( 'message' => __( 'EventON plugin is not active.', 'aiohm-booking-pro' ) ) );
-		}
-
-		try {
-			$events = $this->get_eventon_events();
-
-			wp_send_json_success(
-				array(
-					'events' => $events,
-					'count'  => count( $events ),
-				)
-			);
-		} catch ( Exception $e ) {
-			wp_send_json_error( array( 'message' => $e->getMessage() ) );
-		}
-	}
-
-	/**
-	 * Get EventON events.
-	 *
-	 * @since 1.2.5
-	 * @return array Array of EventON events.
-	 */
-	private function get_eventon_events() {
-		$events = array();
-
-		// Get EventON events from WordPress posts
-		$eventon_posts = get_posts( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Required for EventON integration, limited to 50 posts, ordering by date meta key necessary
-			array(
-				'post_type'      => 'ajde_events',
-				'post_status'    => 'publish',
-				'posts_per_page' => 50,
-				'orderby'        => 'meta_value',
-				'meta_key'       => 'evcal_srow', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Essential for chronological EventON event ordering
-				'order'          => 'ASC',
-			)
-		);
-
-		foreach ( $eventon_posts as $post ) {
-			$event_data = $this->extract_eventon_event_data( $post );
-			if ( $event_data ) {
-				$events[] = $event_data;
-			}
-		}
-
-		return $events;
-	}
-
-	/**
-	 * Extract EventON event data.
-	 *
-	 * @since 1.2.5
-	 * @param WP_Post $post EventON event post.
-	 * @return array|false Event data array or false on failure.
-	 */
-	private function extract_eventon_event_data( $post ) {
-		if ( ! $post ) {
-			return false;
-		}
-
-		// Get EventON meta data
-		$start_date = get_post_meta( $post->ID, 'evcal_srow', true );
-		$end_date   = get_post_meta( $post->ID, 'evcal_erow', true );
-		$location   = get_post_meta( $post->ID, 'evcal_location_name', true );
-		$all_day    = get_post_meta( $post->ID, 'evcal_allday', true );
-
-		// Convert timestamps to readable dates
-		$start_datetime = $start_date ? gmdate( 'Y-m-d H:i:s', $start_date ) : '';
-		$end_datetime   = $end_date ? gmdate( 'Y-m-d H:i:s', $end_date ) : '';
-
-		// Format display date and time
-		$date_display = $start_date ? gmdate( 'M j, Y', $start_date ) : '';
-		$time_display = '';
-
-		if ( $start_date && ! $all_day ) {
-			$time_display = gmdate( 'g:i A', $start_date );
-			if ( $end_date && $end_date !== $start_date ) {
-				$time_display .= ' - ' . gmdate( 'g:i A', $end_date );
-			}
-		}
-
-		return array(
-			'id'          => $post->ID,
-			'title'       => $post->post_title,
-			'description' => $this->extract_clean_content( $post->post_content ),
-			'date'        => $date_display,
-			'time'        => $time_display,
-			'start_date'  => $start_datetime,
-			'end_date'    => $end_datetime,
-			'location'    => $location,
-			'all_day'     => (bool) $all_day,
-		);
-	}
-
-	/**
-	 * Extract clean text content from WordPress blocks.
-	 *
-	 * Parses Gutenberg blocks and extracts clean text content without markup.
-	 *
-	 * @since 1.2.6
-	 * @param string $content Raw post content that may contain Gutenberg blocks.
-	 * @return string Clean text content.
-	 */
-	private function extract_clean_content( $content ) {
-		if ( empty( $content ) ) {
-			return '';
-		}
-
-		// Check if content contains Gutenberg blocks
-		if ( strpos( $content, '<!-- wp:' ) === false ) {
-			// Not Gutenberg blocks, return cleaned content
-			return wp_strip_all_tags( $content );
-		}
-
-		$clean_content = '';
-
-		// Parse Gutenberg blocks
-		$blocks = parse_blocks( $content );
-
-		foreach ( $blocks as $block ) {
-			if ( ! empty( $block['blockName'] ) ) {
-				// Handle different block types
-				switch ( $block['blockName'] ) {
-					case 'core/paragraph':
-					case 'core/heading':
-					case 'core/list-item':
-						if ( ! empty( $block['innerHTML'] ) ) {
-							// Extract text from innerHTML, removing block comments
-							$text = preg_replace( '/<!--.*?-->/', '', $block['innerHTML'] );
-							$text = wp_strip_all_tags( $text );
-							if ( ! empty( trim( $text ) ) ) {
-								$clean_content .= trim( $text ) . ' ';
-							}
-						}
-						break;
-
-					case 'core/list':
-						if ( ! empty( $block['innerBlocks'] ) ) {
-							foreach ( $block['innerBlocks'] as $list_item ) {
-								if ( ! empty( $list_item['innerHTML'] ) ) {
-									$text = preg_replace( '/<!--.*?-->/', '', $list_item['innerHTML'] );
-									$text = wp_strip_all_tags( $text );
-									if ( ! empty( trim( $text ) ) ) {
-										$clean_content .= '• ' . trim( $text ) . ' ';
-									}
-								}
-							}
-						}
-						break;
-
-					case 'core/quote':
-						if ( ! empty( $block['innerHTML'] ) ) {
-							$text = preg_replace( '/<!--.*?-->/', '', $block['innerHTML'] );
-							$text = wp_strip_all_tags( $text );
-							if ( ! empty( trim( $text ) ) ) {
-								$clean_content .= '"' . trim( $text ) . '" ';
-							}
-						}
-						break;
-
-					default:
-						// For other blocks, try to extract any text content
-						if ( ! empty( $block['innerHTML'] ) ) {
-							$text = preg_replace( '/<!--.*?-->/', '', $block['innerHTML'] );
-							$text = wp_strip_all_tags( $text );
-							if ( ! empty( trim( $text ) ) ) {
-								$clean_content .= trim( $text ) . ' ';
-							}
-						}
-						break;
-				}
-			} elseif ( ! empty( $block['innerHTML'] ) ) {
-				// Classic editor content or other HTML
-				$text = wp_strip_all_tags( $block['innerHTML'] );
-				if ( ! empty( trim( $text ) ) ) {
-					$clean_content .= trim( $text ) . ' ';
-				}
-			}
-		}
-
-		// Clean up extra whitespace and return
-		return trim( preg_replace( '/\s+/', ' ', $clean_content ) );
-	}
+	// EventON functionality moved to dedicated EventON integration module
 }

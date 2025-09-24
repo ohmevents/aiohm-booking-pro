@@ -278,6 +278,46 @@
     margin-left: 16px;
 }
 
+/* General Payment Method Styles */
+.payment-method {
+    text-transform: capitalize;
+    font-size: var(--ohm-font-size-sm);
+}
+
+.payment-method.none {
+    color: var(--ohm-gray-500);
+    font-style: italic;
+}
+
+/* Checkout Error Message */
+.checkout-error {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+}
+
+/* Invoice Payment Information */
+.aiohm-invoice-payment-info {
+    display: grid;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-6);
+}
+
+.aiohm-invoice-payment-method,
+.aiohm-invoice-note {
+    font-family: var(--ohm-font-primary);
+    font-size: var(--ohm-font-size-base);
+    color: var(--ohm-dark);
+    line-height: var(--ohm-line-height-normal);
+}
+
+.aiohm-invoice-payment-method strong,
+.aiohm-invoice-note strong {
+    font-weight: var(--ohm-font-weight-semibold);
+}
+
 /* Accessibility */
 .aiohm-booking-stripe-pay-btn:focus,
 .aiohm-booking-stripe-checkout-btn:focus {
