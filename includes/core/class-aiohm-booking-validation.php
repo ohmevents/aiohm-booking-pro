@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Validation and Sanitization Utilities for AIOHM Booking
  * Provides comprehensive validation, sanitization, and error handling.
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Validation and Sanitization Class.
  */
-class AIOHM_BOOKING_Validation {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation {
 
 	/**
 	 * Error messages container.

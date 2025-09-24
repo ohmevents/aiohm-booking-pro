@@ -17,14 +17,14 @@ $site_url       = get_site_url();
 $plugin_version = defined( 'AIOHM_BOOKING_VERSION' ) ? AIOHM_BOOKING_VERSION : '1.2.3';
 $wp_version     = get_bloginfo( 'version' );
 $php_version    = PHP_VERSION;
-$settings       = class_exists( 'AIOHM_BOOKING_Settings' ) ? AIOHM_BOOKING_Settings::get_all() : array();
+$settings       = class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings' ) ? \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all() : array();
 
 $enabled_modules  = array();
 $disabled_modules = array();
 $total_modules    = 0;
 
-if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
-	$registry    = AIOHM_BOOKING_Module_Registry::instance();
+if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry' ) ) {
+	$registry    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 	$all_modules = $registry->get_all_modules();
 
 	foreach ( $all_modules as $module_id => $module ) {
@@ -44,7 +44,7 @@ $disabled_modules_str = $disabled_count ? implode( ', ', $disabled_modules ) : e
 
 // Helper function to get accommodation plural name.
 function get_accommodation_plural_name() {
-	$settings           = class_exists( 'AIOHM_BOOKING_Settings' ) ? AIOHM_BOOKING_Settings::get_all() : array();
+	$settings           = class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings' ) ? \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all() : array();
 	$accommodation_type = $settings['accommodation_type'] ?? 'room';
 	return aiohm_booking_get_accommodation_plural_name( $accommodation_type );
 }

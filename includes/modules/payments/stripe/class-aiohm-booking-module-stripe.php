@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\PaymentsStripe;
 /**
  * Stripe Payment Module - Professional payment processing with Stripe
  *
@@ -31,7 +33,7 @@ use Stripe\Customer;
  * @package AIOHM_Booking
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract {
+class AIOHM_BOOKING_Module_Stripe extends AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Payment_Module_Abstract {
 
 	/**
 	 * Check if user can access premium features
@@ -289,8 +291,8 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 	 */
 	public function get_settings() {
 		// Clear cache to ensure we get the latest settings.
-		AIOHM_BOOKING_Settings::clear_cache();
-		return AIOHM_BOOKING_Settings::get_all();
+		\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::clear_cache();
+		return \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 	}
 
 	/**
@@ -309,7 +311,7 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 	 * @return bool True if enabled.
 	 */
 	protected function check_if_enabled() {
-		$settings   = AIOHM_BOOKING_Settings::get_all();
+		$settings   = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$enable_key = 'enable_' . $this->module_id;
 
 		// If the setting exists (either '1' or '0'), respect it.
@@ -431,13 +433,13 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 				'currency'          => $currency,
 			);
 
-			if ( ! class_exists( 'AIOHM_BOOKING_Validation' ) ) {
+			if ( ! class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation' ) ) {
 				wp_send_json_error( array( 'message' => __( 'Validation system unavailable', 'aiohm-booking-pro' ) ) );
 				return;
 			}
 
-			if ( ! AIOHM_BOOKING_Validation::validate_payment_data( $payment_data ) ) {
-				$errors        = AIOHM_BOOKING_Validation::get_errors();
+			if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_payment_data( $payment_data ) ) {
+				$errors        = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::get_errors();
 				$error_message = ! empty( $errors ) ? implode( ' ', array_values( $errors ) ) : __( 'Payment validation failed', 'aiohm-booking-pro' );
 				wp_send_json_error( array( 'message' => $error_message ) );
 				return;

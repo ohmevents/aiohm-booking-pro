@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\AiOpenai;
 /**
  * OpenAI Module for AIOHM Booking
  * Handles OpenAI GPT integration for booking intelligence
@@ -13,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /* <fs_premium_only> */
 
-class AIOHM_BOOKING_Module_OpenAI extends AIOHM_BOOKING_AI_Provider_Module_Abstract {
+class AIOHM_BOOKING_Module_OpenAI extends AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_AI_Provider_Module_Abstract {
 
 	/**
 	 * Provider name

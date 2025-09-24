@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * AIOHM Booking Calendar Rules Manager.
  *
@@ -44,14 +46,14 @@ class AIOHM_BOOKING_Calendar_Rules {
 	/**
 	 * Accommodation counter instance.
 	 *
-	 * @var AIOHM_BOOKING_Accommodation_Counter|null
+	 * @var AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter|null
 	 */
 	private $accommodation_counter = null;
 
 	/**
 	 * Date range validator instance.
 	 *
-	 * @var AIOHM_BOOKING_Date_Range_Validator|null
+	 * @var AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator|null
 	 */
 	private $date_validator = null;
 
@@ -138,11 +140,11 @@ class AIOHM_BOOKING_Calendar_Rules {
 	/**
 	 * Get date range validator instance.
 	 *
-	 * @return AIOHM_BOOKING_Date_Range_Validator
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator
 	 */
 	public function get_date_validator() {
 		if ( null === $this->date_validator ) {
-			$this->date_validator = new AIOHM_BOOKING_Date_Range_Validator();
+			$this->date_validator = new AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator();
 		}
 
 		return $this->date_validator;
@@ -164,12 +166,12 @@ class AIOHM_BOOKING_Calendar_Rules {
 	/**
 	 * Get accommodation counter instance.
 	 *
-	 * @return AIOHM_BOOKING_Accommodation_Counter
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter
 	 */
 	public function get_accommodation_counter() {
 		if ( null === $this->accommodation_counter ) {
 			$cell_statuses               = $this->get_cell_statuses();
-			$this->accommodation_counter = new AIOHM_BOOKING_Accommodation_Counter( $cell_statuses );
+			$this->accommodation_counter = new AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter( $cell_statuses );
 		}
 
 		return $this->accommodation_counter;
@@ -482,7 +484,7 @@ class AIOHM_BOOKING_Calendar_Rules {
 	 * @return int
 	 */
 	private function get_total_accommodation_count() {
-		return AIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
+		return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
 	}
 
 	/**

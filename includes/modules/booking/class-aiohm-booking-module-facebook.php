@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Booking;
 /**
  * Facebook Integration Module
  *
@@ -21,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.3
  */
-class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstract {
+class AIOHM_BOOKING_Module_Facebook extends \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Settings_Module_Abstract {
 
 	/**
 	 * Facebook Graph API base URL.

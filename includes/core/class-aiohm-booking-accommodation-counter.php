@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * AIOHM Booking Accommodation Counter.
  *
@@ -16,9 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * AIOHM_BOOKING_Accommodation_Counter class.
+ * AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter class.
  */
-class AIOHM_BOOKING_Accommodation_Counter {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter {
 
 	/**
 	 * Cell statuses data.

@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Helpers;
 /**
  * Early Bird Helper Functions for AIOHM Booking
  * Provides separate early bird functionality for accommodations and events
@@ -20,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package AIOHM_Booking
  * @since 1.2.6
  */
-class AIOHM_BOOKING_Early_Bird_Helper {
+class AIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_BOOKING_Early_Bird_Helper {
 
 	/**
 	 * Get accommodation early bird settings
@@ -28,7 +30,7 @@ class AIOHM_BOOKING_Early_Bird_Helper {
 	 * @return array Accommodation early bird settings
 	 */
 	public static function get_accommodation_early_bird_settings() {
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 
 		return array(
 			'enabled'       => $global_settings['enable_early_bird_accommodation'] ?? false,
@@ -43,7 +45,7 @@ class AIOHM_BOOKING_Early_Bird_Helper {
 	 * @return array Events early bird settings
 	 */
 	public static function get_events_early_bird_settings() {
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 
 		return array(
 			'enabled'       => $global_settings['enable_early_bird_events'] ?? false,

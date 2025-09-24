@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Booking;
 /**
  * Accommodation Data Transfer Object
  * Handles validation and sanitization of accommodation data
@@ -94,7 +96,7 @@ class AccommodationDTO {
 		}
 
 		// Validate accommodation type.
-		$valid_types = array_keys( AIOHM_BOOKING_Module_Accommodation::get_accommodation_types() );
+		$valid_types = array_keys( AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation::get_accommodation_types() );
 		if ( ! in_array( $dto->type, $valid_types, true ) ) {
 			$dto->type = 'unit';
 		}

@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\AiAi-analytics;
 /**
  * AI Analytics Module for AIOHM Booking
  * Provides AI-powered insights and analytics for booking data
@@ -21,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package AIOHM_Booking
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
+class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Module_Abstract {
 
 	/**
 	 * Get UI definition for the AI Analytics module
@@ -142,7 +144,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 	public function render_settings() {
 		$settings = $this->get_module_settings();
 		// Check if global shortcode_ai_provider setting exists and use it.
-		$global_settings  = AIOHM_BOOKING_Settings::get_all();
+		$global_settings  = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$current_provider = $global_settings['shortcode_ai_provider'] ?? $settings['default_ai_provider'] ?? 'shareai';
 		?>
 		<div class="aiohm-setting-row-inline">
@@ -416,7 +418,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 	 * Get key system settings to provide context.
 	 */
 	private function get_system_settings_context() {
-		$settings = AIOHM_BOOKING_Settings::get_all();
+		$settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		return array(
 			'currency'                   => $settings['currency'] ?? 'USD',
 			'deposit_percentage'         => $settings['deposit_percentage'] ?? 0,
@@ -469,7 +471,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 	 */
 	private function process_ai_query( $query, $data ) {
 		// Get default AI provider from global settings first, then module settings.
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$provider        = $global_settings['shortcode_ai_provider'] ?? null;
 
 		// If no global setting, fall back to module setting.
@@ -479,7 +481,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 		}
 
 		// Get all plugin settings to find API keys.
-		$all_settings = AIOHM_BOOKING_Settings::get_all();
+		$all_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 
 		$api_key = $all_settings[ $provider . '_api_key' ] ?? '';
 		$model   = $all_settings[ $provider . '_model' ] ?? '';
@@ -495,7 +497,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 		$user_prompt = "Here is a summary of the booking data:\n\n" . wp_json_encode( $data, JSON_PRETTY_PRINT ) . "\n\nQuestion: " . $query;
 
 		// Get the AI module instance.
-		$ai_module = AIOHM_BOOKING_Module_Registry::get_module_instance( $provider );
+		$ai_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::get_module_instance( $provider );
 
 		if ( ! $ai_module ) {
 			return 'Error: AI provider ' . $provider . ' is not available.';
@@ -959,7 +961,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 	 */
 	private function extract_event_info_from_url( $url ) {
 		// Get the default AI provider - check global settings first, then module settings.
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$ai_provider     = $global_settings['shortcode_ai_provider'] ?? null;
 
 		// If no global setting, fall back to module setting.
@@ -1306,7 +1308,7 @@ IMPORTANT:
 	 */
 	private function get_ai_provider_module( $provider_name ) {
 		// Use the same method as the process_ai_query method.
-		$ai_module = AIOHM_BOOKING_Module_Registry::get_module_instance( $provider_name );
+		$ai_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::get_module_instance( $provider_name );
 
 		return $ai_module;
 	}

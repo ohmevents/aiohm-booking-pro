@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Calendar Rule Engine
  *
@@ -26,14 +28,14 @@ class AIOHM_Booking_Rule_Engine {
 	/**
 	 * Registered rules indexed by ID.
 	 *
-	 * @var AIOHM_Booking_Calendar_Rule[]
+	 * @var AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule[]
 	 */
 	private array $rules = array();
 
 	/**
 	 * Rules sorted by priority and dependencies.
 	 *
-	 * @var AIOHM_Booking_Calendar_Rule[]|null
+	 * @var AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule[]|null
 	 */
 	private ?array $sorted_rules = null;
 
@@ -86,11 +88,11 @@ class AIOHM_Booking_Rule_Engine {
 	/**
 	 * Register a new rule.
 	 *
-	 * @param AIOHM_Booking_Calendar_Rule $rule The rule to register.
+	 * @param AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule $rule The rule to register.
 	 * @return bool|WP_Error Success or error.
 	 * @throws Exception When rule registration fails.
 	 */
-	public function add_rule( AIOHM_Booking_Calendar_Rule $rule ) {
+	public function add_rule( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule $rule ) {
 		try {
 			$rule_id = $rule->get_id();
 
@@ -157,9 +159,9 @@ class AIOHM_Booking_Rule_Engine {
 	 * Get a registered rule by ID.
 	 *
 	 * @param string $rule_id The rule ID.
-	 * @return AIOHM_Booking_Calendar_Rule|null The rule or null if not found.
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule|null The rule or null if not found.
 	 */
-	public function get_rule( string $rule_id ): ?AIOHM_Booking_Calendar_Rule {
+	public function get_rule( string $rule_id ): ?AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule {
 		return $this->rules[ $rule_id ] ?? null;
 	}
 
@@ -167,7 +169,7 @@ class AIOHM_Booking_Rule_Engine {
 	 * Get all registered rules.
 	 *
 	 * @param bool $include_disabled Whether to include disabled rules.
-	 * @return AIOHM_Booking_Calendar_Rule[]
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule[]
 	 */
 	public function get_rules( bool $include_disabled = false ): array {
 		if ( $include_disabled ) {
@@ -187,7 +189,7 @@ class AIOHM_Booking_Rule_Engine {
 	 *
 	 * @param string $context The context to filter by.
 	 * @param array  $data    Additional context data.
-	 * @return AIOHM_Booking_Calendar_Rule[]
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule[]
 	 */
 	public function get_rules_for_context( string $context, array $data = array() ): array {
 		$cache_key = md5( $context . wp_json_encode( $data ) );
@@ -290,11 +292,11 @@ class AIOHM_Booking_Rule_Engine {
 	/**
 	 * Check if a rule's dependencies are satisfied.
 	 *
-	 * @param AIOHM_Booking_Calendar_Rule $rule           The rule to check.
+	 * @param AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule $rule           The rule to check.
 	 * @param array                       $executed_rules Already executed rule IDs.
 	 * @return bool True if dependencies are satisfied.
 	 */
-	private function check_dependencies( AIOHM_Booking_Calendar_Rule $rule, array $executed_rules ): bool {
+	private function check_dependencies( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule $rule, array $executed_rules ): bool {
 		$dependencies = $rule->get_dependencies();
 
 		if ( empty( $dependencies ) ) {
@@ -313,7 +315,7 @@ class AIOHM_Booking_Rule_Engine {
 	/**
 	 * Get rules sorted by priority and dependencies.
 	 *
-	 * @return AIOHM_Booking_Calendar_Rule[]
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule[]
 	 */
 	private function get_sorted_rules(): array {
 		if ( null !== $this->sorted_rules ) {

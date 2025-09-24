@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Security Helper for AIOHM Booking
  *

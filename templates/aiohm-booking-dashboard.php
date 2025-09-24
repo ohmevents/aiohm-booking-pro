@@ -19,8 +19,8 @@ if ( isset( $_GET['force_sync'] ) && isset( $_GET['_wpnonce'] ) && wp_verify_non
 		$fs->_sync_plan();
 
 		// Clear any caches
-		if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
-			AIOHM_BOOKING_Module_Registry::instance()->clear_module_cache();
+		if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry' ) ) {
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->clear_module_cache();
 		}
 
 		// Show success message
@@ -44,8 +44,8 @@ if ( isset( $_GET['activate_license'] ) && isset( $_GET['_wpnonce'] ) && wp_veri
 		// This is a workaround for Freemius detection issues
 		if ( ! $fs->is_premium() && $fs->is_paying() ) {
 			// Clear caches and force refresh
-			if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
-				AIOHM_BOOKING_Module_Registry::instance()->clear_module_cache();
+			if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry' ) ) {
+				AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->clear_module_cache();
 			}
 
 			// Force sync

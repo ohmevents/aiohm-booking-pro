@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * AIOHM Booking Date Range Validator.
  *
@@ -15,9 +17,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * AIOHM_BOOKING_Date_Range_Validator class.
+ * AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator class.
  */
-class AIOHM_BOOKING_Date_Range_Validator {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator {
 
 	/**
 	 * Private events cache.
@@ -280,18 +282,18 @@ class AIOHM_BOOKING_Date_Range_Validator {
 		$is_book_all             = $context['book_all'] ?? false;
 
 		// Use centralized private event validator.
-		$validation_result = AIOHM_BOOKING_Private_Event_Validator::validate_selection_against_private_events(
+		$validation_result = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Private_Event_Validator::validate_selection_against_private_events(
 			$selected_accommodations,
 			$private_events,
 			$context
 		);
 
 		// Return context if validation passed, otherwise return WP_Error.
-		if ( AIOHM_BOOKING_Private_Event_Validator::VALIDATION_PASSED === $validation_result['status'] ) {
+		if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Private_Event_Validator::VALIDATION_PASSED === $validation_result['status'] ) {
 			return $context;
 		}
 
-		return AIOHM_BOOKING_Private_Event_Validator::result_to_wp_error( $validation_result );
+		return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Private_Event_Validator::result_to_wp_error( $validation_result );
 	}
 
 	/**
@@ -488,6 +490,6 @@ class AIOHM_BOOKING_Date_Range_Validator {
 	 * @return int
 	 */
 	private function get_total_accommodation_count(): int {
-		return AIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
+		return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
 	}
 }

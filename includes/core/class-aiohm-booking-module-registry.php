@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Central registry for all AIOHM Booking modules
  * Manages module loading, initialization, and lifecycle.
@@ -20,12 +22,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.6
  */
-class AIOHM_BOOKING_Module_Registry {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry {
 
 	/**
 	 * Singleton instance.
 	 *
-	 * @var AIOHM_BOOKING_Module_Registry|null
+	 * @var AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry|null
 	 */
 	private static $instance = null;
 
@@ -53,7 +55,7 @@ class AIOHM_BOOKING_Module_Registry {
 	/**
 	 * Get singleton instance.
 	 *
-	 * @return AIOHM_BOOKING_Module_Registry
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -123,7 +125,7 @@ class AIOHM_BOOKING_Module_Registry {
 
 				// From the file path, derive the class name.
 				// e.g., /path/to/wp-content/plugins/aiohm-booking/includes/modules/booking/class-aiohm-booking-module-accommodation.php
-				// becomes AIOHM_BOOKING_Module_Accommodation.
+				// becomes AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation.
 				$module_name = str_replace( '.php', '', str_replace( 'class-aiohm-booking-module-', '', $file->getFilename() ) );
 
 				// Handle special cases for acronyms.
@@ -194,7 +196,7 @@ class AIOHM_BOOKING_Module_Registry {
 				include_once $module_file['path'];
 
 				$class_name = $module_file['class_name'];
-				if ( class_exists( $class_name ) && is_subclass_of( $class_name, 'AIOHM_BOOKING_Module_Abstract' ) && ! is_subclass_of( $class_name, 'AIOHM_Booking_Admin_Module' ) ) {
+				if ( class_exists( $class_name ) && is_subclass_of( $class_name, 'AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Module_Abstract' ) && ! is_subclass_of( $class_name, 'AIOHM_Booking_Admin_Module' ) ) {
 					if ( method_exists( $class_name, 'get_ui_definition' ) ) {
 						try {
 							$definition = $class_name::get_ui_definition();
@@ -335,7 +337,7 @@ class AIOHM_BOOKING_Module_Registry {
 	 * @return bool True if registered successfully, false otherwise.
 	 */
 	public function register_module( $module_id, $module_instance ) {
-		if ( $module_instance instanceof AIOHM_BOOKING_Module_Abstract ) {
+		if ( $module_instance instanceof AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Module_Abstract ) {
 			$this->modules[ $module_id ] = $module_instance;
 			return true;
 		}
@@ -386,7 +388,7 @@ class AIOHM_BOOKING_Module_Registry {
 		}
 
 		// Check if this is a PRO module and if PRO features are available
-		if ( AIOHM_BOOKING_Utilities::is_pro_module( $module_id ) && AIOHM_BOOKING_Utilities::is_free_version() ) {
+		if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_pro_module( $module_id ) && AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_free_version() ) {
 			return false;
 		}
 
@@ -532,7 +534,7 @@ class AIOHM_BOOKING_Module_Registry {
 	 * @since 1.2.4
 	 */
 	public function get_missing_optional_modules() {
-		$optional_modules = array_merge( AIOHM_BOOKING_Utilities::get_pro_modules(), array( 'dev' ) );
+		$optional_modules = array_merge( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::get_pro_modules(), array( 'dev' ) );
 		$missing          = array();
 
 		foreach ( $optional_modules as $module_type ) {
@@ -556,8 +558,8 @@ class AIOHM_BOOKING_Module_Registry {
 		delete_transient( 'aiohm_booking_module_list' );
 
 		// Also clear utilities cache
-		if ( class_exists( 'AIOHM_BOOKING_Utilities' ) ) {
-			AIOHM_BOOKING_Utilities::clear_module_cache();
+		if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities' ) ) {
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::clear_module_cache();
 		}
 	}
 }

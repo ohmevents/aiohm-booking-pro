@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Booking;
 /**
  * Calendar Module - Visual booking calendar with availability management
  *
@@ -18,7 +20,7 @@
  * @package AIOHM_Booking
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstract {
+class AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Calendar extends \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Settings_Module_Abstract {
 
 	/**
 	 * Module identifier.
@@ -431,7 +433,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * @return bool Whether the module is enabled.
 	 */
 	protected function check_if_enabled() {
-		$settings   = AIOHM_BOOKING_Settings::get_all();
+		$settings   = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$enable_key = 'enable_' . $this->module_id;
 
 		if ( isset( $settings[ $enable_key ] ) ) {
@@ -448,7 +450,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * @return array The default calendar colors.
 	 */
 	private function get_default_calendar_colors() {
-		$css_manager_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'css_manager' );
+		$css_manager_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'css_manager' );
 		if ( ! $css_manager_module ) {
 			// Fallback if CSS manager is not available.
 			return array(
@@ -634,7 +636,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * Set up the room configuration for the calendar.
 	 */
 	private function setup_unit_configuration() {
-		$settings   = AIOHM_BOOKING_Settings::get_all();
+		$settings   = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$unit_count = intval( $settings['calendar_unit_count'] ?? self::DEFAULT_ROOM_COUNT );
 
 		// Get existing accommodation posts.
@@ -671,7 +673,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * @return string The plural name.
 	 */
 	private function get_accommodation_plural_name() {
-		$settings           = AIOHM_BOOKING_Settings::get_all();
+		$settings           = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$accommodation_type = $settings['accommodation_type'] ?? 'unit';
 		return aiohm_booking_get_accommodation_plural_name( $accommodation_type );
 	}
@@ -725,7 +727,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- GET parameters for custom period
 		if ( ! empty( $_GET['custom_period_from'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- GET parameters for custom period
 			$date_string = sanitize_text_field( wp_unslash( $_GET['custom_period_from'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- GET parameters for custom period
-			if ( AIOHM_BOOKING_Validation::validate_date( $date_string ) ) {
+			if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_date( $date_string ) ) {
 				$attributes['custom_period_from'] = DateTime::createFromFormat( 'Y-m-d', $date_string );
 			}
 		}
@@ -733,7 +735,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- GET parameters for custom period
 		if ( ! empty( $_GET['custom_period_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- GET parameters for custom period
 			$date_string = sanitize_text_field( wp_unslash( $_GET['custom_period_to'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- GET parameters for custom period
-			if ( AIOHM_BOOKING_Validation::validate_date( $date_string ) ) {
+			if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_date( $date_string ) ) {
 				$attributes['custom_period_to'] = DateTime::createFromFormat( 'Y-m-d', $date_string );
 			}
 		}
@@ -1334,8 +1336,8 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 			delete_transient( 'aiohm_booking_calendar_cache' );
 
 			// Also clear any accommodation caches.
-			if ( class_exists( 'AIOHM_BOOKING_Module_Accommodation' ) ) {
-				$registry             = AIOHM_BOOKING_Module_Registry::instance();
+			if ( class_exists( 'AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation' ) ) {
+				$registry             = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 				$accommodation_module = $registry->get_module( 'accommodations' );
 				if ( $accommodation_module && method_exists( $accommodation_module, 'clear_settings_cache' ) ) {
 					$accommodation_module->clear_settings_cache();
@@ -1513,7 +1515,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 		}
 
 		// Validate date format.
-		if ( ! AIOHM_BOOKING_Validation::validate_date( $date ) ) {
+		if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_date( $date ) ) {
 			wp_send_json_error( 'Invalid date format' );
 		}
 
@@ -1572,7 +1574,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 		}
 
 		// Validate date format
-		if ( ! AIOHM_BOOKING_Validation::validate_date( $date ) ) {
+		if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_date( $date ) ) {
 			wp_send_json_error( 'Invalid date format' );
 		}
 
@@ -1777,7 +1779,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 		}
 
 		// Validate date formats.
-		if ( ! AIOHM_BOOKING_Validation::validate_date( $start_date ) || ! AIOHM_BOOKING_Validation::validate_date( $end_date ) ) {
+		if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_date( $start_date ) || ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_date( $end_date ) ) {
 			wp_send_json_error( 'Invalid date format' );
 		}
 
@@ -1832,7 +1834,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 				$enable_early_bird = $global_settings['enable_early_bird'] ?? false;
 				$early_bird_days   = intval( $global_settings['early_bird_days'] ?? 30 );
 				// Get accommodation early bird settings
-				$early_bird_settings      = AIOHM_BOOKING_Early_Bird_Helper::get_accommodation_early_bird_settings();
+				$early_bird_settings      = AIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_BOOKING_Early_Bird_Helper::get_accommodation_early_bird_settings();
 				$default_early_bird_price = $early_bird_settings['default_price'];
 
 				// Calculate early bird pricing for this date
@@ -2285,6 +2287,6 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 }
 
 // Register the Calendar module.
-if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
-	AIOHM_BOOKING_Module_Registry::register_module( 'calendar', 'AIOHM_BOOKING_Module_Calendar' );
+if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry' ) ) {
+	AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::register_module( 'calendar', 'AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Calendar' );
 }

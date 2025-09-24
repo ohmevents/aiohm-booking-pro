@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Booking;
 /**
  * Orders Module for AIOHM Booking
  * Handles order tracking and management.
@@ -22,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @license GPL-2.0+ https://www.gnu.org/licenses/gpl-2.0.html
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract {
+class AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Orders extends \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Settings_Module_Abstract {
 
 	/**
 	 * Get UI definition for the orders module.
@@ -160,7 +162,7 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 		$this->display_stored_notices();
 
 		// Get module settings for filtering
-		$settings               = AIOHM_BOOKING_Settings::get_all();
+		$settings               = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$accommodations_enabled = $settings['enable_accommodations'] ?? true;
 		$tickets_enabled        = $settings['enable_tickets'] ?? true;
 
@@ -518,7 +520,7 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 	 */
 	private function render_events_overview_table() {
 		// Check if tickets module is enabled
-		$settings        = AIOHM_BOOKING_Settings::get_all();
+		$settings        = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$tickets_enabled = $settings['enable_tickets'] ?? true;
 
 		if ( ! $tickets_enabled ) {
@@ -526,13 +528,13 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 		}
 
 		// Get events data using compatible method
-		$events_data = AIOHM_BOOKING_Module_Tickets::get_events_data();
+		$events_data = AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Tickets::get_events_data();
 		if ( empty( $events_data ) ) {
 			return; // No events configured, don't show the table
 		}
 
 		// Get the current number of events setting to match tickets module
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$num_events      = intval( $global_settings['number_of_events'] ?? 5 );
 
 		global $wpdb;
@@ -943,7 +945,7 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 	 */
 	protected function check_if_enabled() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This method only reads settings, does not process form data
-		$settings   = AIOHM_BOOKING_Settings::get_all();
+		$settings   = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$enable_key = 'enable_' . $this->get_ui_definition()['id'];
 
 		// If the setting exists, check if it's explicitly enabled.
@@ -977,7 +979,7 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 	 * @return string The plural accommodation name
 	 */
 	private function get_accommodation_plural_name() {
-		$settings           = AIOHM_BOOKING_Settings::get_all();
+		$settings           = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$accommodation_type = $settings['accommodation_type'] ?? 'unit';
 		return aiohm_booking_get_accommodation_plural_name( $accommodation_type );
 	}
@@ -986,7 +988,7 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 	 * Get the appropriate column name for quantity based on enabled modules
 	 */
 	private function get_quantity_column_name() {
-		$settings               = AIOHM_BOOKING_Settings::get_all();
+		$settings               = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$accommodations_enabled = $settings['enable_accommodations'] ?? true;
 		$tickets_enabled        = $settings['enable_tickets'] ?? true;
 

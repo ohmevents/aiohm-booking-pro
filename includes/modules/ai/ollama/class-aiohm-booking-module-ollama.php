@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\AiOllama;
 /**
  * Ollama Module for AIOHM Booking
  * Handles Ollama local AI integration for booking intelligence
@@ -13,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /* <fs_premium_only> */
 
-class AIOHM_BOOKING_Module_Ollama extends AIOHM_BOOKING_AI_Provider_Module_Abstract {
+class AIOHM_BOOKING_Module_Ollama extends AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_AI_Provider_Module_Abstract {
 
 	protected $module_id = 'ollama';
 
@@ -121,7 +123,7 @@ class AIOHM_BOOKING_Module_Ollama extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 
 
 	protected function check_if_enabled() {
-		$settings   = AIOHM_BOOKING_Settings::get_all();
+		$settings   = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$enable_key = 'enable_' . $this->module_id;
 
 		// If the setting exists (either '1' or '0'), respect it.

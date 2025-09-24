@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-// Note: All variables used in this template are prepared by the AIOHM_BOOKING_Module_Notifications class.
+// Note: All variables used in this template are prepared by the AIOHM_Booking_PROModulesNotificationsAIOHM_Booking_PROModulesNotificationsAIOHM_Booking_PROModulesNotificationsAIOHM_BOOKING_Module_Notifications class.
 
 ?>
 <div class="wrap aiohm-booking-admin">
@@ -490,5 +490,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <?php
 // The JavaScript for this template is now loaded via wp_enqueue_script.
-// in the AIOHM_BOOKING_Module_Notifications class for better performance and CSP compliance.
+// in the AIOHM_Booking_PROModulesNotificationsAIOHM_Booking_PROModulesNotificationsAIOHM_Booking_PROModulesNotificationsAIOHM_BOOKING_Module_Notifications class for better performance and CSP compliance.
 ?>

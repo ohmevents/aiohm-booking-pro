@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Unified Settings Facade
  *
@@ -18,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Centralizes all settings operations with consistent validation and storage.
  */
-class AIOHM_BOOKING_Settings_Facade {
+class \Core\AIOHM_BOOKING_Settings_Facade {
 
 	/**
 	 * Get global plugin settings
@@ -97,9 +99,9 @@ class AIOHM_BOOKING_Settings_Facade {
 	public static function save_module_settings( $module_id, $settings, $fields ) {
 		try {
 			// Use the existing settings manager for validation and sanitization.
-			if ( class_exists( 'AIOHM_BOOKING_Module_Settings_Manager' ) ) {
-				$sanitized = AIOHM_BOOKING_Module_Settings_Manager::sanitize_module_settings( $settings, $fields );
-				$errors    = AIOHM_BOOKING_Module_Settings_Manager::validate_required_fields( $settings, $fields );
+			if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Settings_Manager' ) ) {
+				$sanitized = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Settings_Manager::sanitize_module_settings( $settings, $fields );
+				$errors    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Settings_Manager::validate_required_fields( $settings, $fields );
 
 				if ( ! empty( $errors ) ) {
 					return new WP_Error( 'validation_failed', __( 'Settings validation failed', 'aiohm-booking-pro' ), $errors );
@@ -112,7 +114,7 @@ class AIOHM_BOOKING_Settings_Facade {
 			$success    = update_option( $option_key, $sanitized );
 
 			if ( ! $success ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::log_error(
 					"Failed to save settings for module: {$module_id}",
 					'settings_error',
 					array( 'module_id' => $module_id )
@@ -123,7 +125,7 @@ class AIOHM_BOOKING_Settings_Facade {
 			return $sanitized;
 
 		} catch ( Exception $e ) {
-			AIOHM_BOOKING_Error_Handler::log_error(
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::log_error(
 				'Exception saving module settings: ' . $e->getMessage(),
 				'exception_error',
 				array(

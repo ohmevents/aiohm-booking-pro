@@ -14,6 +14,14 @@
  */
 
 // Prevent direct access.
+namespace AIOHM_Booking_PRO\Core;
+
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Menu as Admin_Menu;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Ajax as Admin_Ajax;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Settings as Admin_Settings;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Modules as Admin_Modules;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry as Module_Registry;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -26,13 +34,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Admin {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin {
 
 	/**
 	 * Admin menu handler instance.
 	 *
 	 * @since 1.0.0
-	 * @var AIOHM_BOOKING_Admin_Menu|null
+	 * @var Admin_Menu|null
 	 */
 	private static $menu_handler = null;
 
@@ -40,7 +48,7 @@ class AIOHM_BOOKING_Admin {
 	 * Admin AJAX handler instance.
 	 *
 	 * @since 1.0.0
-	 * @var AIOHM_BOOKING_Admin_Ajax|null
+	 * @var Admin_Ajax|null
 	 */
 	private static $ajax_handler = null;
 
@@ -48,7 +56,7 @@ class AIOHM_BOOKING_Admin {
 	 * Admin settings handler instance.
 	 *
 	 * @since 1.0.0
-	 * @var AIOHM_BOOKING_Admin_Settings|null
+	 * @var Admin_Settings|null
 	 */
 	private static $settings_handler = null;
 
@@ -56,7 +64,7 @@ class AIOHM_BOOKING_Admin {
 	 * Admin modules handler instance.
 	 *
 	 * @since 1.0.0
-	 * @var AIOHM_BOOKING_Admin_Modules|null
+	 * @var Admin_Modules|null
 	 */
 	private static $modules_handler = null;
 
@@ -87,28 +95,28 @@ class AIOHM_BOOKING_Admin {
 	 */
 	private static function init_handlers() {
 		// Initialize menu handler (instance-based).
-		if ( class_exists( 'AIOHM_BOOKING_Admin_Menu' ) ) {
-			self::$menu_handler = new AIOHM_BOOKING_Admin_Menu();
+		if ( class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Menu' ) ) {
+			self::$menu_handler = new Admin_Menu();
 			self::$menu_handler->init();
 		}
 
 		// Initialize AJAX handler (static).
-		if ( class_exists( 'AIOHM_BOOKING_Admin_Ajax' ) ) {
-			AIOHM_BOOKING_Admin_Ajax::init();
+		if ( class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Ajax' ) ) {
+			Admin_Ajax::init();
 			// Create dummy instance for backward compatibility.
 			self::$ajax_handler = new stdClass();
 		}
 
 		// Initialize settings handler (static).
-		if ( class_exists( 'AIOHM_BOOKING_Admin_Settings' ) ) {
-			AIOHM_BOOKING_Admin_Settings::init();
+		if ( class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Settings' ) ) {
+			Admin_Settings::init();
 			// Create dummy instance for backward compatibility.
 			self::$settings_handler = new stdClass();
 		}
 
 		// Initialize modules handler (instance-based).
-		if ( class_exists( 'AIOHM_BOOKING_Admin_Modules' ) ) {
-			self::$modules_handler = new AIOHM_BOOKING_Admin_Modules();
+		if ( class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Modules' ) ) {
+			self::$modules_handler = new Admin_Modules();
 			self::$modules_handler->init();
 		}
 	}
@@ -118,7 +126,7 @@ class AIOHM_BOOKING_Admin {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return AIOHM_BOOKING_Admin_Menu|null
+	 * @return Admin_Menu|null
 	 */
 	public static function get_menu_handler() {
 		return self::$menu_handler;
@@ -129,7 +137,7 @@ class AIOHM_BOOKING_Admin {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return AIOHM_BOOKING_Admin_Ajax|null
+	 * @return Admin_Ajax|null
 	 */
 	public static function get_ajax_handler() {
 		return self::$ajax_handler;
@@ -140,7 +148,7 @@ class AIOHM_BOOKING_Admin {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return AIOHM_BOOKING_Admin_Settings|null
+	 * @return Admin_Settings|null
 	 */
 	public static function get_settings_handler() {
 		return self::$settings_handler;
@@ -151,7 +159,7 @@ class AIOHM_BOOKING_Admin {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return AIOHM_BOOKING_Admin_Modules|null
+	 * @return Admin_Modules|null
 	 */
 	public static function get_modules_handler() {
 		return self::$modules_handler;
@@ -317,7 +325,7 @@ class AIOHM_BOOKING_Admin {
 	 * Legacy menu method - delegates to menu handler.
 	 *
 	 * @since 1.0.0
-	 * @deprecated 1.2.0 Use AIOHM_BOOKING_Admin_Menu class instead.
+	 * @deprecated 1.2.0 Use AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Menu class instead.
 	 *
 	 * @return void
 	 */
@@ -331,15 +339,15 @@ class AIOHM_BOOKING_Admin {
 	 * Legacy sanitize settings method - delegates to settings handler.
 	 *
 	 * @since 1.0.0
-	 * @deprecated 1.2.0 Use AIOHM_BOOKING_Admin_Settings class instead.
+	 * @deprecated 1.2.0 Use AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Settings class instead.
 	 *
 	 * @param array $settings The settings array to sanitize.
 	 *
 	 * @return array The sanitized settings
 	 */
 	public static function sanitize_settings( $settings ) {
-		if ( class_exists( 'AIOHM_BOOKING_Admin_Settings' ) && method_exists( 'AIOHM_BOOKING_Admin_Settings', 'sanitize_settings' ) ) {
-			return AIOHM_BOOKING_Admin_Settings::sanitize_settings( $settings );
+		if ( class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Settings' ) && method_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Settings', 'sanitize_settings' ) ) {
+			return Admin_Settings::sanitize_settings( $settings );
 		}
 		// Basic fallback sanitization.
 		return is_array( $settings ) ? array_map( 'sanitize_text_field', $settings ) : array();
@@ -362,7 +370,7 @@ class AIOHM_BOOKING_Admin {
 	 * @return void
 	 */
 	private static function render_fallback_page( $module_key, $page_title ) {
-		$registry = AIOHM_BOOKING_Module_Registry::instance();
+		$registry = Module_Registry::instance();
 		$module   = $registry->get_module( $module_key );
 		if ( $module && method_exists( $module, 'render_admin_page' ) ) {
 			$module->render_admin_page();

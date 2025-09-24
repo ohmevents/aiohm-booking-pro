@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public success page, booking ID is non-sensitive display parameter
 $booking_id = isset( $_GET['booking_id'] ) ? absint( $_GET['booking_id'] ) : 0;
 
-if ( ! $booking_id || $booking_id > AIOHM_BOOKING_Security_Config::MAX_BOOKING_ID ) {
+if ( ! $booking_id || $booking_id > AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Security_Config::MAX_BOOKING_ID ) {
 	echo '<div class="aiohm-booking-error">' . esc_html__( 'Invalid booking reference.', 'aiohm-booking-pro' ) . '</div>';
 	return;
 }

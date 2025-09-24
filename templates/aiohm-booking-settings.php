@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get current settings.
-$settings = AIOHM_BOOKING_Settings::get_all();
+$settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 
 // Get AI Analytics settings.
 $ai_analytics_settings = get_option( 'aiohm_booking_ai_analytics_settings', array() );
@@ -52,12 +52,12 @@ function safe_setting_check( $value ) {
 }
 
 // Get available modules.
-$module_registry   = AIOHM_BOOKING_Module_Registry::instance();
+$module_registry   = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 $available_modules = $module_registry->get_all_modules_info();
 
 // Mark PRO modules as premium
 foreach ( $available_modules as $module_id => $module_info ) {
-	if ( AIOHM_BOOKING_Utilities::is_pro_module( $module_id ) ) {
+	if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_pro_module( $module_id ) ) {
 		$available_modules[ $module_id ]['is_premium'] = true;
 	}
 }
@@ -144,7 +144,7 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 		<div class="aiohm-module-grid aiohm-sortable aiohm-primary-modules" id="sortable-primary-grid" data-sort-action="aiohm_save_module_order">
 		<?php
 		// Define PRO modules that should be moved to the PRO section
-		$pro_modules     = AIOHM_BOOKING_Utilities::get_pro_modules();       // Define primary modules (main business purposes)..
+		$pro_modules     = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::get_pro_modules();       // Define primary modules (main business purposes)..
 		$primary_modules = array( 'accommodations', 'tickets', 'ai_analytics' );
 
 		foreach ( $primary_modules as $module_id ) {
@@ -249,8 +249,8 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 				}
 				?>
 						</div>
-						<?php if ( $is_premium && AIOHM_BOOKING_Utilities::is_free_version() ) : ?>
-							<?php echo wp_kses_post( AIOHM_BOOKING_Utilities::get_go_pro_notice( $module_name ) ); ?>
+						<?php if ( $is_premium && AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_free_version() ) : ?>
+							<?php echo wp_kses_post( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::get_go_pro_notice( $module_name ) ); ?>
 						<?php endif; ?>
 					</div>
 				</div>
@@ -381,8 +381,8 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 						}
 						?>
 					</div>
-					<?php if ( $is_premium && AIOHM_BOOKING_Utilities::is_free_version() ) : ?>
-						<?php echo wp_kses_post( AIOHM_BOOKING_Utilities::get_go_pro_notice( $module_name ) ); ?>
+					<?php if ( $is_premium && AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_free_version() ) : ?>
+						<?php echo wp_kses_post( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::get_go_pro_notice( $module_name ) ); ?>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -488,8 +488,8 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 						}
 						?>
 					</div>
-					<?php if ( $is_premium && AIOHM_BOOKING_Utilities::is_free_version() ) : ?>
-						<?php echo wp_kses_post( AIOHM_BOOKING_Utilities::get_go_pro_notice( $module_name ) ); ?>
+					<?php if ( $is_premium && AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_free_version() ) : ?>
+						<?php echo wp_kses_post( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::get_go_pro_notice( $module_name ) ); ?>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -709,13 +709,13 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 	// Payment Module Settings Cards
 		if ( function_exists( 'aiohm_booking_fs' ) && aiohm_booking_fs()->can_use_premium_code__premium_only() ) {
 		// Load payment modules
-		$registry      = AIOHM_BOOKING_Module_Registry::instance();
+		$registry      = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 		$stripe_module = $registry->get_module( 'stripe' );
 		$paypal_module = $registry->get_module( 'paypal' );
 
 		// Render Stripe settings (show even if disabled so users can enable it)
 		if ( class_exists( 'AIOHM_BOOKING_Module_Stripe' ) ) {
-			$stripe_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'stripe' );
+			$stripe_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'stripe' );
 			if ( $stripe_module && method_exists( $stripe_module, 'render_settings' ) ) {
 				$stripe_module->render_settings();
 			}
@@ -723,7 +723,7 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 
 		// Render PayPal settings (show even if disabled so users can enable it)
 		if ( class_exists( 'AIOHM_BOOKING_Module_PayPal' ) ) {
-			$paypal_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'paypal' );
+			$paypal_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'paypal' );
 			if ( $paypal_module && method_exists( $paypal_module, 'render_settings' ) ) {
 				$paypal_module->render_settings();
 			}

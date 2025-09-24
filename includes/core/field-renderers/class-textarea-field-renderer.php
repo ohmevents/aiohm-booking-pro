@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core\Field_Renderers;
 /**
  * Textarea Field Renderer
  *

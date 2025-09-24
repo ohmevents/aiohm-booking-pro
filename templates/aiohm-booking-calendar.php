@@ -21,7 +21,7 @@ if ( ! $is_shortcode_context ) {
 }
 
 // Get calendar module instance.
-$calendar_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'calendar' );
+$calendar_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'calendar' );
 
 // Get settings and accommodations.
 $settings              = get_option( 'aiohm_booking_settings', array() );
@@ -777,7 +777,7 @@ if ( $calendar_module && method_exists( $calendar_module, 'get_period_data_for_t
 		<div class="aiohm-booking-admin-card">
 				<?php
 				// Get AI Analytics module instance and render the insights section
-				$ai_analytics_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'ai-analytics' );
+				$ai_analytics_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'ai-analytics' );
 				if ( $ai_analytics_module && method_exists( $ai_analytics_module, 'render_ai_calendar_insights_section' ) ) {
 					$ai_analytics_module->render_ai_calendar_insights_section();
 				}

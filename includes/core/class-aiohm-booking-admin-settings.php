@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Admin Settings Management System.
  *
@@ -27,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Admin_Settings {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Settings {
 
 	/**
 	 * Settings schema for validation.
@@ -743,7 +745,7 @@ class AIOHM_BOOKING_Admin_Settings {
 
 		if ( $result ) {
 			// Clear cache after restore.
-			AIOHM_BOOKING_Settings::clear_cache();
+			\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::clear_cache();
 			delete_transient( self::BACKUP_TRANSIENT_KEY );
 		}
 
@@ -830,7 +832,7 @@ class AIOHM_BOOKING_Admin_Settings {
 		$result   = update_option( 'aiohm_booking_settings', $defaults );
 
 		if ( $result ) {
-			AIOHM_BOOKING_Settings::clear_cache();
+			\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::clear_cache();
 		}
 
 		return $result;

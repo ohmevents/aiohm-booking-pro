@@ -1,4 +1,9 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
+
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter as Accommodation_Counter;
+
 /**
  * Accommodation Service for AIOHM Booking
  *
@@ -22,17 +27,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Accommodation Service Class
  *
  * Static service for accommodation counting and management operations.
- * Acts as a centralized facade for the AIOHM_BOOKING_Accommodation_Counter class.
+ * Acts as a centralized facade for the AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter class.
  *
  * @since 1.2.3
  */
-class AIOHM_BOOKING_Accommodation_Service {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service {
 
 	/**
 	 * Cached accommodation counter instance
 	 *
 	 * @since 1.2.3
-	 * @var AIOHM_BOOKING_Accommodation_Counter|null
+	 * @var AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter|null
 	 */
 	private static $counter_instance = null;
 
@@ -45,17 +50,17 @@ class AIOHM_BOOKING_Accommodation_Service {
 	 * @since 1.2.3
 	 *
 	 * @param bool $force_refresh Force refresh of the counter instance.
-	 * @return AIOHM_BOOKING_Accommodation_Counter
+	 * @return Accommodation_Counter
 	 */
 	public static function get_counter( $force_refresh = false ) {
 		if ( null === self::$counter_instance || $force_refresh ) {
 			// Load accommodation counter class if not available.
-			if ( ! class_exists( 'AIOHM_BOOKING_Accommodation_Counter' ) ) {
-				require_once AIOHM_BOOKING_DIR . 'includes/core/class-aiohm-booking-accommodation-counter.php';
+			if ( ! class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter' ) ) {
+				// The autoloader will handle this.
 			}
 
 			$cell_statuses          = get_option( 'aiohm_booking_cell_statuses', array() );
-			self::$counter_instance = new AIOHM_BOOKING_Accommodation_Counter( $cell_statuses );
+			self::$counter_instance = new Accommodation_Counter( $cell_statuses );
 		}
 
 		return self::$counter_instance;

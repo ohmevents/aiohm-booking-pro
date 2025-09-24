@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Template Helper Class
  * Provides data and logic without cluttering templates.
@@ -20,12 +22,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.1.1
  */
-class AIOHM_BOOKING_Template_Helper {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Template_Helper {
 
 	/**
 	 * Singleton instance.
 	 *
-	 * @var AIOHM_BOOKING_Template_Helper|null
+	 * @var AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Template_Helper|null
 	 */
 	private static $instance = null;
 
@@ -39,7 +41,7 @@ class AIOHM_BOOKING_Template_Helper {
 	/**
 	 * Get singleton instance.
 	 *
-	 * @return AIOHM_BOOKING_Template_Helper
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Template_Helper
 	 */
 	public static function instance() {
 		if ( self::$instance === null ) {
@@ -129,7 +131,7 @@ class AIOHM_BOOKING_Template_Helper {
 	 */
 	public function get_pricing_data() {
 		// Get accommodation module for default pricing.
-		$accommodation_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'accommodations' );
+		$accommodation_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'accommodations' );
 		$default_price        = 0;
 		if ( $accommodation_module && method_exists( $accommodation_module, 'get_module_settings' ) ) {
 			$module_settings = $accommodation_module->get_module_settings();
@@ -322,7 +324,7 @@ class AIOHM_BOOKING_Template_Helper {
 	 */
 	public function get_accommodation_data() {
 		// Get the accommodation module instance.
-		$registry             = AIOHM_BOOKING_Module_Registry::instance();
+		$registry             = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 		$accommodation_module = $registry->get_module( 'accommodations' );
 
 		if ( ! $accommodation_module ) {

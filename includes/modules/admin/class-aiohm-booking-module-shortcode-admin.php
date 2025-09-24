@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Admin;
 /**
  * Shortcode Module for AIOHM Booking
  * Handles all booking shortcodes and frontend display functionality
@@ -16,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @package AIOHM_Booking
  */
-class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module_Abstract {
+class AIOHM_BOOKING_Module_Shortcode_Admin extends \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Settings_Module_Abstract {
 
 	/**
 	 * Module ID.
@@ -700,7 +702,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 			}
 
 			// Get calendar colors from the calendar module.
-			$calendar_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'calendar' );
+			$calendar_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'calendar' );
 			$default_colors  = array(
 				'free'     => '#ffffff',
 				'booked'   => '#e74c3c',
@@ -1202,7 +1204,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		);
 
 		// Sanitize using centralized validation.
-		$sanitized_data = AIOHM_BOOKING_Validation::sanitize_booking_data( $booking_data );
+		$sanitized_data = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::sanitize_booking_data( $booking_data );
 
 		// Extract sanitized values.
 		$buyer_name     = $sanitized_data['customer_first_name'];
@@ -1245,7 +1247,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		}
 
 		// Validate email.
-		if ( ! AIOHM_BOOKING_Validation::validate_email( $buyer_email ) ) {
+		if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_email( $buyer_email ) ) {
 			wp_send_json_error( array( 'message' => 'Please enter a valid email address' ) );
 		}
 
@@ -1292,7 +1294,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		$is_earlybird_eligible = ( $days_until_checkin >= $earlybird_days );
 
 		// Get accommodation module for default pricing.
-		$accommodation_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'accommodations' );
+		$accommodation_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'accommodations' );
 		$default_price        = 0;
 		if ( $accommodation_module && method_exists( $accommodation_module, 'get_module_settings' ) ) {
 			$module_settings = $accommodation_module->get_module_settings();
@@ -1494,7 +1496,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 			}
 
 			// Process event part
-			$tickets_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'tickets' );
+			$tickets_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'tickets' );
 			if ( $tickets_module && method_exists( $tickets_module, 'process_event_booking_part' ) ) {
 				$event_result = $tickets_module->process_event_booking_part( $form_data );
 				if ( is_wp_error( $event_result ) ) {
@@ -1516,7 +1518,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 
 		} elseif ( $has_events ) {
 			// Redirect to event-only handler
-			$tickets_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'tickets' );
+			$tickets_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'tickets' );
 			if ( $tickets_module && method_exists( $tickets_module, 'ajax_process_event_booking' ) ) {
 				$tickets_module->ajax_process_event_booking();
 			} else {
@@ -1545,7 +1547,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		);
 
 		// Sanitize using centralized validation.
-		$sanitized_data = AIOHM_BOOKING_Validation::sanitize_booking_data( $booking_data );
+		$sanitized_data = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::sanitize_booking_data( $booking_data );
 
 		// Extract sanitized values.
 		$buyer_name     = $sanitized_data['customer_first_name'];
@@ -1589,7 +1591,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		}
 
 		// Validate email.
-		if ( ! AIOHM_BOOKING_Validation::validate_email( $buyer_email ) ) {
+		if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_email( $buyer_email ) ) {
 			return new WP_Error( 'invalid_email', 'Please enter a valid email address' );
 		}
 
@@ -1626,7 +1628,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 
 		// Calculate pricing (simplified version)
 		$settings             = get_option( 'aiohm_booking_settings', array() );
-		$accommodation_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'accommodations' );
+		$accommodation_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'accommodations' );
 		$default_price        = 0;
 		if ( $accommodation_module && method_exists( $accommodation_module, 'get_module_settings' ) ) {
 			$module_settings = $accommodation_module->get_module_settings();
@@ -1698,7 +1700,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		} elseif ( $has_accommodations ) {
 			$this->ajax_process_accommodation_booking();
 		} elseif ( $has_events ) {
-			$tickets_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'tickets' );
+			$tickets_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'tickets' );
 			if ( $tickets_module && method_exists( $tickets_module, 'ajax_process_event_booking' ) ) {
 				$tickets_module->ajax_process_event_booking();
 			}
@@ -1743,8 +1745,8 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		update_option( 'aiohm_booking_cell_statuses', $saved_cell_statuses );
 
 		// Clear accommodation service cache to ensure statistics are updated.
-		if ( class_exists( 'AIOHM_BOOKING_Accommodation_Service' ) ) {
-			AIOHM_BOOKING_Accommodation_Service::clear_cache();
+		if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service' ) ) {
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::clear_cache();
 		}
 	}
 
@@ -1802,8 +1804,8 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		update_option( 'aiohm_booking_cell_statuses', $cell_statuses );
 
 		// Clear accommodation service cache to ensure statistics are updated.
-		if ( class_exists( 'AIOHM_BOOKING_Accommodation_Service' ) ) {
-			AIOHM_BOOKING_Accommodation_Service::clear_cache();
+		if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service' ) ) {
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::clear_cache();
 		}
 
 		return true;
@@ -1933,7 +1935,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 	 */
 	private function send_manual_payment_invoice( $booking_id ) {
 		// Check if notifications module is available.
-		$registry             = AIOHM_BOOKING_Module_Registry::instance();
+		$registry             = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 		$notifications_module = $registry->get_module( 'notifications' );
 
 		if ( $notifications_module && method_exists( $notifications_module, 'send_invoice_notification' ) ) {
@@ -2014,7 +2016,7 @@ Best regards,
 	 * @return string Accommodation singular name.
 	 */
 	private function get_accommodation_singular_name() {
-		$settings           = AIOHM_BOOKING_Settings::get_all();
+		$settings           = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$accommodation_type = $settings['accommodation_type'] ?? 'unit';
 		return aiohm_booking_get_accommodation_singular_name( $accommodation_type );
 	}
@@ -2543,7 +2545,7 @@ Best regards,
 		}
 
 		// Validate date formats
-		if ( ! AIOHM_BOOKING_Validation::validate_date( $arrival_date ) || ! AIOHM_BOOKING_Validation::validate_date( $departure_date ) ) {
+		if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_date( $arrival_date ) || ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_date( $departure_date ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid date format' ) );
 		}
 
@@ -2555,7 +2557,7 @@ Best regards,
 		$accommodation_settings = get_option( 'aiohm_booking_accommodation_settings', array() );
 
 		// Get early bird settings from helper
-		$early_bird_settings      = AIOHM_BOOKING_Early_Bird_Helper::get_accommodation_early_bird_settings();
+		$early_bird_settings      = AIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_BOOKING_Early_Bird_Helper::get_accommodation_early_bird_settings();
 		$enable_early_bird        = $early_bird_settings['enabled'];
 		$early_bird_days          = $early_bird_settings['days'];
 		$default_early_bird_price = $early_bird_settings['default_price'];
@@ -2613,6 +2615,6 @@ Best regards,
 }
 
 // Register the module.
-if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
-	AIOHM_BOOKING_Module_Registry::register_module( 'shortcode', 'AIOHM_BOOKING_Module_Shortcode_Admin' );
+if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry' ) ) {
+	AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::register_module( 'shortcode', 'AIOHM_BOOKING_Module_Shortcode_Admin' );
 }

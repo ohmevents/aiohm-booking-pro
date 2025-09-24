@@ -1,4 +1,13 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
+
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry as Module_Registry;
+use AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings as Settings;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_BOOKING_Admin as Admin;
+use AIOHM_Booking_PRO\Modules\Booking\AIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Calendar as Module_Calendar;
+use AIOHM_Booking_PRO\Modules\Booking\AIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation as Module_Accommodation;
+
 /**
  * Admin Menu Management System.
  *
@@ -29,13 +38,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Admin_Menu {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Menu {
 
 	/**
 	 * Module registry instance.
 	 *
 	 * @since 1.0.0
-	 * @var AIOHM_BOOKING_Module_Registry
+	 * @var AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry
 	 */
 	private $module_registry;
 
@@ -54,10 +63,10 @@ class AIOHM_BOOKING_Admin_Menu {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param AIOHM_BOOKING_Module_Registry $module_registry The module registry instance.
+	 * @param AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry $module_registry The module registry instance.
 	 */
-	public function __construct( $module_registry = null ) {
-		$this->module_registry = $module_registry ? $module_registry : AIOHM_BOOKING_Module_Registry::instance();
+	public function __construct( Module_Registry $registry = null ) {
+		$this->registry = $registry ? $registry : Module_Registry::instance();
 	}
 
 	/**
@@ -94,7 +103,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	 */
 	public function create_admin_menu() {
 		// Get fresh settings for menu creation.
-		$this->settings = AIOHM_BOOKING_Settings::get_all();
+		$this->settings = Settings::get_all();
 
 		// Create main menu page.
 		$menu_icon = $this->get_menu_icon();
@@ -103,7 +112,7 @@ class AIOHM_BOOKING_Admin_Menu {
 			'AIOHM Booking',
 			'manage_options',
 			'aiohm-booking-pro',
-			array( 'AIOHM_BOOKING_Admin', 'dash' ),
+			array( 'Admin', 'dash' ),
 			$menu_icon,
 			27
 		);
@@ -133,7 +142,7 @@ class AIOHM_BOOKING_Admin_Menu {
 			'Dashboard',
 			'manage_options',
 			'aiohm-booking-pro',
-			array( 'AIOHM_BOOKING_Admin', 'dash' )
+			array( 'Admin', 'dash' )
 		);
 
 		// Settings (always show for plugin configuration).
@@ -370,8 +379,8 @@ class AIOHM_BOOKING_Admin_Menu {
 	 */
 	public function calendar() {
 		// Load and render the calendar module.
-		if ( class_exists( 'AIOHM_BOOKING_Module_Calendar' ) ) {
-			$calendar_module = new AIOHM_BOOKING_Module_Calendar();
+		if ( class_exists( 'AIOHM_Booking_PRO\Modules\Booking\AIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Calendar' ) ) {
+			$calendar_module = new Module_Calendar();
 			if ( method_exists( $calendar_module, 'render_calendar_page' ) ) {
 				$calendar_module->render_calendar_page();
 			} elseif ( method_exists( $calendar_module, 'render_admin_page' ) ) {
@@ -443,8 +452,8 @@ class AIOHM_BOOKING_Admin_Menu {
 	 * @return void
 	 */
 	public function accommodations_module() {
-		if ( class_exists( 'AIOHM_BOOKING_Module_Accommodation' ) ) {
-			$accommodation_module = new AIOHM_BOOKING_Module_Accommodation();
+		if ( class_exists( 'AIOHM_Booking_PRO\Modules\Booking\AIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation' ) ) {
+			$accommodation_module = new Module_Accommodation();
 			$accommodation_module->render_admin_page();
 		} else {
 			echo '<div class="wrap"><h1>Accommodation</h1><p>Accommodation module not found or not enabled.</p></div>';

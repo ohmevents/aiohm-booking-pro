@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\AiGemini;
 /**
  * Google Gemini Module for AIOHM Booking
  * Handles Google Gemini AI integration for booking intelligence
@@ -13,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /* <fs_premium_only> */
 
-class AIOHM_BOOKING_Module_Gemini extends AIOHM_BOOKING_AI_Provider_Module_Abstract {
+class AIOHM_BOOKING_Module_Gemini extends AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_AI_Provider_Module_Abstract {
 
 	public static function get_ui_definition() {
 		return array(

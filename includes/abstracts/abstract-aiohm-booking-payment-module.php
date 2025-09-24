@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Abstracts;
 /**
  * Abstract Payment Module Base Class
  *
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Abstract base class for payment modules
  */
-abstract class AIOHM_BOOKING_Payment_Module_Abstract extends AIOHM_BOOKING_Module_Abstract {
+abstract class AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Payment_Module_Abstract extends AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Module_Abstract {
 
 	/**
 	 * Check rate limit for webhook endpoints
@@ -81,7 +83,7 @@ abstract class AIOHM_BOOKING_Payment_Module_Abstract extends AIOHM_BOOKING_Modul
 			); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table modification for plugin functionality
 
 			if ( false === $result ) {
-				AIOHM_BOOKING_Error_Handler::handle_database_error(
+				AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::handle_database_error(
 					'update_payment_status',
 					$wpdb->last_error
 				);
@@ -91,7 +93,7 @@ abstract class AIOHM_BOOKING_Payment_Module_Abstract extends AIOHM_BOOKING_Modul
 			return $result;
 
 		} catch ( Exception $e ) {
-			AIOHM_BOOKING_Error_Handler::log_error(
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::log_error(
 				'Exception updating payment status: ' . $e->getMessage(),
 				'exception_error',
 				array(
@@ -198,7 +200,7 @@ abstract class AIOHM_BOOKING_Payment_Module_Abstract extends AIOHM_BOOKING_Modul
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Server variable access for webhook validation
 			$request_method = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) );
 			if ( 'POST' !== $request_method ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::log_error(
 					'Invalid webhook request method: ' . $request_method,
 					'webhook_error',
 					array( 'gateway' => $this->get_gateway_id() )
@@ -213,7 +215,7 @@ abstract class AIOHM_BOOKING_Payment_Module_Abstract extends AIOHM_BOOKING_Modul
 			return true;
 
 		} catch ( Exception $e ) {
-			AIOHM_BOOKING_Error_Handler::log_error(
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::log_error(
 				'Exception during webhook validation: ' . $e->getMessage(),
 				'exception_error',
 				array(
@@ -324,7 +326,7 @@ abstract class AIOHM_BOOKING_Payment_Module_Abstract extends AIOHM_BOOKING_Modul
 	 * @return array Formatted error response.
 	 */
 	protected function format_payment_error( $error_message, $error_details = array() ) {
-		AIOHM_BOOKING_Error_Handler::log_error(
+		AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::log_error(
 			'Payment processing error: ' . $error_message,
 			'payment_error',
 			array_merge(

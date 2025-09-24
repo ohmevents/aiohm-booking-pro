@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Admin;
 /**
  * Settings Module class
  *
@@ -27,7 +29,7 @@
  * @license  GPL-2.0+ https://www.gnu.org/licenses/gpl-2.0.html
  * @since 1.2.6
  */
-class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstract {
+class AIOHM_BOOKING_Module_Settings extends \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Settings_Module_Abstract {
 
 	/**
 	 * Module identifier.
@@ -288,7 +290,7 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 				);
 			}
 
-			if ( AIOHM_BOOKING_Utilities::is_module_available( 'gemini' ) ) {
+			if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_module_available( 'gemini' ) ) {
 				$allowed_settings = array_merge(
 					$allowed_settings,
 					array(
@@ -298,7 +300,7 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 				);
 			}
 
-			if ( AIOHM_BOOKING_Utilities::is_module_available( 'shareai' ) ) {
+			if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_module_available( 'shareai' ) ) {
 				$allowed_settings = array_merge(
 					$allowed_settings,
 					array(
@@ -308,7 +310,7 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 				);
 			}
 
-			if ( AIOHM_BOOKING_Utilities::is_module_available( 'ollama' ) ) {
+			if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_module_available( 'ollama' ) ) {
 				$allowed_settings = array_merge(
 					$allowed_settings,
 					array(
@@ -331,11 +333,11 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 			}
 
 			// Get current settings and merge.
-			$current_settings = AIOHM_BOOKING_Settings::get_all();
+			$current_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 			$merged_settings  = array_merge( $current_settings, $sanitized_settings );
 
 			// Save settings - try direct database approach as fallback.
-			$result = AIOHM_BOOKING_Settings::update( $merged_settings );
+			$result = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::update( $merged_settings );
 
 			// If the class method fails, try direct WordPress function as fallback.
 			if ( ! $result ) {
@@ -438,13 +440,13 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 		$sanitized_order = array_map( 'sanitize_text_field', $order );
 
 		// Get current settings.
-		$settings = AIOHM_BOOKING_Settings::get_all();
+		$settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 
 		// Update module order.
 		$settings['module_order'] = $sanitized_order;
 
 		// Save settings.
-		$result = AIOHM_BOOKING_Settings::update( $settings );
+		$result = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::update( $settings );
 
 		if ( $result ) {
 			wp_send_json_success( 'Module order saved successfully' );
@@ -483,13 +485,13 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 		$sanitized_order = array_map( 'sanitize_text_field', $order );
 
 		// Get current settings.
-		$settings = AIOHM_BOOKING_Settings::get_all();
+		$settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 
 		// Update masonry card order.
 		$settings['masonry_card_order'] = $sanitized_order;
 
 		// Save settings.
-		$result = AIOHM_BOOKING_Settings::update( $settings );
+		$result = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::update( $settings );
 
 		if ( $result ) {
 			wp_send_json_success( 'Masonry card order saved successfully' );
@@ -672,6 +674,6 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 }
 
 // Register the Settings module.
-if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
-	AIOHM_BOOKING_Module_Registry::register_module( 'settings', 'AIOHM_BOOKING_Module_Settings' );
+if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry' ) ) {
+	AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::register_module( 'settings', 'AIOHM_BOOKING_Module_Settings' );
 }

@@ -158,8 +158,8 @@ function get_field_layout( $field_key ) {
 		<div class="aiohm-contact-additional-fields">
 			<?php
 			// Get centralized field definitions from accommodation module
-			if ( class_exists( 'AIOHM_BOOKING_Module_Accommodation' ) ) {
-				$accommodation_module = new AIOHM_BOOKING_Module_Accommodation();
+			if ( class_exists( 'AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation' ) ) {
+				$accommodation_module = new AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation();
 				$field_definitions    = $accommodation_module->get_centralized_field_definitions( $is_events_context ? 'tickets' : 'accommodation' );
 			} else {
 				// Fallback if module not available

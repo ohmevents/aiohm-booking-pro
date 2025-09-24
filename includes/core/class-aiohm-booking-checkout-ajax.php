@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Checkout AJAX Handlers
  *
@@ -151,7 +153,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 		}
 
 		// Send invoice notification using the notifications module
-		$notifications_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'notifications' );
+		$notifications_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'notifications' );
 		if ( $notifications_module ) {
 			$invoice_sent = $notifications_module->send_invoice_notification( $booking_id );
 
@@ -182,7 +184,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			}
 
 			// Check if Stripe module is available
-			$stripe_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'stripe' );
+			$stripe_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'stripe' );
 			if ( ! $stripe_module ) {
 				throw new Exception( __( 'Stripe payment module not available', 'aiohm-booking-pro' ) );
 			}
@@ -257,7 +259,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			}
 
 			// Check if notifications module is available
-			$notifications_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'notifications' );
+			$notifications_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'notifications' );
 			if ( ! $notifications_module ) {
 				throw new Exception( __( 'Notifications module not available', 'aiohm-booking-pro' ) );
 			}
@@ -599,7 +601,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 		}
 
 		// Check if Stripe module is available
-		$stripe_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'stripe' );
+		$stripe_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'stripe' );
 		if ( ! $stripe_module ) {
 			return '<p>Stripe payment is not available. Please contact support.</p>';
 		}
@@ -645,7 +647,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			);
 
 			// Sanitize data
-			$sanitized_data = AIOHM_BOOKING_Validation::sanitize_booking_data( $booking_data );
+			$sanitized_data = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::sanitize_booking_data( $booking_data );
 
 			$buyer_name     = $sanitized_data['customer_first_name'];
 			$buyer_email    = $sanitized_data['customer_email'];
@@ -718,7 +720,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			$booking_id = $wpdb->insert_id;
 
 			// Send notification using the notifications module
-			$notifications_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'notifications' );
+			$notifications_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'notifications' );
 			if ( $notifications_module ) {
 				$notification_sent = $notifications_module->send_invoice_notification( $booking_id );
 

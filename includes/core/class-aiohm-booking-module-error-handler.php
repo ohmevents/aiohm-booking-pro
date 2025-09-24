@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Module Error Handler
  *
@@ -18,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Provides module-specific error handling with automatic context and reporting.
  */
-class AIOHM_BOOKING_Module_Error_Handler {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Error_Handler {
 
 	/**
 	 * Module identifier
@@ -86,7 +88,7 @@ class AIOHM_BOOKING_Module_Error_Handler {
 			$message
 		);
 
-		AIOHM_BOOKING_Error_Handler::log_error( $full_message, $type, $full_context );
+		AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::log_error( $full_message, $type, $full_context );
 
 		// Check if admin notification is needed.
 		$this->maybe_notify_admin( $type, $full_message, $full_context );
@@ -234,7 +236,7 @@ class AIOHM_BOOKING_Module_Error_Handler {
 			$message
 		);
 
-		AIOHM_BOOKING_Error_Handler::show_admin_error( $full_message, $type );
+		AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::show_admin_error( $full_message, $type );
 	}
 
 	/**
@@ -250,7 +252,7 @@ class AIOHM_BOOKING_Module_Error_Handler {
 			$message
 		);
 
-		AIOHM_BOOKING_Error_Handler::show_frontend_error( $full_message, $type );
+		AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::show_frontend_error( $full_message, $type );
 	}
 
 	/**
@@ -260,7 +262,7 @@ class AIOHM_BOOKING_Module_Error_Handler {
 	 * @return array Error statistics.
 	 */
 	public function get_error_stats( $days = 7 ) {
-		$recent_errors = AIOHM_BOOKING_Error_Handler::get_recent_errors( 1000 );
+		$recent_errors = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::get_recent_errors( 1000 );
 
 		$stats = array(
 			'total_errors'   => 0,
@@ -292,7 +294,7 @@ class AIOHM_BOOKING_Module_Error_Handler {
 	 * @return int Number of errors cleared.
 	 */
 	public function clear_module_errors() {
-		$recent_errors = AIOHM_BOOKING_Error_Handler::get_recent_errors( 1000 );
+		$recent_errors = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::get_recent_errors( 1000 );
 		$cleared_count = 0;
 
 		// Note: This is a simplified implementation.
@@ -324,7 +326,7 @@ class AIOHM_BOOKING_Module_Error_Handler {
 		);
 
 		if ( in_array( $type, $notify_types, true ) ) {
-			AIOHM_BOOKING_Error_Handler::notify_admin_error( $message, $context );
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::notify_admin_error( $message, $context );
 		}
 	}
 

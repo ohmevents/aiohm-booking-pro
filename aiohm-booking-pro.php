@@ -367,20 +367,20 @@ if ( function_exists( 'aiohm_booking_fs' ) ) {
         });
         // Clear module cache when license status changes
         aiohm_booking_fs()->add_action( 'after_license_change', function () {
-            if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
-                AIOHM_BOOKING_Module_Registry::instance()->clear_module_cache();
+            if ( class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry' ) ) {
+                AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->clear_module_cache();
             }
         } );
         // Clear module cache after account connection.
         aiohm_booking_fs()->add_action( 'after_account_connection', function () {
-            if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
-                AIOHM_BOOKING_Module_Registry::instance()->clear_module_cache();
+            if ( class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry' ) ) {
+                AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->clear_module_cache();
             }
         } );
         // Clear module cache on init to ensure fresh discovery.
         add_action( 'init', function () {
-            if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
-                AIOHM_BOOKING_Module_Registry::instance()->clear_module_cache();
+            if ( class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry' ) ) {
+                AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->clear_module_cache();
             }
             // Handle Stripe payment return URLs.
             if ( isset( $_GET['aiohm_booking_action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public return URL from payment processor
@@ -489,8 +489,8 @@ function aiohm_booking_payment_module_exists(  $module_name  ) {
         }
     }
     // Use the new conditional loading system.
-    if ( class_exists( 'AIOHM_BOOKING_Utilities' ) ) {
-        return AIOHM_BOOKING_Utilities::is_module_available( $module_name );
+    if ( class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities' ) ) {
+        return \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_module_available( $module_name );
     }
     // Fallback for backwards compatibility during initialization.
     $new_module_file = AIOHM_BOOKING_DIR . "includes/modules/payments/{$module_name}/class-aiohm-booking-module-{$module_name}.php";
@@ -554,8 +554,8 @@ class AIOHM_Booking {
      * Add security headers to all responses
      */
     public function add_security_headers() {
-        if ( class_exists( 'AIOHM_BOOKING_Security_Config' ) ) {
-            $headers = AIOHM_BOOKING_Security_Config::get_security_headers();
+        if ( class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Security_Config' ) ) {
+            $headers = \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Security_Config::get_security_headers();
             foreach ( $headers as $header => $value ) {
                 header( $header . ': ' . $value );
             }
@@ -621,40 +621,40 @@ class AIOHM_Booking {
      * Initialize plugin components
      */
     public function init_components() {
-        $this->load_dependencies();
+        require_once AIOHM_BOOKING_DIR . 'vendor/autoload.php';
         // Migrate settings if needed.
         $this->migrate_settings();
         // Initialize core components needed for dashboard.
-        if ( class_exists( 'AIOHM_BOOKING_Admin' ) ) {
-            AIOHM_BOOKING_Admin::init();
+        if ( class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Admin' ) ) {
+            \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Admin::init();
         }
         // Initialize assets management.
-        if ( class_exists( 'AIOHM_BOOKING_Assets' ) ) {
-            new AIOHM_BOOKING_Assets();
+        if ( class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Assets' ) ) {
+            new \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Assets();
         }
         // Initialize module registry.
-        if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
-            AIOHM_BOOKING_Module_Registry::instance();
+        if ( class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Module_Registry' ) ) {
+            \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Module_Registry::instance();
         }
         // Initialize field renderer factory.
-        if ( class_exists( 'AIOHM_Booking_Field_Renderer_Factory' ) ) {
-            AIOHM_Booking_Field_Renderer_Factory::init();
+        if ( class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_Booking_Field_Renderer_Factory' ) ) {
+            \AIOHM_Booking_PRO\Core\AIOHM_Booking_Field_Renderer_Factory::init();
         }
         // Initialize REST API.
-        if ( class_exists( 'AIOHM_BOOKING_REST_API' ) ) {
-            AIOHM_BOOKING_REST_API::init();
+        if ( class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_REST_API' ) ) {
+            \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_REST_API::init();
         }
         // Initialize error handling.
-        if ( class_exists( 'AIOHM_BOOKING_Error_Handler' ) ) {
-            AIOHM_BOOKING_Error_Handler::init();
+        if ( class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Error_Handler' ) ) {
+            \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Error_Handler::init();
         }
         // Initialize enhanced security.
-        if ( class_exists( 'AIOHM_BOOKING_Security_Config' ) ) {
-            add_action( 'init', array('AIOHM_BOOKING_Security_Config', 'init_security') );
+        if ( class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Security_Config' ) ) {
+            add_action( 'init', array('\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Security_Config', 'init_security') );
         }
         // Initialize upsells for free version.
-        if ( class_exists( 'AIOHM_BOOKING_Upsells' ) ) {
-            AIOHM_BOOKING_Upsells::init();
+        if ( class_exists( '\AIOHM_Booking_PRO\Admin\AIOHM_BOOKING_Upsells' ) ) {
+            \AIOHM_Booking_PRO\Admin\AIOHM_BOOKING_Upsells::init();
         }
     }
 
@@ -778,28 +778,17 @@ class AIOHM_Booking {
      * Create all required database tables
      */
     private function create_database_tables() {
-        // Load abstract classes required for modules.
-        require_once AIOHM_BOOKING_DIR . 'includes/abstracts/abstract-aiohm-booking-module.php';
-        require_once AIOHM_BOOKING_DIR . 'includes/abstracts/abstract-aiohm-booking-settings-module.php';
-        // Load modules that have on_activation methods.
-        require_once AIOHM_BOOKING_DIR . 'includes/modules/booking/class-aiohm-booking-module-orders.php';
-        require_once AIOHM_BOOKING_DIR . 'includes/modules/booking/class-aiohm-booking-module-calendar.php';
-        // Load notifications module only if it exists (conditional feature).
-        $notifications_file = AIOHM_BOOKING_DIR . 'includes/modules/notifications/class-aiohm-booking-module-notifications.php';
-        if ( file_exists( $notifications_file ) ) {
-            require_once $notifications_file;
-        }
         // Create orders table.
-        if ( class_exists( 'AIOHM_BOOKING_Module_Orders' ) && method_exists( 'AIOHM_BOOKING_Module_Orders', 'on_activation' ) ) {
-            AIOHM_BOOKING_Module_Orders::on_activation();
+        if ( class_exists( '\AIOHM_Booking_PRO\Modules\Booking\AIOHM_BOOKING_Module_Orders' ) && method_exists( '\AIOHM_Booking_PRO\Modules\Booking\AIOHM_BOOKING_Module_Orders', 'on_activation' ) ) {
+            \AIOHM_Booking_PRO\Modules\Booking\AIOHM_BOOKING_Module_Orders::on_activation();
         }
         // Create calendar data table.
-        if ( class_exists( 'AIOHM_BOOKING_Module_Calendar' ) && method_exists( 'AIOHM_BOOKING_Module_Calendar', 'on_activation' ) ) {
-            AIOHM_BOOKING_Module_Calendar::on_activation();
+        if ( class_exists( '\AIOHM_Booking_PRO\Modules\Booking\AIOHM_BOOKING_Module_Calendar' ) && method_exists( '\AIOHM_Booking_PRO\Modules\Booking\AIOHM_BOOKING_Module_Calendar', 'on_activation' ) ) {
+            \AIOHM_Booking_PRO\Modules\Booking\AIOHM_BOOKING_Module_Calendar::on_activation();
         }
         // Create email logs table.
-        if ( class_exists( 'AIOHM_BOOKING_Module_Notifications' ) && method_exists( 'AIOHM_BOOKING_Module_Notifications', 'on_activation' ) ) {
-            AIOHM_BOOKING_Module_Notifications::on_activation();
+        if ( class_exists( '\AIOHM_Booking_PRO\Modules\Notifications\AIOHM_BOOKING_Module_Notifications' ) && method_exists( '\AIOHM_Booking_PRO\Modules\Notifications\AIOHM_BOOKING_Module_Notifications', 'on_activation' ) ) {
+            \AIOHM_Booking_PRO\Modules\Notifications\AIOHM_BOOKING_Module_Notifications::on_activation();
         }
     }
 

@@ -7,6 +7,10 @@
  * @since 1.0.0
  */
 
+namespace AIOHM_Booking_PRO\Core;
+
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry as Module_Registry;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -16,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Assets {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Assets {
 
 	/**
 	 * Con      // Frontend base JavaScript.
@@ -348,7 +352,7 @@ class AIOHM_BOOKING_Assets {
 		);
 
 		// Get calendar colors for localization.
-		$calendar_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'calendar' );
+		$calendar_module = Module_Registry::instance()->get_module( 'calendar' );
 		$default_colors  = array(
 			'free'     => '#ffffff',
 			'booked'   => '#e74c3c',

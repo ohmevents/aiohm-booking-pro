@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-// The variables used in this template are prepared by the AIOHM_BOOKING_Module_Accommodation class.
+// The variables used in this template are prepared by the AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation class.
 // Example variables passed from the class:.
 // $settings, $global_settings, $accommodation_posts, $product_names, $currency.
 
@@ -55,7 +55,7 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 			<?php
 			// Calculate today's occupancy stats dynamically.
 			$today           = current_time( 'Y-m-d' );
-			$calendar_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'calendar' );
+			$calendar_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'calendar' );
 
 			if ( $calendar_module && method_exists( $calendar_module, 'get_unit_breakdown' ) ) {
 				$today_breakdown = $calendar_module->get_unit_breakdown( $today );
@@ -63,8 +63,8 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 				$vacant_today    = $today_breakdown['total'] - $occupied_today;
 			} else {
 				// Fallback to static calculation using accommodation service.
-				if ( class_exists( 'AIOHM_BOOKING_Accommodation_Service' ) ) {
-					$stats          = AIOHM_BOOKING_Accommodation_Service::get_statistics();
+				if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service' ) ) {
+					$stats          = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::get_statistics();
 					$occupied_today = 0;
 					$vacant_today   = $stats['total_accommodations'] ?? count( $accommodation_data ?? array() );
 				} else {
@@ -80,8 +80,8 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 					echo esc_html( $today_breakdown['total'] );
 				} else {
 					// Fallback to accommodation service or accommodation data.
-					if ( class_exists( 'AIOHM_BOOKING_Accommodation_Service' ) ) {
-						$stats = AIOHM_BOOKING_Accommodation_Service::get_statistics();
+					if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service' ) ) {
+						$stats = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::get_statistics();
 						echo esc_html( $stats['total_accommodations'] ?? count( $accommodation_data ?? array() ) );
 					} else {
 						echo esc_html( count( $accommodation_data ?? array() ) );
@@ -125,7 +125,7 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 			<div class="aiohm-booking-settings-grid aiohm-booking-settings-grid--large">
 				<?php
 				// Get current settings.
-				$global_settings = AIOHM_BOOKING_Settings::get_all();
+				$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 				?>
 
 				<div class="aiohm-booking-setting-item">
@@ -293,7 +293,7 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 									<select name="aiohm_accommodations[<?php echo esc_attr( $accommodation['id'] ); ?>][type]" class="accommodation-individual-type-select">
 										<?php
 										$current_type        = $accommodation['type'] ?? 'unit';
-										$accommodation_types = AIOHM_BOOKING_Module_Accommodation::get_accommodation_types_for_select();
+										$accommodation_types = AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation::get_accommodation_types_for_select();
 										foreach ( $accommodation_types as $value => $label ) :
 											?>
 											<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $current_type, $value ); ?>><?php echo esc_html( $label ); ?></option>

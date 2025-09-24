@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Abstracts;
 /**
  * Abstract AI Provider class
  * Base class for all AI provider implementations
@@ -44,7 +46,7 @@ abstract class AIOHM_BOOKING_AI_Provider_Abstract {
 	 */
 	public function __construct( $settings = null ) {
 		if ( null === $settings ) {
-			$this->settings = AIOHM_BOOKING_Settings::get_all();
+			$this->settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		} else {
 			$this->settings = $settings;
 		}

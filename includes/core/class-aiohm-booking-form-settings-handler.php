@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * AIOHM Booking Form Settings Handler
  *
@@ -16,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Unified form settings handler
  */
-class AIOHM_BOOKING_Form_Settings_Handler {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Form_Settings_Handler {
 
 	/**
 	 * Save unified form settings for both accommodation and tickets

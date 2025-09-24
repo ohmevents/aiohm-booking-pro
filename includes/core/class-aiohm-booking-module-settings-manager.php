@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Module Settings Manager
  *
@@ -347,7 +349,7 @@ class AIOHM_Booking_Module_Settings_Manager {
 	 */
 	private static function sanitize_color_value( $value ) {
 		// Use centralized color validation.
-		return AIOHM_BOOKING_Validation::sanitize_hex_color( $value );
+		return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::sanitize_hex_color( $value );
 	}
 
 	/**

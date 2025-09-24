@@ -1,4 +1,9 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
+
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler as Error_Handler;
+
 /**
  * Standardized AJAX Registration System
  *
@@ -96,7 +101,7 @@ class AIOHM_BOOKING_Ajax_Registration_Manager {
 		$action = self::get_current_action();
 
 		if ( ! isset( self::$endpoints[ $action ] ) ) {
-			AIOHM_BOOKING_Error_Handler::log_error(
+			Error_Handler::log_error(
 				"Unknown admin AJAX action: {$action}",
 				'ajax_error',
 				array( 'action' => $action )
@@ -116,7 +121,7 @@ class AIOHM_BOOKING_Ajax_Registration_Manager {
 		$action = self::get_current_action();
 
 		if ( ! isset( self::$endpoints[ $action ] ) ) {
-			AIOHM_BOOKING_Error_Handler::log_error(
+			Error_Handler::log_error(
 				"Unknown frontend AJAX action: {$action}",
 				'ajax_error',
 				array( 'action' => $action )
@@ -142,7 +147,7 @@ class AIOHM_BOOKING_Ajax_Registration_Manager {
 
 			// Verify capability.
 			if ( ! current_user_can( $config['capability'] ) ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				Error_Handler::log_error(
 					"Insufficient capability for AJAX action: {$action}",
 					'capability_error',
 					array(
@@ -157,7 +162,7 @@ class AIOHM_BOOKING_Ajax_Registration_Manager {
 
 			// Verify nonce.
 			if ( ! self::verify_ajax_nonce( $config['nonce_action'] ) ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				Error_Handler::log_error(
 					"Invalid nonce for AJAX action: {$action}",
 					'nonce_error',
 					array( 'action' => $action )
@@ -173,7 +178,7 @@ class AIOHM_BOOKING_Ajax_Registration_Manager {
 
 				if ( is_wp_error( $validation_result ) ) {
 					if ( $config['log_errors'] ) {
-						AIOHM_BOOKING_Error_Handler::log_error(
+						Error_Handler::log_error(
 							"AJAX input validation failed for action: {$action}",
 							'validation_error',
 							array(
@@ -198,7 +203,7 @@ class AIOHM_BOOKING_Ajax_Registration_Manager {
 			// Handle WP_Error responses.
 			if ( is_wp_error( $result ) ) {
 				if ( $config['log_errors'] ) {
-					AIOHM_BOOKING_Error_Handler::log_error(
+					Error_Handler::log_error(
 						"AJAX callback returned error for action: {$action}",
 						'callback_error',
 						array(
@@ -216,7 +221,7 @@ class AIOHM_BOOKING_Ajax_Registration_Manager {
 			wp_send_json_success( $result );
 
 		} catch ( Exception $e ) {
-			AIOHM_BOOKING_Error_Handler::log_error(
+			Error_Handler::log_error(
 				'Exception in AJAX processing: ' . $e->getMessage(),
 				'exception_error',
 				array(

@@ -1,4 +1,9 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
+
+use \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry as Module_Registry;
+
 /**
  * Admin Modules Management Class
  *
@@ -27,12 +32,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Admin_Modules {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Modules {
 
 	/**
 	 * Module registry instance.
 	 *
-	 * @var AIOHM_BOOKING_Module_Registry
+	 * @var \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry
 	 */
 	private $registry;
 
@@ -63,10 +68,10 @@ class AIOHM_BOOKING_Admin_Modules {
 	/**
 	 * Constructor.
 	 *
-	 * @param AIOHM_BOOKING_Module_Registry $registry Module registry instance.
+	 * @param Module_Registry $registry Module registry instance.
 	 */
-	public function __construct( AIOHM_BOOKING_Module_Registry $registry = null ) {
-		$this->registry = $registry ? $registry : AIOHM_BOOKING_Module_Registry::instance();
+	public function __construct( \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry $registry = null ) {
+		$this->registry = $registry ? $registry : \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 	}
 
 	/**
@@ -562,8 +567,8 @@ class AIOHM_BOOKING_Admin_Modules {
 	 */
 	public function render_dashboard_page() {
 		// Delegate to the admin class method.
-		if ( class_exists( 'AIOHM_BOOKING_Admin' ) && method_exists( 'AIOHM_BOOKING_Admin', 'render_dashboard_template' ) ) {
-			AIOHM_BOOKING_Admin::render_dashboard_template();
+		if ( class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_BOOKING_Admin' ) && method_exists( '\AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_BOOKING_Admin', 'render_dashboard_template' ) ) {
+			\AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_BOOKING_Admin::render_dashboard_template();
 		} else {
 			// Fallback.
 			echo '<div class="wrap"><h1>AIOHM Booking Dashboard</h1><p>Dashboard functionality is being loaded...</p></div>';

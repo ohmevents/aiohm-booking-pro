@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Common Utility Functions for AIOHM Booking
  *
@@ -25,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.3
  */
-class AIOHM_BOOKING_Utilities {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities {
 
 	/**
 	 * Store singleton instances
@@ -245,7 +247,7 @@ class AIOHM_BOOKING_Utilities {
 			return self::$module_availability_cache[ $module_id ];
 		}
 
-		$registry  = AIOHM_BOOKING_Module_Registry::instance();
+		$registry  = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 		$available = $registry->module_exists( $module_id );
 
 		// Cache the result.
@@ -274,14 +276,14 @@ class AIOHM_BOOKING_Utilities {
 
 		// Check for optional payment modules.
 		if ( self::is_module_available( 'stripe' ) ) {
-			$stripe_module = AIOHM_BOOKING_Module_Registry::get_module_instance( 'stripe' );
+			$stripe_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::get_module_instance( 'stripe' );
 			if ( $stripe_module && method_exists( $stripe_module, 'register_payment_method' ) ) {
 				$methods = $stripe_module->register_payment_method( $methods );
 			}
 		}
 
 		if ( self::is_module_available( 'paypal' ) ) {
-			$paypal_module = AIOHM_BOOKING_Module_Registry::get_module_instance( 'paypal' );
+			$paypal_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::get_module_instance( 'paypal' );
 			if ( $paypal_module && method_exists( $paypal_module, 'register_payment_method' ) ) {
 				$methods = $paypal_module->register_payment_method( $methods );
 			}
@@ -321,7 +323,7 @@ class AIOHM_BOOKING_Utilities {
 
 		foreach ( $ai_modules as $provider ) {
 			if ( self::is_module_available( $provider ) ) {
-				$provider_module = AIOHM_BOOKING_Module_Registry::get_module_instance( $provider );
+				$provider_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::get_module_instance( $provider );
 				if ( $provider_module && method_exists( $provider_module, 'register_ai_provider' ) ) {
 					$providers = $provider_module->register_ai_provider( $providers );
 				}
@@ -351,7 +353,7 @@ class AIOHM_BOOKING_Utilities {
 	 * @return array Missing modules with display names
 	 */
 	public static function get_missing_optional_modules() {
-		$registry      = AIOHM_BOOKING_Module_Registry::instance();
+		$registry      = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 		$missing_types = $registry->get_missing_optional_modules();
 
 		$module_names = array(

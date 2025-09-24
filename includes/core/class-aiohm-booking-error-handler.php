@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Error Handling and Logging Utilities for AIOHM Booking
  * Provides centralized error handling, logging, and user feedback.
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Error Handling Class.
  */
-class AIOHM_BOOKING_Error_Handler {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler {
 
 	/**
 	 * Error log file path.
@@ -281,7 +283,7 @@ class AIOHM_BOOKING_Error_Handler {
 	 * @param array $rules The validation rules.
 	 */
 	public static function validate_input( $data, $rules = array() ) {
-		if ( ! class_exists( 'AIOHM_BOOKING_Validation' ) ) {
+		if ( ! class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation' ) ) {
 			self::log_error( 'Validation class not available', 'validation_error' );
 			return new WP_Error( 'validation_unavailable', __( 'Validation system unavailable', 'aiohm-booking-pro' ) );
 		}
@@ -303,13 +305,13 @@ class AIOHM_BOOKING_Error_Handler {
 			if ( isset( $rule['type'] ) ) {
 				switch ( $rule['type'] ) {
 					case 'email':
-						if ( ! AIOHM_BOOKING_Validation::validate_email( $value ) ) {
+						if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_email( $value ) ) {
 							$errors[ $field ] = __( 'Invalid email address', 'aiohm-booking-pro' );
 						}
 						break;
 
 					case 'date':
-						if ( ! AIOHM_BOOKING_Validation::validate_date( $value ) ) {
+						if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_date( $value ) ) {
 							$errors[ $field ] = __( 'Invalid date format', 'aiohm-booking-pro' );
 						}
 						break;
@@ -401,11 +403,11 @@ class AIOHM_BOOKING_Error_Handler {
 	 * @param array  $context Additional context information about the error.
 	 */
 	public static function notify_admin_error( $error_message, $context = array() ) {
-		if ( ! class_exists( 'AIOHM_BOOKING_Settings' ) ) {
+		if ( ! class_exists( '\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings' ) ) {
 			return;
 		}
 
-		$settings    = AIOHM_BOOKING_Settings::get_settings();
+		$settings    = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_settings();
 		$admin_email = get_option( 'admin_email' );
 
 		if ( empty( $admin_email ) ) {

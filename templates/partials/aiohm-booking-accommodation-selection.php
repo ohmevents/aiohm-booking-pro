@@ -38,7 +38,7 @@ $current_accommodation_count = wp_count_posts( 'aiohm_accommodation' );
 $current_total               = ( $current_accommodation_count->publish ?? 0 ) + ( $current_accommodation_count->draft ?? 0 );
 
 // If there's a mismatch, we need to sync (but only if we have access to the module)
-if ( $current_total != $available_accommodations && class_exists( 'AIOHM_BOOKING_Module_Accommodation' ) ) {
+if ( $current_total != $available_accommodations && class_exists( 'AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation' ) ) {
 	// Get all accommodation posts for cleanup
 	$all_accommodations = get_posts(
 		array(
@@ -88,10 +88,10 @@ if ( $accommodations_query->have_posts() ) {
 	}
 }
 
-if ( ! empty( $selected_arrival_date ) && ! empty( $selected_departure_date ) && class_exists( 'AIOHM_BOOKING_Accommodation_Service' ) ) {
+if ( ! empty( $selected_arrival_date ) && ! empty( $selected_departure_date ) && class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service' ) ) {
 	$filtered_accommodations = array();
 	foreach ( $accommodations as $accommodation ) {
-		$is_available = AIOHM_BOOKING_Accommodation_Service::is_accommodation_available_for_range( $accommodation['id'], $selected_arrival_date, $selected_departure_date );
+		$is_available = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::is_accommodation_available_for_range( $accommodation['id'], $selected_arrival_date, $selected_departure_date );
 		if ( $is_available ) {
 			$filtered_accommodations[] = $accommodation;
 		}
@@ -106,7 +106,7 @@ $product_names = get_option( 'aiohm_booking_product_names', array() );
 $accommodation_settings = get_option( 'aiohm_booking_accommodation_settings', array() );
 
 // Get early bird settings from helper
-$early_bird_settings      = AIOHM_BOOKING_Early_Bird_Helper::get_accommodation_early_bird_settings();
+$early_bird_settings      = AIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_BOOKING_Early_Bird_Helper::get_accommodation_early_bird_settings();
 $enable_early_bird        = $early_bird_settings['enabled'];
 $early_bird_days          = $early_bird_settings['days'];
 $default_early_bird_price = $early_bird_settings['default_price'];

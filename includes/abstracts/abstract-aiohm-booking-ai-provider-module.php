@@ -1,4 +1,11 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Abstracts;
+
+use AIOHM_Booking_PRO\Abstracts\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Module_Abstract as Module_Abstract;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler as Error_Handler;
+use AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Security_Helper as Security_Helper;
+
 /**
  * Abstract AI Provider Module class
  * Base class for all AI provider module implementations
@@ -21,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package AIOHM_Booking
  * @since 1.2.4
  */
-abstract class AIOHM_BOOKING_AI_Provider_Module_Abstract extends AIOHM_BOOKING_Module_Abstract {
+abstract class AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_AI_Provider_Module_Abstract extends Module_Abstract {
 
 	/**
 	 * Provider name (lowercase, used for settings keys and hooks)
@@ -162,7 +169,7 @@ abstract class AIOHM_BOOKING_AI_Provider_Module_Abstract extends AIOHM_BOOKING_M
 
 			// Check if configured.
 			if ( ! $this->is_configured() ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				Error_Handler::log_error(
 					$this->get_provider_display_name() . ' API key not configured',
 					'ai_provider_error',
 					array( 'provider' => $this->get_provider_name() )
@@ -172,7 +179,7 @@ abstract class AIOHM_BOOKING_AI_Provider_Module_Abstract extends AIOHM_BOOKING_M
 
 			// Rate limiting.
 			if ( ! $this->check_rate_limit() ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				Error_Handler::log_error(
 					'Rate limit exceeded for ' . $this->get_provider_name(),
 					'rate_limit_error',
 					array( 'provider' => $this->get_provider_name() )
@@ -185,7 +192,7 @@ abstract class AIOHM_BOOKING_AI_Provider_Module_Abstract extends AIOHM_BOOKING_M
 
 			// Validate response format
 			if ( isset( $result['error'] ) ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				Error_Handler::log_error(
 					'API call failed for ' . $this->get_provider_name(),
 					'ai_api_error',
 					array(
@@ -199,7 +206,7 @@ abstract class AIOHM_BOOKING_AI_Provider_Module_Abstract extends AIOHM_BOOKING_M
 			// Validate and format successful response
 			$validated_result = $this->validate_api_response( $result );
 			if ( isset( $validated_result['error'] ) ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				Error_Handler::log_error(
 					'Response validation failed for ' . $this->get_provider_name(),
 					'validation_error',
 					array(
@@ -220,7 +227,7 @@ abstract class AIOHM_BOOKING_AI_Provider_Module_Abstract extends AIOHM_BOOKING_M
 			return $validated_result;
 
 		} catch ( Exception $e ) {
-			AIOHM_BOOKING_Error_Handler::log_error(
+			Error_Handler::log_error(
 				'Exception in AI query handling: ' . $e->getMessage(),
 				'exception_error',
 				array(
@@ -241,12 +248,12 @@ abstract class AIOHM_BOOKING_AI_Provider_Module_Abstract extends AIOHM_BOOKING_M
 
 		try {
 			// Verify security using centralized helper.
-			if ( ! AIOHM_BOOKING_Security_Helper::verify_ajax_security( 'test_' . $provider . '_nonce', 'manage_options' ) ) {
+			if ( ! Security_Helper::verify_ajax_security( 'test_' . $provider . '_nonce', 'manage_options' ) ) {
 				return; // Error response already sent by helper
 			}
 
 			if ( ! $this->is_configured() ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				Error_Handler::log_error(
 					'Test connection failed: API key not configured for ' . $this->get_provider_name(),
 					'configuration_error',
 					array( 'provider' => $this->get_provider_name() )
@@ -259,7 +266,7 @@ abstract class AIOHM_BOOKING_AI_Provider_Module_Abstract extends AIOHM_BOOKING_M
 			$test_result = $this->perform_connection_test();
 
 			if ( $test_result['success'] ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				Error_Handler::log_error(
 					'Connection test successful for ' . $this->get_provider_name(),
 					'connection_test_success',
 					array( 'provider' => $this->get_provider_name() ),
@@ -267,7 +274,7 @@ abstract class AIOHM_BOOKING_AI_Provider_Module_Abstract extends AIOHM_BOOKING_M
 				);
 				wp_send_json_success( $test_result );
 			} else {
-				AIOHM_BOOKING_Error_Handler::log_error(
+				Error_Handler::log_error(
 					'Connection test failed for ' . $this->get_provider_name(),
 					'connection_test_error',
 					array(
@@ -278,7 +285,7 @@ abstract class AIOHM_BOOKING_AI_Provider_Module_Abstract extends AIOHM_BOOKING_M
 				wp_send_json_error( $test_result['message'] );
 			}
 		} catch ( Exception $e ) {
-			AIOHM_BOOKING_Error_Handler::log_error(
+			Error_Handler::log_error(
 				'Exception during connection test: ' . $e->getMessage(),
 				'exception_error',
 				array(

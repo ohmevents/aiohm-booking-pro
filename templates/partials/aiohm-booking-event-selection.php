@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get events data and settings.
-$events_data     = AIOHM_BOOKING_Module_Tickets::get_events_data();
+$events_data     = AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Tickets::get_events_data();
 $global_settings = get_option( 'aiohm_booking_settings', array() );
 
 // Check if multiple event bookings are enabled
@@ -21,8 +21,8 @@ $form_settings         = get_option( 'aiohm_booking_tickets_form_settings', arra
 $allow_multiple_events = ! empty( $form_settings['allow_group_bookings'] );
 
 // Get events data with real-time availability (accounting for paid orders)
-if ( class_exists( 'AIOHM_BOOKING_Module_Tickets' ) ) {
-	$events_data = AIOHM_BOOKING_Module_Tickets::get_events_with_realtime_availability( $events_data );
+if ( class_exists( 'AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Tickets' ) ) {
+	$events_data = AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Tickets::get_events_with_realtime_availability( $events_data );
 }
 $num_events      = intval( $global_settings['number_of_events'] ?? 5 );
 $current_date    = current_time( 'Y-m-d' );
@@ -88,14 +88,14 @@ wp_localize_script(
 				$price = ! empty( $event['price'] ) ? floatval( $event['price'] ) : 0;
 
 				// Use the early bird helper for events
-				$events_early_bird_settings = AIOHM_BOOKING_Early_Bird_Helper::get_events_early_bird_settings();
+				$events_early_bird_settings = AIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_BOOKING_Early_Bird_Helper::get_events_early_bird_settings();
 
 				// Calculate early bird price using helper
 				$early_bird_price_from_event = ! empty( $event['early_bird_price'] ) ? floatval( $event['early_bird_price'] ) : 0;
 				$early_bird_date             = $event['early_bird_date'] ?? '';
 
 				// Use helper to calculate the appropriate early bird price
-				$early_price = AIOHM_BOOKING_Early_Bird_Helper::calculate_events_early_bird_price(
+				$early_price = AIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_Booking_PROHelpersAIOHM_BOOKING_Early_Bird_Helper::calculate_events_early_bird_price(
 					$price,
 					$early_bird_price_from_event,
 					$early_bird_date

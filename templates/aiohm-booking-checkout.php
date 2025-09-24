@@ -38,7 +38,7 @@ if ( ! empty( $atts['booking_id'] ) ) {
 if ( $booking_id > 0 ) {
 	// Additional security: validate booking exists and basic ownership
 	// This prevents enumeration of booking IDs
-	if ( $booking_id > AIOHM_BOOKING_Security_Config::MAX_BOOKING_ID ) {
+	if ( $booking_id > AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Security_Config::MAX_BOOKING_ID ) {
 		echo '<div class="notice notice-error"><p>' . esc_html__( 'Invalid booking ID.', 'aiohm-booking-pro' ) . '</p></div>';
 		return;
 	}

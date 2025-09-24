@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core\Field_Renderers;
 /**
  * Color Field Renderer
  *
@@ -79,7 +81,7 @@ class AIOHM_Booking_Color_Field_Renderer extends AIOHM_Booking_Field_Renderer_Ab
 	 */
 	private function validate_color_value( $value ) {
 		// Use centralized color validation.
-		return AIOHM_BOOKING_Validation::sanitize_hex_color( $value );
+		return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::sanitize_hex_color( $value );
 	}
 
 	/**

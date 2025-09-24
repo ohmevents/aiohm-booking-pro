@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Abstracts;
 /**
  * Calendar Rule Interface
  *
@@ -21,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This interface defines the contract that all calendar rules must implement,
  * enabling a clean Strategy Pattern architecture for rule processing.
  */
-interface AIOHM_Booking_Calendar_Rule {
+interface AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule {
 
 	/**
 	 * Get the unique identifier for this rule.

@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Booking;
 /**
  * Accommodation Module for AIOHM Booking
  * Handles accommodation booking functionality with enhanced design
@@ -23,7 +25,7 @@ require_once __DIR__ . '/class-accommodation-dto.php';
  * @package AIOHM_Booking
  * @since 2.0.0
  */
-class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_Abstract {
+class AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Accommodation extends \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Settings_Module_Abstract {
 
 	// Configuration constants.
 	const MODULE_PRIORITY         = 10;
@@ -118,8 +120,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		// AJAX handlers - only register if module is enabled.
 		if ( $this->is_enabled() ) {
 			// Only register the unified form settings handler once to avoid conflicts
-			if ( ! has_action( 'wp_ajax_aiohm_save_form_settings', array( 'AIOHM_BOOKING_Form_Settings_Handler', 'save_unified_form_settings' ) ) ) {
-				add_action( 'wp_ajax_aiohm_save_form_settings', array( 'AIOHM_BOOKING_Form_Settings_Handler', 'save_unified_form_settings' ) );
+			if ( ! has_action( 'wp_ajax_aiohm_save_form_settings', array( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Form_Settings_Handler', 'save_unified_form_settings' ) ) ) {
+				add_action( 'wp_ajax_aiohm_save_form_settings', array( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Form_Settings_Handler', 'save_unified_form_settings' ) );
 			}
 			add_action( 'wp_ajax_aiohm_booking_save_individual_accommodation', array( $this, 'ajax_save_individual_accommodation' ) );
 			add_action( 'wp_ajax_aiohm_booking_update_preview', array( $this, 'update_preview_ajax' ) );
@@ -234,7 +236,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 	/**
 	 * Register admin page in WordPress menu
-	 * Note: Menu is now handled centrally in AIOHM_BOOKING_Admin class to control order
+	 * Note: Menu is now handled centrally in AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin class to control order
 	 * This method is kept for compatibility but doesn't add menu items
 	 */
 	public function register_admin_page() {
@@ -416,13 +418,13 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			$posted_settings = wp_unslash( $_POST['aiohm_booking_settings'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified by AIOHM_BOOKING_Security_Helper, input sanitized in save_settings method
 
 			// Save the form customization settings using the already unslashed data
-			$save_result = AIOHM_BOOKING_Settings::save_settings( $posted_settings );
+			$save_result = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::save_settings( $posted_settings );
 			// Clear all related caches after saving settings
 			$this->clear_settings_cache();
 
 			// Force fresh settings fetch by nullifying cached values
 			self::$cached_settings = null;
-			AIOHM_BOOKING_Settings::clear_cache();
+			\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::clear_cache();
 
 			if ( $save_result ) {
 				$settings_saved = true;
@@ -435,11 +437,11 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 		// Force fresh settings retrieval to ensure we see the latest data
 		self::$cached_settings = null;
-		AIOHM_BOOKING_Settings::clear_cache();
+		\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::clear_cache();
 
 		// Get settings AFTER potential save and cache clear to ensure fresh data
 		$settings        = $this->get_module_settings();
-		$global_settings = AIOHM_BOOKING_Settings::get_all(); // Use direct call instead of cached version
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all(); // Use direct call instead of cached version
 
 		$available_accommodations = intval( $global_settings['available_accommodations'] ?? 1 );
 		$accommodation_price      = floatval( $settings['default_price'] ?? 0 );
@@ -545,7 +547,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			( isset( $_POST['action'] ) && sanitize_text_field( wp_unslash( $_POST['action'] ) ) === 'aiohm_save_form_settings' ) ||
 			( isset( $_POST['aiohm_form_settings_nonce'] ) && isset( $_POST['aiohm_booking_form_settings'] ) )
 		) ) {
-			AIOHM_BOOKING_Form_Settings_Handler::save_unified_form_settings();
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Form_Settings_Handler::save_unified_form_settings();
 			return;
 		}
 
@@ -582,7 +584,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			}
 
 			// Clear template helper cache to ensure fresh data.
-			AIOHM_BOOKING_Template_Helper::instance()->clear_cache();
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Template_Helper::instance()->clear_cache();
 		}
 
 		// Redirect with success message.
@@ -674,7 +676,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		$form_data = get_option( 'aiohm_booking_form_settings', array() );
 
 		// Get default colors from existing user settings (global settings or legacy settings).
-		$global_settings               = AIOHM_BOOKING_Settings::get_all();
+		$global_settings               = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$legacy_accommodation_settings = get_option( 'aiohm_booking_accommodation_form_settings', array() );
 		$legacy_tickets_settings       = get_option( 'aiohm_booking_tickets_form_settings', array() );
 
@@ -770,7 +772,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		);
 
 		// Load the template using helper method.
-		AIOHM_BOOKING_Template_Helper::instance()->render_form_customization_template( $template_data );
+		AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Template_Helper::instance()->render_form_customization_template( $template_data );
 	}
 
 	/**
@@ -925,7 +927,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		}
 
 		// Fetch fresh data and cache it.
-		self::$cached_settings = AIOHM_BOOKING_Settings::get_all();
+		self::$cached_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 
 		// Store in transient for future requests.
 		set_transient( self::$cache_key, self::$cached_settings, self::$cache_expiration );
@@ -985,7 +987,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		self::$cached_settings = null;
 		delete_transient( self::$cache_key );
 		// Also clear the global settings cache.
-		AIOHM_BOOKING_Settings::clear_cache();
+		\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::clear_cache();
 		// Clear accommodation service cache too since accommodation count may have changed
 		$this->clear_accommodation_service_cache();
 	}
@@ -1010,8 +1012,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	 * Clear accommodation service cache when cell statuses are updated
 	 */
 	public function clear_accommodation_service_cache() {
-		if ( class_exists( 'AIOHM_BOOKING_Accommodation_Service' ) ) {
-			AIOHM_BOOKING_Accommodation_Service::clear_cache();
+		if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service' ) ) {
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::clear_cache();
 		}
 	}
 
@@ -1251,7 +1253,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		$this->clear_settings_cache();
 
 		// Also clear calendar cache if available.
-		if ( class_exists( 'AIOHM_BOOKING_Module_Calendar' ) ) {
+		if ( class_exists( 'AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Calendar' ) ) {
 			delete_transient( 'aiohm_booking_calendar_cache' );
 		}
 
@@ -1625,7 +1627,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 		// Fallback: get the first N accommodations based on units_qty
 		if ( empty( $accommodation_ids ) ) {
-			$available_accommodations = AIOHM_BOOKING_Accommodation_Service::get_accommodations();
+			$available_accommodations = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::get_accommodations();
 			$accommodation_ids = array_slice( $available_accommodations, 0, $units_qty );
 		}
 
@@ -1673,7 +1675,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		update_option( 'aiohm_booking_cell_statuses', $cell_statuses );
 
 		// Clear accommodation service cache to ensure statistics are updated
-		AIOHM_BOOKING_Accommodation_Service::clear_cache();
+		AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::clear_cache();
 	}
 }
 

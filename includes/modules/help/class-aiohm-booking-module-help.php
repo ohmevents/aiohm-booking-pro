@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Help;
 /**
  * Help Module - Provides documentation and support functionality
  *
@@ -13,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Help Module - Provides documentation and support functionality
  */
-class AIOHM_BOOKING_Module_Help extends AIOHM_BOOKING_Settings_Module_Abstract {
+class AIOHM_BOOKING_Module_Help extends \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Settings_Module_Abstract {
 
 	/**
 	 * Module ID
@@ -280,7 +282,7 @@ class AIOHM_BOOKING_Module_Help extends AIOHM_BOOKING_Settings_Module_Abstract {
 	 * @return bool True if module should be enabled
 	 */
 	protected function check_if_enabled() {
-		$settings   = AIOHM_BOOKING_Settings::get_all();
+		$settings   = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$enable_key = 'enable_' . $this->module_id;
 
 		// If the setting exists (either '1' or '0'), respect it.
@@ -364,7 +366,7 @@ class AIOHM_BOOKING_Module_Help extends AIOHM_BOOKING_Settings_Module_Abstract {
 			$debug_info  = $form_data['debug_information'];
 
 			// Validate required fields using comprehensive validation.
-			if ( ! class_exists( 'AIOHM_BOOKING_Validation' ) ) {
+			if ( ! class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation' ) ) {
 				wp_die(
 					wp_json_encode(
 						array(
@@ -381,8 +383,8 @@ class AIOHM_BOOKING_Module_Help extends AIOHM_BOOKING_Settings_Module_Abstract {
 				'description' => $description,
 			);
 
-			if ( ! AIOHM_BOOKING_Validation::validate_booking_data( $support_data, 'admin' ) ) {
-				$errors        = AIOHM_BOOKING_Validation::get_errors();
+			if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_booking_data( $support_data, 'admin' ) ) {
+				$errors        = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::get_errors();
 				$error_message = ! empty( $errors ) ? implode( ' ', array_values( $errors ) ) : 'Validation failed';
 				wp_die(
 					wp_json_encode(
@@ -406,7 +408,7 @@ class AIOHM_BOOKING_Module_Help extends AIOHM_BOOKING_Settings_Module_Abstract {
 			}
 
 			// Additional validation for email.
-			if ( ! AIOHM_BOOKING_Validation::validate_email( $email ) ) {
+			if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_email( $email ) ) {
 				wp_die(
 					wp_json_encode(
 						array(
@@ -451,7 +453,7 @@ class AIOHM_BOOKING_Module_Help extends AIOHM_BOOKING_Settings_Module_Abstract {
 			);
 
 		} catch ( Exception $e ) {
-			AIOHM_BOOKING_Validation::log_error( 'Support request submission failed: ' . $e->getMessage(), array( 'email' => $email ?? null ) );
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::log_error( 'Support request submission failed: ' . $e->getMessage(), array( 'email' => $email ?? null ) );
 			wp_die(
 				wp_json_encode(
 					array(

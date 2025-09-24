@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Admin;
 /**
  * License Activation Helper
  *

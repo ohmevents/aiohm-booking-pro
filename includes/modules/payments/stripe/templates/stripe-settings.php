@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Get settings from the module
-$settings = isset( $settings ) ? $settings : AIOHM_BOOKING_Settings::get_all();
+$settings = isset( $settings ) ? $settings : \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 ?>
 
 <!-- Stripe Configuration Section -->

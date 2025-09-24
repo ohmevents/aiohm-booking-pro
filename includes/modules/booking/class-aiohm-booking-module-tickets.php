@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Booking;
 /**
  * Tickets Module
  *
@@ -22,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 2.0.0
  */
-class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstract {
+class AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Tickets extends \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Settings_Module_Abstract {
 
 	/**
 	 * Ticket settings data.
@@ -146,8 +148,8 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		add_action( 'wp_ajax_nopriv_aiohm_booking_submit_event', array( $this, 'ajax_process_event_booking' ) );
 
 		// Only register the unified form settings handler once to avoid conflicts
-		if ( ! has_action( 'wp_ajax_aiohm_save_form_settings', array( 'AIOHM_BOOKING_Form_Settings_Handler', 'save_unified_form_settings' ) ) ) {
-			add_action( 'wp_ajax_aiohm_save_form_settings', array( 'AIOHM_BOOKING_Form_Settings_Handler', 'save_unified_form_settings' ) );
+		if ( ! has_action( 'wp_ajax_aiohm_save_form_settings', array( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Form_Settings_Handler', 'save_unified_form_settings' ) ) ) {
+			add_action( 'wp_ajax_aiohm_save_form_settings', array( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Form_Settings_Handler', 'save_unified_form_settings' ) );
 		}
 
 		// Enqueue admin assets.
@@ -589,7 +591,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	 */
 	public static function get_events_data() {
 		// Check if the tickets module instance exists
-		$tickets_module = AIOHM_BOOKING_Module_Registry::get_module_instance( 'tickets' );
+		$tickets_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::get_module_instance( 'tickets' );
 		
 		if ( $tickets_module && method_exists( $tickets_module, 'get_events_data_compatible' ) ) {
 			return $tickets_module->get_events_data_compatible();
@@ -607,7 +609,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	 */
 	private function ensure_default_event() {
 		$settings = $this->get_module_settings();
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		
 		// Get default values from settings
 		$default_title = 'Sample Workshop';
@@ -704,7 +706,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	/**
 	 * Register admin page in WordPress menu.
 	 *
-	 * Note: Menu is now handled centrally in AIOHM_BOOKING_Admin class to control order.
+	 * Note: Menu is now handled centrally in AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin class to control order.
 	 * This method is kept for compatibility but doesn't add menu items.
 	 *
 	 * @since 2.0.0
@@ -736,7 +738,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			( isset( $_POST['aiohm_event_form_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_event_form_settings_nonce'] ) ), 'aiohm_form_settings_save' ) && ( isset( $_POST['aiohm_event_booking_form_settings'] ) || isset( $_POST['aiohm_event_booking_tickets_form_settings'] ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition
 		) ) {
 			if ( isset( $_POST['aiohm_event_form_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_event_form_settings_nonce'] ) ), 'aiohm_booking_save_form_settings' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition
-				AIOHM_BOOKING_Form_Settings_Handler::save_unified_form_settings();
+				AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Form_Settings_Handler::save_unified_form_settings();
 			}
 		}
 
@@ -746,7 +748,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			if ( current_user_can( 'manage_options' ) ) {
 				// Save the booking settings.
 				if ( isset( $_POST['aiohm_event_booking_settings'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
-					AIOHM_BOOKING_Settings::update_multiple( array_map( 'sanitize_text_field', wp_unslash( $_POST['aiohm_event_booking_settings'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
+					\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::update_multiple( array_map( 'sanitize_text_field', wp_unslash( $_POST['aiohm_event_booking_settings'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above
 				}
 
 				// Set transient for success message.
@@ -903,7 +905,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		$form_data = get_option( 'aiohm_booking_tickets_form_settings', array() );
 
 		// Get default colors from existing user settings (global settings or legacy accommodation settings).
-		$global_settings               = AIOHM_BOOKING_Settings::get_all();
+		$global_settings               = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$legacy_accommodation_settings = get_option( 'aiohm_booking_accommodation_form_settings', array() );
 		$legacy_tickets_settings       = get_option( 'aiohm_booking_tickets_form_settings', array() );
 
@@ -1019,7 +1021,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		);
 
 		// Load the template using helper method.
-		AIOHM_BOOKING_Template_Helper::instance()->render_form_customization_template( $template_data );
+		AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Template_Helper::instance()->render_form_customization_template( $template_data );
 	}
 
 	/**
@@ -1354,11 +1356,11 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		}
 
 		// Decrement the number of events in global settings.
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$num_events      = intval( $global_settings['number_of_events'] ?? 0 );
 		if ( $num_events > 0 ) {
 			$global_settings['number_of_events'] = $num_events - 1;
-			AIOHM_BOOKING_Settings::update( $global_settings );
+			\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::update( $global_settings );
 		}
 
 		wp_send_json_success( array( 'message' => 'Event deleted successfully.' ) );
@@ -1381,7 +1383,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		}
 
 		// Increment the number of events in global settings.
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$num_events      = intval( $global_settings['number_of_events'] ?? 0 );
 
 		// Get max from settings definition.
@@ -1394,7 +1396,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		}
 
 		$global_settings['number_of_events'] = $num_events + 1;
-		AIOHM_BOOKING_Settings::update( $global_settings );
+		\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::update( $global_settings );
 
 		// We don't need to add an empty event to the data array, as the clone happens on the client-side.
 		// The next full save will persist the cloned data.
@@ -1479,10 +1481,10 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		update_option( 'aiohm_booking_events_data', $events_data );
 
 		// Update the number of events in global settings
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$num_events = intval( $global_settings['number_of_events'] ?? 0 );
 		$global_settings['number_of_events'] = $num_events + 1;
-		AIOHM_BOOKING_Settings::update( $global_settings );
+		\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::update( $global_settings );
 
 		// Get the edit URL for the cloned event
 		$edit_url = get_edit_post_link( $cloned_post_id, 'raw' );
@@ -1559,10 +1561,10 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		wp_cache_delete( 'aiohm_booking_event', 'posts' );
 
 		// Update the number of events in global settings
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$num_events = intval( $global_settings['number_of_events'] ?? 0 );
 		$global_settings['number_of_events'] = $num_events + 1;
-		AIOHM_BOOKING_Settings::update( $global_settings );
+		\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::update( $global_settings );
 
 		wp_send_json_success(
 			array(
@@ -2098,7 +2100,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	 * @return string Currency code (EUR, USD, GBP, etc.).
 	 */
 	private function get_currency_setting() {
-		$settings = AIOHM_BOOKING_Settings::get_all();
+		$settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		return $settings['currency'] ?? 'EUR';
 	}
 
@@ -2136,7 +2138,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	 */
 	private function render_booking_settings_section() {
 		// Get current global settings.
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
+		$global_settings = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$currency        = $this->get_currency_setting();
 		?>
 		<div class="aiohm-booking-admin-card aiohm-booking-settings-priority">
@@ -2284,7 +2286,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 
 			if ( $has_accommodations && ! $has_events ) {
 				// Redirect to the accommodation handler
-				$shortcode_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'shortcode' );
+				$shortcode_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance()->get_module( 'shortcode' );
 
 				if ( $shortcode_module && method_exists( $shortcode_module, 'ajax_process_accommodation_booking' ) ) {
 					$shortcode_module->ajax_process_accommodation_booking();

@@ -10,6 +10,9 @@
  * @since 1.3.0
  */
 
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter as Accommodation_Counter;
+
 // Prevent direct access.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,14 +23,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Implements the strategy pattern for handling calendar cell color logic.
  */
-class AIOHM_Booking_Partial_Booking_Color_Rule implements AIOHM_Booking_Calendar_Rule {
+class AIOHM_Booking_Partial_Booking_Color_Rule implements AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule {
 
 	/**
 	 * Accommodation counter instance.
 	 *
-	 * @var AIOHM_BOOKING_Accommodation_Counter|null
+	 * @var Accommodation_Counter|null
 	 */
-	private ?AIOHM_BOOKING_Accommodation_Counter $accommodation_counter = null;
+	private ?Accommodation_Counter $accommodation_counter = null;
 
 	/**
 	 * Rule enabled status.
@@ -139,7 +142,7 @@ class AIOHM_Booking_Partial_Booking_Color_Rule implements AIOHM_Booking_Calendar
 			return $calendar_data;
 
 		} catch ( Throwable $e ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'partial_booking_color_rule_error',
 				/* translators: %s: error message */
 				sprintf( __( 'Partial booking color rule execution failed: %s', 'aiohm-booking-pro' ), $e->getMessage() )
@@ -269,8 +272,8 @@ class AIOHM_Booking_Partial_Booking_Color_Rule implements AIOHM_Booking_Calendar
 	 */
 	public function validate_config( array $config = array() ) {
 		// Check if accommodation counter is available.
-		if ( ! class_exists( 'AIOHM_BOOKING_Accommodation_Counter' ) ) {
-			return new WP_Error(
+		if ( ! class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter' ) ) {
+			return new \WP_Error(
 				'missing_dependency',
 				__( 'Accommodation Counter class is required for partial booking color rule.', 'aiohm-booking-pro' )
 			);
@@ -325,12 +328,12 @@ class AIOHM_Booking_Partial_Booking_Color_Rule implements AIOHM_Booking_Calendar
 	/**
 	 * Get accommodation counter instance.
 	 *
-	 * @return AIOHM_BOOKING_Accommodation_Counter
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter
 	 */
-	private function get_accommodation_counter(): AIOHM_BOOKING_Accommodation_Counter {
+	private function get_accommodation_counter(): Accommodation_Counter {
 		if ( null === $this->accommodation_counter ) {
 			$cell_statuses               = get_option( 'aiohm_booking_cell_statuses', array() );
-			$this->accommodation_counter = new AIOHM_BOOKING_Accommodation_Counter( $cell_statuses );
+			$this->accommodation_counter = new Accommodation_Counter( $cell_statuses );
 		}
 
 		return $this->accommodation_counter;

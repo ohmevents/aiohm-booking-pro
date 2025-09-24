@@ -1,3 +1,4 @@
+namespace AIOHM_Booking_PRO\Core;
 <?php
 /**
  * AJAX Response Helper for AIOHM Booking

@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * AIOHM Booking Form Handler
  *
@@ -21,12 +23,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.3
  */
-class AIOHM_BOOKING_Form {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Form {
 
 	/**
 	 * Singleton instance.
 	 *
-	 * @var AIOHM_BOOKING_Form|null
+	 * @var AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Form|null
 	 */
 	private static $instance = null;
 
@@ -47,7 +49,7 @@ class AIOHM_BOOKING_Form {
 	/**
 	 * Get singleton instance.
 	 *
-	 * @return AIOHM_BOOKING_Form
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Form
 	 */
 	public static function instance() {
 		if ( self::$instance === null ) {

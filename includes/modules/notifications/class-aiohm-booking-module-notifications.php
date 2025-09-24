@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Notifications;
 /**
  * Notifications Module for AIOHM Booking
  * Handles email notifications, SMTP configuration, and email templates.
@@ -27,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package AIOHM_BOOKING
  * @since 1.2.6
  */
-class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_Abstract {
+class AIOHM_Booking_PROModulesNotificationsAIOHM_Booking_PROModulesNotificationsAIOHM_Booking_PROModulesNotificationsAIOHM_BOOKING_Module_Notifications extends \AIOHM_Booking_PRO\Core\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Settings_Module_Abstract {
 
 	/**
 	 * Create database table on plugin activation.
@@ -335,7 +337,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * @return bool True if enabled, false otherwise.
 	 */
 	protected function check_if_enabled() {
-		$settings   = AIOHM_BOOKING_Settings::get_all();
+		$settings   = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$enable_key = 'enable_' . $this->get_ui_definition()['id'];
 
 		// If the setting exists, check if it's explicitly enabled.
@@ -1110,7 +1112,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 			wp_send_json_error( __( 'Insufficient permissions', 'aiohm-booking-pro' ) );
 		}
 
-		$all_settings          = AIOHM_BOOKING_Settings::get_all();
+		$all_settings          = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$notification_settings = $this->get_module_settings();
 
 		// Sanitize and update settings from the form.
@@ -1688,7 +1690,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * @return bool True on success, false on failure.
 	 */
 	public function save_module_settings( $data ) {
-		$all_settings                  = AIOHM_BOOKING_Settings::get_all();
+		$all_settings                  = \AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings::get_all();
 		$all_settings['notifications'] = $data;
 		return update_option( 'aiohm_booking_settings', $all_settings );
 	}
@@ -1834,7 +1836,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 			$recipient = str_contains( $template_key, '_admin' ) ? get_option( 'admin_email' ) : $order->buyer_email;
 		}
 
-		if ( empty( $recipient ) || ! AIOHM_BOOKING_Validation::validate_email( $recipient ) ) {
+		if ( empty( $recipient ) || ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_email( $recipient ) ) {
 			return;
 		}
 

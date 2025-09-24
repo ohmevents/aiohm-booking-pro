@@ -1,4 +1,9 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
+
+use AIOHM_Booking_PRO\Core\\AIOHM_Booking_PRO\Core\AIOHM_BOOKING_Settings as Settings;
+
 /**
  * Admin AJAX Handler.
  *
@@ -27,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Admin_Ajax {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Admin_Ajax {
 
 	/**
 	 * Initialize the Ajax handler.
@@ -517,7 +522,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 		$accommodation_details = get_option( 'aiohm_booking_accommodations_details', array() );
 
 		// Determine default title if empty.
-		$settings           = AIOHM_BOOKING_Settings::get_all();
+		$settings           = Settings::get_all();
 		$accommodation_type = $settings['accommodation_product_name'] ?? 'room';
 		$type_labels        = array(
 			'room'      => 'Room',

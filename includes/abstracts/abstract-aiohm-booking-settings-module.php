@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Abstracts;
 /**
  * Abstract Settings Module Class
  * Base class for modules that provide settings sections
@@ -11,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-abstract class AIOHM_BOOKING_Settings_Module_Abstract extends AIOHM_BOOKING_Module_Abstract {
+abstract class \Core\AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Settings_Module_Abstract extends AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Module_Abstract {
 
 
 	protected $settings_section_id = '';
@@ -43,7 +45,7 @@ abstract class AIOHM_BOOKING_Settings_Module_Abstract extends AIOHM_BOOKING_Modu
 	 * Get access level for this module
 	 */
 	public function get_access_level() {
-		$registry    = AIOHM_BOOKING_Module_Registry::instance();
+		$registry    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 		$module_info = $registry->get_module_info( $this->get_module_id() );
 		return $module_info['access_level'] ?? 'free';
 	}
@@ -52,7 +54,7 @@ abstract class AIOHM_BOOKING_Settings_Module_Abstract extends AIOHM_BOOKING_Modu
 	 * Check if module should be visible in settings
 	 */
 	public function is_visible_in_settings() {
-		$registry    = AIOHM_BOOKING_Module_Registry::instance();
+		$registry    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 		$module_info = $registry->get_module_info( $this->get_module_id() );
 
 		// Check access level permissions.
@@ -68,7 +70,7 @@ abstract class AIOHM_BOOKING_Settings_Module_Abstract extends AIOHM_BOOKING_Modu
 	 * Check if module has settings section
 	 */
 	public function has_settings_section() {
-		$registry    = AIOHM_BOOKING_Module_Registry::instance();
+		$registry    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 		$module_info = $registry->get_module_info( $this->get_module_id() );
 		return $module_info['settings_section'] ?? false;
 	}
@@ -77,7 +79,7 @@ abstract class AIOHM_BOOKING_Settings_Module_Abstract extends AIOHM_BOOKING_Modu
 	 * Get module category for grouping
 	 */
 	public function get_module_category() {
-		$registry    = AIOHM_BOOKING_Module_Registry::instance();
+		$registry    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 		$module_info = $registry->get_module_info( $this->get_module_id() );
 		return $module_info['category'] ?? 'other';
 	}
@@ -86,7 +88,7 @@ abstract class AIOHM_BOOKING_Settings_Module_Abstract extends AIOHM_BOOKING_Modu
 	 * Get module priority for ordering
 	 */
 	public function get_module_priority() {
-		$registry    = AIOHM_BOOKING_Module_Registry::instance();
+		$registry    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::instance();
 		$module_info = $registry->get_module_info( $this->get_module_id() );
 		return $module_info['priority'] ?? 999;
 	}

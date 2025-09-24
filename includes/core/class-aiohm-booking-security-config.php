@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * AIOHM Booking Security Configuration
  * Centralized security settings and constants.
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Security Configuration Class.
  */
-class AIOHM_BOOKING_Security_Config {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Security_Config {
 
 	/** Rate limiting settings */
 	public const RATE_LIMIT_WEBHOOK_MAX_REQUESTS = 100;
@@ -249,8 +251,8 @@ class AIOHM_BOOKING_Security_Config {
 
 		foreach ( $suspicious_patterns as $pattern ) {
 			if ( preg_match( $pattern, $request_data ) ) {
-				if ( class_exists( 'AIOHM_BOOKING_Error_Handler' ) ) {
-					AIOHM_BOOKING_Error_Handler::log_error(
+				if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler' ) ) {
+					AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::log_error(
 						'Suspicious request pattern detected',
 						'security_warning',
 						array(
@@ -387,8 +389,8 @@ class AIOHM_BOOKING_Security_Config {
 		}
 
 		if ( $current_count >= $limit ) {
-			if ( class_exists( 'AIOHM_BOOKING_Error_Handler' ) ) {
-				AIOHM_BOOKING_Error_Handler::log_error(
+			if ( class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler' ) ) {
+				AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Error_Handler::log_error(
 					sprintf( 'Rate limit exceeded for %s from IP %s', $action, $user_ip ),
 					'rate_limit'
 				);

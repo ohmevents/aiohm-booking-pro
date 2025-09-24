@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Private Event Validator for AIOHM Booking
  *
@@ -26,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.3
  */
-class AIOHM_BOOKING_Private_Event_Validator {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Private_Event_Validator {
 
 	/**
 	 * Validation result codes
@@ -62,7 +64,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 			);
 		}
 
-		$total_count    = AIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
+		$total_count    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
 		$selected_count = count( $selected_accommodations );
 		$is_book_all    = $context['book_all'] ?? false;
 
@@ -110,7 +112,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 			);
 		}
 
-		$total_count    = AIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
+		$total_count    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
 		$selected_count = count( $selected_accommodations );
 		$is_book_all    = $context['book_all'] ?? false;
 
@@ -290,7 +292,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	 */
 	public static function generate_multi_day_messages( $private_event_dates, $selected_accommodations, $context = array() ) {
 		$messages       = array();
-		$total_count    = AIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
+		$total_count    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
 		$selected_count = count( $selected_accommodations );
 
 		if ( ! empty( $private_event_dates ) ) {

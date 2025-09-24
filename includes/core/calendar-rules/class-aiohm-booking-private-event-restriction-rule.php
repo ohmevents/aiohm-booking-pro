@@ -10,6 +10,12 @@
  * @since 1.3.0
  */
 
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator as Date_Range_Validator;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter as Accommodation_Counter;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Private_Event_Validator as Private_Event_Validator;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service as Accommodation_Service;
+
 // Prevent direct access.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,21 +26,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Implements the strategy pattern for handling private event booking restrictions.
  */
-class AIOHM_Booking_Private_Event_Restriction_Rule implements AIOHM_Booking_Calendar_Rule {
+class AIOHM_Booking_Private_Event_Restriction_Rule implements AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule {
 
 	/**
 	 * Date range validator instance.
 	 *
-	 * @var AIOHM_BOOKING_Date_Range_Validator|null
+	 * @var Date_Range_Validator|null
 	 */
-	private ?AIOHM_BOOKING_Date_Range_Validator $date_validator = null;
+	private ?Date_Range_Validator $date_validator = null;
 
 	/**
 	 * Accommodation counter instance.
 	 *
-	 * @var AIOHM_BOOKING_Accommodation_Counter|null
+	 * @var Accommodation_Counter|null
 	 */
-	private ?AIOHM_BOOKING_Accommodation_Counter $accommodation_counter = null;
+	private ?Accommodation_Counter $accommodation_counter = null;
 
 	/**
 	 * Rule enabled status.
@@ -145,7 +151,7 @@ class AIOHM_Booking_Private_Event_Restriction_Rule implements AIOHM_Booking_Cale
 			return $calendar_data;
 
 		} catch ( Throwable $e ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'private_event_rule_error',
 				/* translators: %s: error message */
 				sprintf( __( 'Private event rule execution failed: %s', 'aiohm-booking-pro' ), $e->getMessage() )
@@ -170,14 +176,14 @@ class AIOHM_Booking_Private_Event_Restriction_Rule implements AIOHM_Booking_Cale
 
 		// If accommodation selection is provided, validate using centralized validator.
 		if ( isset( $calendar_data['selected_accommodations'] ) ) {
-			$validation_result = AIOHM_BOOKING_Private_Event_Validator::validate_single_date(
+			$validation_result = Private_Event_Validator::validate_single_date(
 				$date,
 				$calendar_data['selected_accommodations'],
 				$calendar_data
 			);
 
-			if ( AIOHM_BOOKING_Private_Event_Validator::VALIDATION_FAILED === $validation_result['status'] ) {
-				return AIOHM_BOOKING_Private_Event_Validator::result_to_wp_error( $validation_result );
+			if ( Private_Event_Validator::VALIDATION_FAILED === $validation_result['status'] ) {
+				return Private_Event_Validator::result_to_wp_error( $validation_result );
 			}
 
 			// Add validation result data to calendar data.
@@ -220,7 +226,7 @@ class AIOHM_Booking_Private_Event_Restriction_Rule implements AIOHM_Booking_Cale
 			// Require full property booking if private events are present.
 			if ( $selected_count < $total_count && ! $is_book_all ) {
 				$private_dates = implode( ', ', $private_events );
-				return new WP_Error(
+				return new \WP_Error(
 					'private_event_range_restriction',
 					sprintf(
 						/* translators: %s: dates that are reserved for private events */
@@ -272,16 +278,16 @@ class AIOHM_Booking_Private_Event_Restriction_Rule implements AIOHM_Booking_Cale
 	 */
 	public function validate_config( array $config = array() ) {
 		// Check if date validator is available.
-		if ( ! class_exists( 'AIOHM_BOOKING_Date_Range_Validator' ) ) {
-			return new WP_Error(
+		if ( ! class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator' ) ) {
+			return new \WP_Error(
 				'missing_dependency',
 				__( 'Date Range Validator class is required for private event restriction rule.', 'aiohm-booking-pro' )
 			);
 		}
 
 		// Check if accommodation counter is available.
-		if ( ! class_exists( 'AIOHM_BOOKING_Accommodation_Counter' ) ) {
-			return new WP_Error(
+		if ( ! class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Counter' ) ) {
+			return new \WP_Error(
 				'missing_dependency',
 				__( 'Accommodation Counter class is required for private event restriction rule.', 'aiohm-booking-pro' )
 			);
@@ -336,11 +342,11 @@ class AIOHM_Booking_Private_Event_Restriction_Rule implements AIOHM_Booking_Cale
 	/**
 	 * Get date range validator instance.
 	 *
-	 * @return AIOHM_BOOKING_Date_Range_Validator
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator
 	 */
-	private function get_date_validator(): AIOHM_BOOKING_Date_Range_Validator {
+	private function get_date_validator(): Date_Range_Validator {
 		if ( null === $this->date_validator ) {
-			$this->date_validator = new AIOHM_BOOKING_Date_Range_Validator();
+			$this->date_validator = new Date_Range_Validator();
 		}
 
 		return $this->date_validator;
@@ -349,12 +355,12 @@ class AIOHM_Booking_Private_Event_Restriction_Rule implements AIOHM_Booking_Cale
 	/**
 	 * Get accommodation counter instance.
 	 *
-	 * @return AIOHM_BOOKING_Accommodation_Counter
+	 * @return Accommodation_Counter
 	 */
-	private function get_accommodation_counter(): AIOHM_BOOKING_Accommodation_Counter {
+	private function get_accommodation_counter(): Accommodation_Counter {
 		if ( null === $this->accommodation_counter ) {
 			$cell_statuses               = get_option( 'aiohm_booking_cell_statuses', array() );
-			$this->accommodation_counter = new AIOHM_BOOKING_Accommodation_Counter( $cell_statuses );
+			$this->accommodation_counter = new Accommodation_Counter( $cell_statuses );
 		}
 
 		return $this->accommodation_counter;
@@ -390,7 +396,7 @@ class AIOHM_Booking_Private_Event_Restriction_Rule implements AIOHM_Booking_Cale
 	 * @return int
 	 */
 	private function get_total_accommodation_count(): int {
-		return AIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
+		return Accommodation_Service::get_total_accommodation_count();
 	}
 }
 

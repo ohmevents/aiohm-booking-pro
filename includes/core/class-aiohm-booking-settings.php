@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * Settings management class for AIOHM Booking.
  *
@@ -18,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class AIOHM_BOOKING_Settings {
+class \Core\AIOHM_BOOKING_Settings {
 
 	/**
 	 * Cache for the settings to avoid multiple database calls.

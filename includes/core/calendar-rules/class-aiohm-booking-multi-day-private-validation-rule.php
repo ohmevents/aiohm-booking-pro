@@ -10,6 +10,11 @@
  * @since 1.3.0
  */
 
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator as Date_Range_Validator;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Private_Event_Validator as Private_Event_Validator;
+use AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Accommodation_Service as Accommodation_Service;
+
 // Prevent direct access.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -20,14 +25,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Implements the strategy pattern for handling multi-day private event validation.
  */
-class AIOHM_Booking_Multi_Day_Private_Validation_Rule implements AIOHM_Booking_Calendar_Rule {
+class AIOHM_Booking_Multi_Day_Private_Validation_Rule implements AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_Booking_Calendar_Rule {
 
 	/**
 	 * Date range validator instance.
 	 *
-	 * @var AIOHM_BOOKING_Date_Range_Validator|null
+	 * @var Date_Range_Validator|null
 	 */
-	private ?AIOHM_BOOKING_Date_Range_Validator $date_validator = null;
+	private ?Date_Range_Validator $date_validator = null;
 
 	/**
 	 * Rule enabled status.
@@ -133,7 +138,7 @@ class AIOHM_Booking_Multi_Day_Private_Validation_Rule implements AIOHM_Booking_C
 			return $this->validate_multi_day_booking( $calendar_data, $context_data );
 
 		} catch ( Throwable $e ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'multi_day_validation_error',
 				/* translators: %s: Error message */
 				sprintf( __( 'Multi-day private validation failed: %s', 'aiohm-booking-pro' ), $e->getMessage() )
@@ -250,7 +255,7 @@ class AIOHM_Booking_Multi_Day_Private_Validation_Rule implements AIOHM_Booking_C
 
 		// Add accommodation-specific messages if selection is provided.
 		if ( isset( $calendar_data['selected_accommodations'] ) ) {
-			$additional_messages = AIOHM_BOOKING_Private_Event_Validator::generate_multi_day_messages(
+			$additional_messages = Private_Event_Validator::generate_multi_day_messages(
 				$private_event_dates,
 				$calendar_data['selected_accommodations'],
 				$calendar_data
@@ -307,8 +312,8 @@ class AIOHM_Booking_Multi_Day_Private_Validation_Rule implements AIOHM_Booking_C
 	 */
 	public function validate_config( array $config = array() ) {
 		// Check if date validator is available.
-		if ( ! class_exists( 'AIOHM_BOOKING_Date_Range_Validator' ) ) {
-			return new WP_Error(
+		if ( ! class_exists( 'AIOHM_Booking_PRO\Core\AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator' ) ) {
+			return new \WP_Error(
 				'missing_dependency',
 				__( 'Date Range Validator class is required for multi-day private validation rule.', 'aiohm-booking-pro' )
 			);
@@ -363,11 +368,11 @@ class AIOHM_Booking_Multi_Day_Private_Validation_Rule implements AIOHM_Booking_C
 	/**
 	 * Get date range validator instance.
 	 *
-	 * @return AIOHM_BOOKING_Date_Range_Validator
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Date_Range_Validator
 	 */
-	private function get_date_validator(): AIOHM_BOOKING_Date_Range_Validator {
+	private function get_date_validator(): Date_Range_Validator {
 		if ( null === $this->date_validator ) {
-			$this->date_validator = new AIOHM_BOOKING_Date_Range_Validator();
+			$this->date_validator = new Date_Range_Validator();
 		}
 
 		return $this->date_validator;
@@ -403,7 +408,7 @@ class AIOHM_Booking_Multi_Day_Private_Validation_Rule implements AIOHM_Booking_C
 	 * @return int
 	 */
 	private function get_total_accommodation_count(): int {
-		return AIOHM_BOOKING_Accommodation_Service::get_total_accommodation_count();
+		return Accommodation_Service::get_total_accommodation_count();
 	}
 
 	/**

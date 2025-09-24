@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get accommodation data and settings.
 $global_settings    = get_option( 'aiohm_booking_settings', array() );
-$template_helper    = AIOHM_BOOKING_Template_Helper::instance();
+$template_helper    = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Template_Helper::instance();
 $accommodation_data = $template_helper->get_accommodation_data();
 $pricing_data       = $template_helper->get_pricing_data();
 

@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Core;
 /**
  * AIOHM Booking REST API Controller
  * Handles REST API endpoints for payment processing and booking operations.
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * REST API Controller for AIOHM Booking.
  */
-class AIOHM_BOOKING_REST_API {
+class AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_REST_API {
 
 	/**
 	 * Initialize the REST API.
@@ -126,18 +128,18 @@ class AIOHM_BOOKING_REST_API {
 			$booking_data = $request->get_param( 'booking_data' );
 
 			// Validate and sanitize booking data using comprehensive validation.
-			if ( ! class_exists( 'AIOHM_BOOKING_Validation' ) ) {
+			if ( ! class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation' ) ) {
 				return new WP_Error( 'validation_unavailable', __( 'Validation system unavailable', 'aiohm-booking-pro' ) );
 			}
 
-			if ( ! AIOHM_BOOKING_Validation::validate_booking_data( $booking_data, 'rest' ) ) {
-				$errors        = AIOHM_BOOKING_Validation::get_errors();
+			if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_booking_data( $booking_data, 'rest' ) ) {
+				$errors        = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::get_errors();
 				$error_message = ! empty( $errors ) ? implode( ' ', array_values( $errors ) ) : __( 'Validation failed', 'aiohm-booking-pro' );
 				return new WP_Error( 'validation_failed', $error_message, array( 'errors' => $errors ) );
 			}
 
 			// Sanitize the data.
-			$booking_data = AIOHM_BOOKING_Validation::sanitize_booking_data( $booking_data );
+			$booking_data = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::sanitize_booking_data( $booking_data );
 
 			// Check availability.
 			$availability_check = self::check_availability( $booking_data );
@@ -162,7 +164,7 @@ class AIOHM_BOOKING_REST_API {
 				200
 			);
 		} catch ( Exception $e ) {
-			AIOHM_BOOKING_Validation::log_error( 'Booking hold failed: ' . $e->getMessage(), array( 'booking_data' => $booking_data ?? null ) );
+			AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::log_error( 'Booking hold failed: ' . $e->getMessage(), array( 'booking_data' => $booking_data ?? null ) );
 			return new WP_Error(
 				'booking_hold_failed',
 				__( 'Failed to hold booking', 'aiohm-booking-pro' ),
@@ -191,7 +193,7 @@ class AIOHM_BOOKING_REST_API {
 			}
 
 			// Check if Stripe module exists and is enabled.
-			if ( AIOHM_BOOKING_Utilities::is_free_version() ) {
+			if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_free_version() ) {
 				return new WP_Error(
 					'stripe_pro_required',
 					__( 'Stripe payments require AIOHM Booking PRO. Upgrade to access payment processing.', 'aiohm-booking-pro' ),
@@ -199,7 +201,7 @@ class AIOHM_BOOKING_REST_API {
 				);
 			}
 
-			if ( ! AIOHM_BOOKING_Utilities::is_module_available( 'stripe' ) ) {
+			if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_module_available( 'stripe' ) ) {
 				return new WP_Error(
 					'stripe_not_available',
 					__( 'Stripe payment module is not available', 'aiohm-booking-pro' ),
@@ -208,7 +210,7 @@ class AIOHM_BOOKING_REST_API {
 			}
 
 			// Get Stripe module instance.
-			$stripe_module = AIOHM_BOOKING_Module_Registry::get_module_instance( 'stripe' );
+			$stripe_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::get_module_instance( 'stripe' );
 
 			if ( ! $stripe_module || ! $stripe_module->is_enabled() ) {
 				return new WP_Error(
@@ -244,7 +246,7 @@ class AIOHM_BOOKING_REST_API {
 	 */
 	public static function handle_stripe_webhook( $request ) {
 		// Check if Stripe is available in free version
-		if ( AIOHM_BOOKING_Utilities::is_free_version() ) {
+		if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_free_version() ) {
 			return new WP_Error(
 				'stripe_pro_required',
 				__( 'Stripe webhooks require AIOHM Booking PRO.', 'aiohm-booking-pro' ),
@@ -257,7 +259,7 @@ class AIOHM_BOOKING_REST_API {
 			$sig_header = $request->get_header( 'stripe-signature' );
 
 			// Check if Stripe module exists.
-			if ( ! AIOHM_BOOKING_Utilities::is_module_available( 'stripe' ) ) {
+			if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_module_available( 'stripe' ) ) {
 				return new WP_Error(
 					'stripe_not_available',
 					__( 'Stripe payment module is not available', 'aiohm-booking-pro' ),
@@ -266,7 +268,7 @@ class AIOHM_BOOKING_REST_API {
 			}
 
 			// Get Stripe module instance.
-			$stripe_module = AIOHM_BOOKING_Module_Registry::get_module_instance( 'stripe' );
+			$stripe_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::get_module_instance( 'stripe' );
 
 			if ( ! $stripe_module ) {
 				return new WP_Error(
@@ -303,7 +305,7 @@ class AIOHM_BOOKING_REST_API {
 	 */
 	public static function handle_paypal_webhook( $request ) {
 		// Check if PayPal is available in free version
-		if ( AIOHM_BOOKING_Utilities::is_free_version() ) {
+		if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_free_version() ) {
 			return new WP_Error(
 				'paypal_pro_required',
 				__( 'PayPal webhooks require AIOHM Booking PRO.', 'aiohm-booking-pro' ),
@@ -358,7 +360,7 @@ class AIOHM_BOOKING_REST_API {
 	 */
 	public static function create_paypal_order( $request ) {
 		// Check if PayPal is available in free version
-		if ( AIOHM_BOOKING_Utilities::is_free_version() ) {
+		if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_free_version() ) {
 			return new WP_Error(
 				'paypal_pro_required',
 				__( 'PayPal payments require AIOHM Booking PRO. Upgrade to access payment processing.', 'aiohm-booking-pro' ),
@@ -430,7 +432,7 @@ class AIOHM_BOOKING_REST_API {
 	 */
 	public static function capture_paypal_payment( $request ) {
 		// Check if PayPal is available in free version
-		if ( AIOHM_BOOKING_Utilities::is_free_version() ) {
+		if ( AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Utilities::is_free_version() ) {
 			return new WP_Error(
 				'paypal_pro_required',
 				__( 'PayPal payment capture requires AIOHM Booking PRO.', 'aiohm-booking-pro' ),
@@ -525,12 +527,12 @@ class AIOHM_BOOKING_REST_API {
 	 */
 	public static function validate_booking_data( $data ) {
 		// Use the comprehensive validation class.
-		if ( ! class_exists( 'AIOHM_BOOKING_Validation' ) ) {
+		if ( ! class_exists( 'AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation' ) ) {
 			return new WP_Error( 'validation_class_missing', __( 'Validation class not available', 'aiohm-booking-pro' ) );
 		}
 
-		if ( ! AIOHM_BOOKING_Validation::validate_booking_data( $data, 'rest' ) ) {
-			$errors        = AIOHM_BOOKING_Validation::get_errors();
+		if ( ! AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::validate_booking_data( $data, 'rest' ) ) {
+			$errors        = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Validation::get_errors();
 			$error_message = ! empty( $errors ) ? implode( ' ', array_values( $errors ) ) : __( 'Validation failed', 'aiohm-booking-pro' );
 			return new WP_Error( 'validation_failed', $error_message, array( 'errors' => $errors ) );
 		}

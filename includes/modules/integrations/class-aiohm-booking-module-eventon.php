@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Modules\Integrations;
 /**
  * EventOn Integration Module
  *
@@ -21,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.2.5
  */
-class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
+class AIOHM_BOOKING_Module_EventOn extends AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Module_Abstract {
 
 	/**
 	 * Constructor.
@@ -389,7 +391,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 		}
 
 		// Get current AIOHM booking events using compatible method
-		$existing_events = AIOHM_BOOKING_Module_Tickets::get_events_data();
+		$existing_events = AIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_Booking_PROModulesBookingAIOHM_BOOKING_Module_Tickets::get_events_data();
 
 		// Check if event already exists (by EventOn ID)
 		foreach ( $existing_events as $existing_event ) {
@@ -424,7 +426,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 		$existing_events[] = $new_event;
 
 		// Save using modern CPT approach if tickets module is available
-		$tickets_module = AIOHM_BOOKING_Module_Registry::get_module_instance( 'tickets' );
+		$tickets_module = AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Registry::get_module_instance( 'tickets' );
 		
 		if ( $tickets_module && method_exists( $tickets_module, 'create_event_cpt' ) ) {
 			// Create CPT version of the event

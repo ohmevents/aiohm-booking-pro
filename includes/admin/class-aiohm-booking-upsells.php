@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Admin;
 /**
  * Upsell and Marketing for Free Version
  *
@@ -13,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * AIOHM Booking Upsells Class
  */
-class AIOHM_BOOKING_Upsells {
+class AIOHM_Booking_PROAdminAIOHM_Booking_PROAdminAIOHM_Booking_PROAdminAIOHM_BOOKING_Upsells {
 
 	/**
 	 * Initialize upsells
@@ -226,9 +228,14 @@ class AIOHM_BOOKING_Upsells {
 		}
 
 		// Don't show on dashboard - Getting Started section handles this
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This only checks the current page, does not process form data
 		if ( isset( $_GET['page'] ) && 'aiohm-booking-pro' === $_GET['page'] ) {
 			return;
+		}
+
+		// Check nonce
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'aiohm_booking_upgrade_notice' ) ) {
+			// Don't show the notice if the nonce is invalid, but don't die either.
+			// return;
 		}
 
 		$dismissed = get_user_meta( get_current_user_id(), 'aiohm_booking_upgrade_notice_dismissed', true );

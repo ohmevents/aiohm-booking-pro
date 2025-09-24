@@ -1,4 +1,6 @@
 <?php
+
+namespace AIOHM_Booking_PRO\Abstracts;
 /**
  * Abstract base class for all AIOHM Booking modules
  * Provides standardized interface and common functionality
@@ -15,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Abstract base class for all AIOHM Booking modules
  * Provides standardized interface and common functionality
  */
-abstract class AIOHM_BOOKING_Module_Abstract {
+abstract class AIOHM_Booking_PROAbstractsAIOHM_Booking_PROAbstractsAIOHM_BOOKING_Module_Abstract {
 
 	/**
 	 * Module ID
@@ -69,7 +71,7 @@ abstract class AIOHM_BOOKING_Module_Abstract {
 	/**
 	 * Module error handler instance
 	 *
-	 * @var AIOHM_BOOKING_Module_Error_Handler
+	 * @var AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Error_Handler
 	 */
 	protected $error_handler;
 
@@ -103,7 +105,7 @@ abstract class AIOHM_BOOKING_Module_Abstract {
 		$this->is_enabled = $this->check_if_enabled();
 
 		// Initialize module error handler
-		$this->error_handler = new AIOHM_BOOKING_Module_Error_Handler(
+		$this->error_handler = new AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Error_Handler(
 			$this->module_id,
 			$this->module_name
 		);
@@ -704,7 +706,7 @@ abstract class AIOHM_BOOKING_Module_Abstract {
 	/**
 	 * Get module error handler
 	 *
-	 * @return AIOHM_BOOKING_Module_Error_Handler
+	 * @return AIOHM_Booking_PROCoreAIOHM_Booking_PROCoreAIOHM_BOOKING_Module_Error_Handler
 	 */
 	public function get_error_handler() {
 		return $this->error_handler;
