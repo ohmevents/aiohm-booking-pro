@@ -45,9 +45,11 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 		// Add AJAX handler for test connection
 		add_action( 'wp_ajax_aiohm_booking_test_shareai', array( $this, 'ajax_test_connection' ) );
 
+
 		// Other hooks
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
 	}
+
 
 	/**
 	 * Get UI definition for module registry
@@ -139,6 +141,24 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 				),
 				'default'     => 'llama4:17b-scout-16e-instruct-fp16',
 			),
+			'shareai_temperature'       => array(
+				'type'        => 'number',
+				'label'       => 'Temperature',
+				'description' => 'Controls randomness in responses (0.0 = deterministic, 1.0 = very random)',
+				'default'     => 0.7,
+				'min'         => 0.0,
+				'max'         => 1.0,
+				'step'        => 0.1,
+			),
+			'shareai_max_tokens'        => array(
+				'type'        => 'number',
+				'label'       => 'Max Tokens',
+				'description' => 'Maximum number of tokens in the response',
+				'default'     => 1000,
+				'min'         => 1,
+				'max'         => 4000,
+				'step'        => 1,
+			),
 			'shareai_analytics_enabled' => array(
 				'type'        => 'checkbox',
 				'label'       => 'Enable Analytics Integration',
@@ -157,6 +177,8 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 		return array(
 			'shareai_api_key'           => '',
 			'shareai_model'             => 'llama4:17b-scout-16e-instruct-fp16',
+			'shareai_temperature'       => 0.7,
+			'shareai_max_tokens'        => 1000,
 			'shareai_analytics_enabled' => true,
 		);
 	}
@@ -177,6 +199,8 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 		}
 
 		$model         = $settings['shareai_model'] ?? 'llama4:17b-scout-16e-instruct-fp16';
+		$temperature   = $settings['shareai_temperature'] ?? 0.7;
+		$max_tokens    = $settings['shareai_max_tokens'] ?? 1000;
 		$system_prompt = $context['system_prompt'] ?? 'You are a helpful assistant for AIOHM Booking, a WordPress booking system. Provide accurate and helpful responses to user queries about bookings, accommodations, and events.';
 
 		// ShareAI works better with combined messages like the knowledge assistant
@@ -192,8 +216,8 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 					'content' => $combined_message,
 				),
 			),
-			'temperature' => 0.7,
-			'max_tokens'  => 4000,
+			'temperature' => floatval( $temperature ),
+			'max_tokens'  => intval( $max_tokens ),
 		);
 
 		$response = wp_remote_post(
@@ -401,7 +425,7 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 	 */
 	public function ajax_test_connection() {
 		// Verify nonce
-		$nonce_check = wp_verify_nonce( $_POST['nonce'] ?? '', 'aiohm_booking_test_shareai' );
+		$nonce_check = wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_booking_test_ai_connection' );
 
 		if ( ! $nonce_check ) {
 			wp_send_json_error( 'Security check failed' );
@@ -565,6 +589,35 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 	}
 
 	/**
+	 * Enqueue admin assets
+	 */
+	public function enqueue_admin_assets() {
+		$screen = get_current_screen();
+		if ( ! $screen || strpos( $screen->id, 'aiohm-booking' ) === false ) {
+			return;
+		}
+
+		// Enqueue ShareAI admin JavaScript
+		wp_enqueue_script(
+			'aiohm-booking-shareai-admin',
+			plugin_dir_url( __FILE__ ) . 'assets/js/aiohm-booking-shareai-admin.js',
+			array( 'jquery' ),
+			AIOHM_BOOKING_VERSION,
+			true
+		);
+
+		// Localize script with necessary data
+		wp_localize_script(
+			'aiohm-booking-shareai-admin',
+			'aiohm_shareai',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'aiohm_booking_test_ai_connection' ),
+			)
+		);
+	}
+
+	/**
 	 * Get module settings from main plugin settings
 	 * Override the abstract class method to use main settings instead of separate option
 	 */
@@ -577,7 +630,7 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 			'shareai_api_key'     => '',
 			'shareai_model'       => 'llama4:17b-scout-16e-instruct-fp16',
 			'shareai_temperature' => 0.7,
-			'shareai_max_tokens'  => 500,
+			'shareai_max_tokens'  => 1000,
 		);
 
 		// Merge main settings with defaults, prioritizing main settings
@@ -666,6 +719,48 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 						<option value="qwen2.5-coder:32b" <?php selected( $settings['shareai_model'] ?? '', 'qwen2.5-coder:32b' ); ?>>Qwen 2.5 Coder 32B</option>
 					</select>
 					<small class="description">Choose the ShareAI model for your booking intelligence needs</small>
+				</div>
+
+				<div class="aiohm-form-group">
+					<label class="aiohm-form-label">Temperature</label>
+					<input
+						type="number"
+						name="aiohm_booking_settings[shareai_temperature]"
+						id="shareai_temperature"
+						value="<?php echo esc_attr( $settings['shareai_temperature'] ?? 0.7 ); ?>"
+						min="0.0"
+						max="1.0"
+						step="0.1"
+						class="aiohm-form-input">
+					<small class="description">Controls randomness in responses (0.0 = deterministic, 1.0 = very random)</small>
+				</div>
+
+				<div class="aiohm-form-group">
+					<label class="aiohm-form-label">Max Tokens</label>
+					<input
+						type="number"
+						name="aiohm_booking_settings[shareai_max_tokens]"
+						id="shareai_max_tokens"
+						value="<?php echo esc_attr( $settings['shareai_max_tokens'] ?? 1000 ); ?>"
+						min="1"
+						max="4000"
+						step="1"
+						class="aiohm-form-input">
+					<small class="description">Maximum number of tokens in the response</small>
+				</div>
+
+				<div class="aiohm-form-group">
+					<label class="aiohm-form-label">
+						<input
+							type="checkbox"
+							name="aiohm_booking_settings[shareai_analytics_enabled]"
+							id="shareai_analytics_enabled"
+							value="1"
+							<?php checked( $settings['shareai_analytics_enabled'] ?? true ); ?>
+							class="aiohm-form-input">
+						Enable Analytics Integration
+					</label>
+					<small class="description">Allow ShareAI to analyze your booking patterns for better insights</small>
 				</div>
 
 				<div class="aiohm-form-actions">

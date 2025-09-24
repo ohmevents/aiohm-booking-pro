@@ -333,8 +333,13 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 								DISABLED
 							</span>
 						<?php else : ?>
-							<!-- Normal badge -->
-							<span class="aiohm-module-status <?php echo esc_attr( $is_enabled ? 'enabled' : 'disabled' ); ?>">
+							<!-- Clickable badge toggle for supporting modules -->
+							<span 
+								class="aiohm-module-status aiohm-module-toggle-badge <?php echo esc_attr( $is_enabled ? 'enabled' : 'disabled' ); ?>" 
+								data-module="<?php echo esc_attr( $module_id ); ?>"
+								data-enabled="<?php echo esc_attr( $is_enabled ? '1' : '0' ); ?>"
+								title="<?php esc_attr_e( 'Click to toggle module', 'aiohm-booking-pro' ); ?>"
+							>
 								<?php echo esc_html( $is_enabled ? __( 'ENABLED', 'aiohm-booking-pro' ) : __( 'DISABLED', 'aiohm-booking-pro' ) ); ?>
 							</span>
 						<?php endif; ?>
@@ -425,14 +430,15 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 				continue;
 			}
 
-			$is_enabled         = true;
+			// Check if module is enabled (tools modules are typically always enabled, but we'll check settings)
+			$is_enabled         = isset( $settings[ 'enable_' . $module_id ] ) ? (bool) $settings[ 'enable_' . $module_id ] : true;
 			$module_name        = $module_info['name'] ?? ucfirst( $module_id );
 			$module_description = $module_info['description'] ?? '';
 			$module_icon        = $module_info['icon'] ?? '⚙️';
 			$is_premium         = ! empty( $module_info['is_premium'] );
 			$has_admin_page     = ! empty( $module_info['has_admin_page'] );
 			?>
-			<div class="aiohm-booking-card aiohm-module-card is-active aiohm-tools-module" data-id="<?php echo esc_attr( $module_id ); ?>">
+			<div class="aiohm-booking-card aiohm-module-card <?php echo esc_attr( $is_enabled ? 'is-active' : 'is-inactive' ); ?> aiohm-tools-module" data-id="<?php echo esc_attr( $module_id ); ?>">
 				<div class="aiohm-card-header aiohm-module-header">
 					<div class="aiohm-card-header-title">
 						<h3 class="aiohm-card-title">
@@ -444,7 +450,15 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 						</h3>
 					</div>
 					<div class="aiohm-header-controls">
-						<span class="aiohm-module-status enabled">ENABLED</span>
+						<!-- Clickable badge toggle for tools modules -->
+						<span 
+							class="aiohm-module-status aiohm-module-toggle-badge <?php echo esc_attr( $is_enabled ? 'enabled' : 'disabled' ); ?>" 
+							data-module="<?php echo esc_attr( $module_id ); ?>"
+							data-enabled="<?php echo esc_attr( $is_enabled ? '1' : '0' ); ?>"
+							title="<?php esc_attr_e( 'Click to toggle module', 'aiohm-booking-pro' ); ?>"
+						>
+							<?php echo esc_html( $is_enabled ? __( 'ENABLED', 'aiohm-booking-pro' ) : __( 'DISABLED', 'aiohm-booking-pro' ) ); ?>
+						</span>
 					</div>
 				</div>
 				<div class="aiohm-card-content aiohm-module-settings">
@@ -553,7 +567,7 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 				$is_premium         = true; // All modules in this section are premium.
 				$has_admin_page     = ! empty( $module_info['has_admin_page'] );
 			?>
-				<div class="aiohm-booking-card aiohm-module-card <?php echo esc_attr( $is_enabled ? 'is-active' : 'is-inactive' ); ?> aiohm-pro-module" data-id="<?php echo esc_attr( $module_id ); ?>">
+				<div class="aiohm-booking-card aiohm-module-card <?php echo esc_attr( $is_enabled ? 'is-active' : 'is-inactive' ); ?> <?php echo esc_attr( $is_dependent ? 'is-dependent' : '' ); ?> aiohm-pro-module" data-id="<?php echo esc_attr( $module_id ); ?>">
 					<div class="aiohm-card-header aiohm-module-header">
 						<div class="aiohm-card-header-title">
 							<h3 class="aiohm-card-title">
@@ -563,9 +577,25 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 							</h3>
 						</div>
 						<div class="aiohm-header-controls">
-							<span class="aiohm-module-status <?php echo esc_attr( $is_enabled ? 'enabled' : 'disabled' ); ?>">
-								<?php echo esc_html( $is_enabled ? __( 'ENABLED', 'aiohm-booking-pro' ) : __( 'DISABLED', 'aiohm-booking-pro' ) ); ?>
-							</span>
+							<?php if ( $is_dependent ) : ?>
+								<!-- Dependent module - show as disabled with reason -->
+								<span 
+									class="aiohm-module-status aiohm-dependent-badge disabled" 
+									title="<?php echo esc_attr( $dependency_reason ); ?>"
+								>
+									DISABLED
+								</span>
+							<?php else : ?>
+								<!-- Clickable badge toggle for AI modules -->
+								<span 
+									class="aiohm-module-status aiohm-module-toggle-badge <?php echo esc_attr( $is_enabled ? 'enabled' : 'disabled' ); ?>" 
+									data-module="<?php echo esc_attr( $module_id ); ?>"
+									data-enabled="<?php echo esc_attr( $is_enabled ? '1' : '0' ); ?>"
+									title="<?php esc_attr_e( 'Click to toggle module', 'aiohm-booking-pro' ); ?>"
+								>
+									<?php echo esc_html( $is_enabled ? __( 'ENABLED', 'aiohm-booking-pro' ) : __( 'DISABLED', 'aiohm-booking-pro' ) ); ?>
+								</span>
+							<?php endif; ?>
 						</div>
 					</div>
 					<div class="aiohm-card-content aiohm-module-settings">

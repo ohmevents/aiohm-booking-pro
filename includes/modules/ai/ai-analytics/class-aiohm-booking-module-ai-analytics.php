@@ -198,7 +198,8 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 		}
 
 		// Verify nonce for security
-		if ( ! wp_verify_nonce( $_POST['_wpnonce'] ?? '', 'update-options' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['ai_analytics_nonce'] ?? $_POST['_wpnonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_ai_analytics_settings' ) && ! wp_verify_nonce( $nonce, 'update-options' ) ) {
 			wp_die( 'Security check failed' );
 		}
 
@@ -208,7 +209,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 		}
 
 		// Get the submitted settings
-		$ai_analytics_settings = $_POST['ai_analytics_settings'] ?? array();
+		$ai_analytics_settings = array_map( 'sanitize_text_field', wp_unslash( $_POST['ai_analytics_settings'] ?? array() ) );
 
 		// Sanitize the settings
 		$sanitized_settings = array(
@@ -222,7 +223,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 		$current_settings = $this->get_module_settings();
 		$updated_settings = array_merge( $current_settings, $sanitized_settings );
 		
-		$result = $this->save_module_settings( $updated_settings );
+		$result = update_option( 'aiohm_booking_ai_analytics_settings', $updated_settings );
 
 		// Add admin notice
 		if ( $result ) {
@@ -245,7 +246,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 	 */
 	public function handle_ai_query() {
 		// Verify nonce for security.
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ?? '' ), 'aiohm_ai_query_nonce' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_ai_query_nonce' ) ) {
 			wp_send_json_error( 'Security check failed' );
 		}
 
@@ -278,7 +279,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 	 * Generate AI insights
 	 */
 	public function generate_ai_insights() {
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ?? '' ), 'aiohm_ai_query_nonce' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_ai_query_nonce' ) ) {
 			wp_send_json_error( 'Security check failed' );
 		}
 
@@ -326,11 +327,17 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 		global $wpdb;
 		$order_table = $wpdb->prefix . 'aiohm_booking_order';
 
-		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $order_table ) ) !== $order_table ) {
+		$cache_key = 'aiohm_booking_summary_stats';
+		$cached_stats = wp_cache_get( $cache_key );
+		if ( false !== $cached_stats ) {
+			return $cached_stats;
+		}
+
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $order_table ) ) !== $order_table ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			return array( 'error' => 'Booking data table not found.' );
 		}
 
-		return $wpdb->get_row(
+		$stats = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prepare(
 				"
             SELECT 
@@ -348,6 +355,9 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 			),
 			ARRAY_A
 		);
+
+		wp_cache_set( $cache_key, $stats, '', 300 );
+		return $stats;
 	}
 
 	/**
@@ -359,11 +369,17 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 		global $wpdb;
 		$order_table = $wpdb->prefix . 'aiohm_booking_order';
 
-		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $order_table ) ) !== $order_table ) {
+		$cache_key = 'aiohm_booking_recent_' . $limit;
+		$cached_data = wp_cache_get( $cache_key );
+		if ( false !== $cached_data ) {
+			return $cached_data;
+		}
+
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $order_table ) ) !== $order_table ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			return array();
 		}
 
-		return $wpdb->get_results(
+		$data = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prepare(
 				'
             SELECT 
@@ -384,6 +400,9 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 			),
 			ARRAY_A
 		);
+
+		wp_cache_set( $cache_key, $data, '', 300 );
+		return $data;
 	}
 
 	/**
@@ -611,7 +630,15 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 		return array_merge( $this->get_default_settings(), $saved_settings );
 	}
 
-	/* Duplicate handle_settings_save method removed - using the one at line 194 */
+	/**
+	 * Save module settings
+	 *
+	 * @param array $data Settings data to save.
+	 * @return bool
+	 */
+	public function save_module_settings( $data ) {
+		return update_option( 'aiohm_booking_ai_analytics_settings', $data );
+	}
 
 	/**
 	 * Enqueue admin assets
@@ -849,7 +876,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 	 */
 	public function handle_ai_extract_event_info() {
 		// Verify nonce for security.
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ?? '' ), 'aiohm_booking_admin_nonce' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_booking_admin_nonce' ) ) {
 			wp_send_json_error( array( 'message' => 'Security check failed' ) );
 			return;
 		}
@@ -914,7 +941,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 	 */
 	public function handle_ai_import_event() {
 		// Verify nonce for security.
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ?? '' ), 'aiohm_booking_admin_nonce' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_booking_admin_nonce' ) ) {
 			wp_send_json_error( array( 'message' => 'Security check failed' ) );
 			return;
 		}
@@ -924,7 +951,8 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 			return;
 		}
 
-		$event_data  = wp_unslash( $_POST['event_data'] ?? array() );
+		$event_data_raw = array_map( 'sanitize_text_field', wp_unslash( $_POST['event_data'] ?? array() ) );
+		$event_data = is_array( $event_data_raw ) ? $event_data_raw : array();
 		$event_index = intval( wp_unslash( $_POST['event_index'] ?? 0 ) );
 
 		if ( empty( $event_data ) || ! is_array( $event_data ) ) {
@@ -1388,6 +1416,10 @@ IMPORTANT:
 					<p>This plugin makes API calls to external AI services (OpenAI, Google Gemini, Claude, ShareAI, etc.) to process your content and provide AI responses.</p>
 					<p>Your data is sent to these third-party services according to their respective privacy policies. No sensitive information such as payment details or personal customer data is transmitted.</p>
 				</div>
+
+				<div class="aiohm-form-actions aiohm-mt-4">
+					<?php submit_button( 'Save AI Analytics Settings', 'primary', 'save_ai_analytics_settings', false, array( 'class' => 'aiohm-btn aiohm-btn--save' ) ); ?>
+				</div>
 			</div>
 		</div>
 		<?php
@@ -1421,13 +1453,13 @@ IMPORTANT:
 			'ollama'  => 'Ollama',
 		);
 		$provider_icons = array(
-			'shareai' => 'aiohm-booking-shareai-icon.jpeg',
-			'openai'  => 'aiohm-booking-openai-icon.svg',
-			'gemini'  => 'aiohm-booking-gemini-icon.svg',
-			'ollama'  => 'aiohm-booking-ollama-icon.png',
+			'shareai' => 'includes/modules/ai/shareai/assets/images/aiohm-booking-shareai-icon.jpeg',
+			'openai'  => 'includes/modules/ai/openai/assets/images/aiohm-booking-openai-icon.svg',
+			'gemini'  => 'includes/modules/ai/gemini/assets/images/aiohm-booking-gemini-icon.svg',
+			'ollama'  => 'includes/modules/ai/ollama/assets/images/aiohm-booking-ollama-icon.png',
 		);
 		$provider_name  = $provider_names[ $default_ai_provider ] ?? 'ShareAI';
-		$provider_icon  = $provider_icons[ $default_ai_provider ] ?? 'aiohm-booking-shareai-icon.jpeg';
+		$provider_icon  = $provider_icons[ $default_ai_provider ] ?? 'includes/modules/ai/shareai/assets/images/aiohm-booking-shareai-icon.jpeg';
 		?>
 		<!-- AI Content Section -->
 		<div class="aiohm-ai-row">
@@ -1445,9 +1477,9 @@ IMPORTANT:
 							<div class="ai-provider-info">
 								<div class="ai-provider-icon">
 									<?php
-									$icon_path = AIOHM_BOOKING_DIR . 'assets/images/' . $provider_icon;
+									$icon_path = AIOHM_BOOKING_DIR . $provider_icon;
 									if ( file_exists( $icon_path ) ) {
-										echo '<img src="' . esc_url( AIOHM_BOOKING_URL . 'assets/images/' . $provider_icon ) . '" alt="' . esc_attr( $provider_name ) . '" class="provider-icon">';
+										echo '<img src="' . esc_url( AIOHM_BOOKING_URL . $provider_icon ) . '" alt="' . esc_attr( $provider_name ) . '" class="provider-icon">';
 									} else {
 										// Fallback: Show provider name as text if icon doesn't exist
 										echo '<div class="provider-icon-fallback">' . esc_html( substr( $provider_name, 0, 1 ) ) . '</div>';

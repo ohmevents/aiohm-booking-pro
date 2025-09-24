@@ -139,6 +139,34 @@ class AIOHM_BOOKING_Module_Ollama extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 	}
 
 
+	/**
+	 * Enqueue admin assets
+	 */
+	public function enqueue_admin_assets() {
+		$screen = get_current_screen();
+		if ( ! $screen || strpos( $screen->id, 'aiohm-booking' ) === false ) {
+			return;
+		}
+
+		// Enqueue Ollama admin JavaScript
+		wp_enqueue_script(
+			'aiohm-booking-ollama-admin',
+			plugin_dir_url( __FILE__ ) . 'assets/js/aiohm-booking-ollama-admin.js',
+			array( 'jquery' ),
+			AIOHM_BOOKING_VERSION,
+			true
+		);
+
+		// Localize script with necessary data
+		wp_localize_script(
+			'aiohm-booking-ollama-admin',
+			'aiohm_ollama',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'aiohm_booking_test_ai_connection' ),
+			)
+		);
+	}
 
 	/**
 	 * Test API connection
@@ -146,7 +174,7 @@ class AIOHM_BOOKING_Module_Ollama extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 	public function test_connection() {
 
 		// Verify nonce.
-		$nonce_check = wp_verify_nonce( $_POST['nonce'] ?? '', 'aiohm_booking_test_ollama' );
+		$nonce_check = wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_booking_test_ai_connection' );
 
 		if ( ! $nonce_check ) {
 			wp_send_json_error( 'Security check failed' );
@@ -215,12 +243,12 @@ class AIOHM_BOOKING_Module_Ollama extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 	 * Handle settings save
 	 */
 	public function handle_settings_save() {
-		if ( isset( $_POST['ollama_nonce'] ) && wp_verify_nonce( $_POST['ollama_nonce'], 'aiohm_booking_ollama_settings' ) ) {
+		if ( isset( $_POST['ollama_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ollama_nonce'] ) ), 'aiohm_booking_ollama_settings' ) ) {
 			if ( current_user_can( 'manage_options' ) && isset( $_POST['ollama_settings'] ) ) {
 				$settings                        = array();
-				$settings['ollama_endpoint']     = sanitize_url( $_POST['ollama_settings']['ollama_endpoint'] ?? 'http://localhost:11434' );
-				$settings['ollama_model']        = sanitize_text_field( $_POST['ollama_settings']['ollama_model'] ?? 'llama2' );
-				$settings['ollama_custom_model'] = sanitize_text_field( $_POST['ollama_settings']['ollama_custom_model'] ?? '' );
+				$settings['ollama_endpoint']     = sanitize_url( wp_unslash( $_POST['ollama_settings']['ollama_endpoint'] ?? 'http://localhost:11434' ) );
+				$settings['ollama_model']        = sanitize_text_field( wp_unslash( $_POST['ollama_settings']['ollama_model'] ?? 'llama2' ) );
+				$settings['ollama_custom_model'] = sanitize_text_field( wp_unslash( $_POST['ollama_settings']['ollama_custom_model'] ?? '' ) );
 				$settings['ollama_temperature']  = floatval( $_POST['ollama_settings']['ollama_temperature'] ?? 0.7 );
 				$settings['ollama_timeout']      = intval( $_POST['ollama_settings']['ollama_timeout'] ?? 30 );
 

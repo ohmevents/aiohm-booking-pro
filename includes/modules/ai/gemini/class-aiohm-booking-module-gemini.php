@@ -97,7 +97,7 @@ class AIOHM_BOOKING_Module_Gemini extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 	protected function get_default_settings() {
 		return array(
 			'gemini_api_key'     => '',
-			'gemini_model'       => 'gemini-pro',
+			'gemini_model'       => '',
 			'gemini_temperature' => 0.7,
 			'gemini_max_tokens'  => 1000,
 		);
@@ -374,11 +374,40 @@ class AIOHM_BOOKING_Module_Gemini extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 	}
 
 	/**
+	 * Enqueue admin assets
+	 */
+	public function enqueue_admin_assets() {
+		$screen = get_current_screen();
+		if ( ! $screen || strpos( $screen->id, 'aiohm-booking' ) === false ) {
+			return;
+		}
+
+		// Enqueue Gemini admin JavaScript
+		wp_enqueue_script(
+			'aiohm-booking-gemini-admin',
+			plugin_dir_url( __FILE__ ) . 'assets/js/aiohm-booking-gemini-admin.js',
+			array( 'jquery' ),
+			AIOHM_BOOKING_VERSION,
+			true
+		);
+
+		// Localize script with necessary data
+		wp_localize_script(
+			'aiohm-booking-gemini-admin',
+			'aiohm_gemini',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'aiohm_booking_test_ai_connection' ),
+			)
+		);
+	}
+
+	/**
 	 * Test API connection
 	 */
 	public function test_connection() {
 		// Verify nonce.
-		$nonce_check = wp_verify_nonce( $_POST['nonce'] ?? '', 'aiohm_booking_test_gemini' );
+		$nonce_check = wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_booking_test_ai_connection' );
 
 		if ( ! $nonce_check ) {
 			wp_send_json_error( 'Security check failed' );
@@ -525,11 +554,11 @@ class AIOHM_BOOKING_Module_Gemini extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 	 * Handle settings save
 	 */
 	public function handle_settings_save() {
-		if ( isset( $_POST['gemini_nonce'] ) && wp_verify_nonce( $_POST['gemini_nonce'], 'aiohm_booking_gemini_settings' ) ) {
+		if ( isset( $_POST['gemini_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['gemini_nonce'] ) ), 'aiohm_booking_gemini_settings' ) ) {
 			if ( current_user_can( 'manage_options' ) && isset( $_POST['gemini_settings'] ) ) {
 				$settings                       = array();
-				$settings['gemini_api_key']     = sanitize_text_field( $_POST['gemini_settings']['gemini_api_key'] ?? '' );
-				$settings['gemini_model']       = sanitize_text_field( $_POST['gemini_settings']['gemini_model'] ?? 'gemini-pro' );
+				$settings['gemini_api_key']     = sanitize_text_field( wp_unslash( $_POST['gemini_settings']['gemini_api_key'] ?? '' ) );
+				$settings['gemini_model']       = sanitize_text_field( wp_unslash( $_POST['gemini_settings']['gemini_model'] ?? 'gemini-pro' ) );
 				$settings['gemini_temperature'] = floatval( $_POST['gemini_settings']['gemini_temperature'] ?? 0.7 );
 				$settings['gemini_max_tokens']  = intval( $_POST['gemini_settings']['gemini_max_tokens'] ?? 1000 );
 

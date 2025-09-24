@@ -264,6 +264,14 @@
             const eventIndex = $button.data('event-index');
             const $eventCard = $button.closest('.aiohm-booking-event-settings');
             
+            // Debug: Log the event index
+            console.log('Event Index:', eventIndex);
+            
+            if (eventIndex === undefined || eventIndex === null) {
+                alert('Error: Could not determine event index. Please refresh the page and try again.');
+                return;
+            }
+            
             // Disable button and show loading state
             $button.prop('disabled', true);
             const originalText = $button.html();
@@ -276,25 +284,27 @@
                 const name = $field.attr('name');
                 
                 if (name && name.startsWith('events[' + eventIndex + ']')) {
-                    // Extract field name from events[index][field]
-                    const fieldMatch = name.match(/events\[\d+\]\[([^\]]+)\](?:\[(.*)\])?/);
+                    // Extract field name from events[index][field] or events[index][field][subfield][...]
+                    const fieldMatch = name.match(/^events\[\d+\]\[([^\]]+)\](.*)$/);
                     if (fieldMatch) {
                         const fieldName = fieldMatch[1];
-                        const subField = fieldMatch[2];
+                        const remainingPath = fieldMatch[2];
                         
-                        if (subField) {
-                            // Handle nested arrays like teachers
-                            if (!eventData[fieldName]) {
-                                eventData[fieldName] = [];
-                            }
-                            if (!eventData[fieldName][subField]) {
-                                eventData[fieldName][subField] = {};
-                            }
-                            // For now, collect simple values - teachers need special handling
-                            if ($field.attr('type') !== 'hidden' || name.includes('[photo]')) {
-                                // This is a simplified version - teachers need more complex handling
+                        if (remainingPath && fieldName === 'teachers') {
+                            // Skip teachers here - handled separately below
+                            return;
+                        } else if (remainingPath) {
+                            // Handle other nested fields - for now just store as string
+                            const nestedMatch = remainingPath.match(/^\[([^\]]+)\]$/);
+                            if (nestedMatch) {
+                                const subField = nestedMatch[1];
+                                if (!eventData[fieldName]) {
+                                    eventData[fieldName] = {};
+                                }
+                                eventData[fieldName][subField] = $field.val();
                             }
                         } else {
+                            // Handle simple fields
                             eventData[fieldName] = $field.val();
                         }
                     }
@@ -303,11 +313,15 @@
             
             // Handle teachers data specifically
             const teachers = [];
-            $eventCard.find('.aiohm-teacher-item').each(function(index) {
+            $eventCard.find('.aiohm-teacher-item').each(function() {
                 const $teacherItem = $(this);
+                const teacherIndex = $teacherItem.data('teacher-index') || teachers.length;
+                const nameField = $teacherItem.find('input[name="events[' + eventIndex + '][teachers][' + teacherIndex + '][name]"]');
+                const photoField = $teacherItem.find('input[name="events[' + eventIndex + '][teachers][' + teacherIndex + '][photo]"]');
+                
                 teachers.push({
-                    name: $teacherItem.find('input[name*="teachers[' + index + '][name]"]').val(),
-                    photo: $teacherItem.find('input[name*="teachers[' + index + '][photo]"]').val()
+                    name: nameField.val() || '',
+                    photo: photoField.val() || ''
                 });
             });
             eventData.teachers = teachers;
@@ -320,6 +334,19 @@
                 events: {}
             };
             ajaxData.events[eventIndex] = eventData;
+            
+            // Debug: Log the data being sent
+            console.log('AJAX Data:', ajaxData);
+            console.log('Event Data:', eventData);
+            console.log('Event Data Keys:', Object.keys(eventData));
+            
+            // Debug: Log all field names found in the event card
+            const fieldNames = [];
+            $eventCard.find('input, textarea, select').each(function() {
+                const name = $(this).attr('name');
+                if (name) fieldNames.push(name);
+            });
+            console.log('All field names in event card:', fieldNames);
             
             // Send AJAX request
             $.ajax({
@@ -494,95 +521,6 @@
             }
         },
 
-        // Handle individual event save
-        handleIndividualEventSave: function($button) {
-            const eventIndex = $button.data('event-index');
-            const $eventCard = $button.closest('.aiohm-booking-event-settings');
-            
-            if (eventIndex === undefined) {
-                alert('Error: Could not determine event index.');
-                return;
-            }
-            
-            // Show loading state
-            const originalText = $button.text();
-            $button.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Saving...');
-            
-            // Serialize form data for this specific event
-            const $form = $eventCard.closest('form');
-            const formData = new FormData($form[0]);
-            
-            // Prepare data for AJAX
-            const ajaxData = {
-                action: 'aiohm_booking_save_individual_event',
-                nonce: aiohm_booking_admin.nonce,
-                event_index: eventIndex,
-                events: {}
-            };
-            
-            // Extract only the event data for this specific event
-            const eventData = {};
-            for (let [key, value] of formData.entries()) {
-                if (key.startsWith(`events[${eventIndex}]`)) {
-                    // Parse the field name to extract the nested structure  
-                    const fieldMatch = key.match(/^events\[(\d+)\](.+)$/);
-                    if (fieldMatch) {
-                        const fieldName = fieldMatch[2];
-                        
-                        // Handle nested fields like [teachers][0][name]
-                        if (fieldName.includes('[')) {
-                            const nestedMatch = fieldName.match(/^\[(.+?)\]\[(\d+)\]\[(.+)\]$/);
-                            if (nestedMatch) {
-                                const [, parentField, index, subField] = nestedMatch;
-                                if (!eventData[parentField]) eventData[parentField] = [];
-                                if (!eventData[parentField][index]) eventData[parentField][index] = {};
-                                eventData[parentField][index][subField] = value;
-                            }
-                        } else {
-                            // Handle simple fields like [title] 
-                            const simpleField = fieldName.match(/^\[(.+)\]$/);
-                            if (simpleField) {
-                                eventData[simpleField[1]] = value;
-                            } else {
-                                eventData[fieldName] = value;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            ajaxData.events[eventIndex] = eventData;
-            
-            // Make AJAX request
-            $.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                data: ajaxData,
-                success: function(response) {
-                    // Reset button
-                    $button.prop('disabled', false).html(originalText);
-                    
-                    if (response.success) {
-                        // Show success feedback
-                        $button.html('<span class="dashicons dashicons-yes"></span> Saved!');
-                        setTimeout(function() {
-                            $button.html(originalText);
-                        }, 2000);
-                    } else {
-                        // Show error message
-                        const errorMsg = response.data && response.data.message ? response.data.message : 'Unknown error occurred';
-                        alert('Failed to save event: ' + errorMsg);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Reset button
-                    $button.prop('disabled', false).html(originalText);
-                    
-                    // Show error message
-                    alert('Failed to save event: ' + error);
-                }
-            });
-        }
     };
 
     // Character counter functionality

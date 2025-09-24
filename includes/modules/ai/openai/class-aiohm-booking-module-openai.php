@@ -150,8 +150,8 @@ class AIOHM_BOOKING_Module_OpenAI extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 	protected function get_default_settings() {
 		return array(
 			'openai_api_key'     => '',
-			'openai_model'       => 'gpt-3.5-turbo',
-			'openai_max_tokens'  => 500,
+			'openai_model'       => '',
+			'openai_max_tokens'  => 1000,
 			'openai_temperature' => 0.7,
 		);
 	}
@@ -330,11 +330,40 @@ class AIOHM_BOOKING_Module_OpenAI extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 	}
 
 	/**
+	 * Enqueue admin assets
+	 */
+	public function enqueue_admin_assets() {
+		$screen = get_current_screen();
+		if ( ! $screen || strpos( $screen->id, 'aiohm-booking' ) === false ) {
+			return;
+		}
+
+		// Enqueue OpenAI admin JavaScript
+		wp_enqueue_script(
+			'aiohm-booking-openai-admin',
+			plugin_dir_url( __FILE__ ) . 'assets/js/aiohm-booking-openai-admin.js',
+			array( 'jquery' ),
+			AIOHM_BOOKING_VERSION,
+			true
+		);
+
+		// Localize script with necessary data
+		wp_localize_script(
+			'aiohm-booking-openai-admin',
+			'aiohm_openai',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'aiohm_booking_test_ai_connection' ),
+			)
+		);
+	}
+
+	/**
 	 * Test API connection
 	 */
 	public function test_connection() {
 		// Verify nonce.
-		$nonce_check = wp_verify_nonce( $_POST['nonce'] ?? '', 'aiohm_booking_test_openai' );
+		$nonce_check = wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_booking_test_ai_connection' );
 
 		if ( ! $nonce_check ) {
 			wp_send_json_error( 'Security check failed' );

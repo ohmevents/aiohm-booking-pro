@@ -1057,6 +1057,12 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 	 * Common method to save Stripe settings data
 	 */
 	private function save_stripe_settings_data() {
+		// Verify nonce for security (covers both regular and AJAX saves)
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) ), 'aiohm_booking_save_settings' ) &&
+		     ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'admin_nonce' ) ) {
+			return;
+		}
+
 		$settings = array();
 
 		// Define the Stripe settings fields
@@ -1078,9 +1084,11 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 
 			// Check for settings in different possible locations
 			if ( isset( $_POST['aiohm_booking_settings'][$field] ) ) {
-				$value = wp_unslash( $_POST['aiohm_booking_settings'][$field] );
+				$raw_value = wp_unslash( $_POST['aiohm_booking_settings'][$field] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$value = is_array( $raw_value ) ? $raw_value : sanitize_text_field( $raw_value );
 			} elseif ( isset( $_POST[$field] ) ) {
-				$value = wp_unslash( $_POST[$field] );
+				$raw_value = wp_unslash( $_POST[$field] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$value = is_array( $raw_value ) ? $raw_value : sanitize_text_field( $raw_value );
 			}
 
 			// Sanitize based on type

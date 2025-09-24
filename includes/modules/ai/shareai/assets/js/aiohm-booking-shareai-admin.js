@@ -44,9 +44,8 @@
             // Remove existing result
             this.removeExistingResult();
 
-            // Get the nonce
-            var nonce = (window.aiohm_shareai && window.aiohm_shareai.nonce) || 
-                       (window.aiohm_booking_admin && window.aiohm_booking_admin.nonce) || '';
+            // Get the nonce from the button's data attribute
+            var nonce = $button.data('nonce') || window.aiohm_shareai.nonce || '';
 
             $.ajax({
                 url: ajaxurl,

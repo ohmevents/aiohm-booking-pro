@@ -1184,16 +1184,12 @@
         padding: var(--spacing-4);
     }
     
-    .aiohm-booking-admin .form-table th,
-    .aiohm-booking-admin .form-table th,
     .aiohm-booking-global-settings .form-table th {
         width: auto;
         display: block;
         padding-bottom: var(--spacing-1);
     }
     
-    .aiohm-booking-admin .form-table td,
-    .aiohm-booking-admin .form-table td,
     .aiohm-booking-global-settings .form-table td {
         display: block;
         padding-top: 0;
@@ -1201,12 +1197,6 @@
 }
 
 @media (width <= 480px) {
-    .aiohm-booking-admin .button,
-    .aiohm-booking-admin .button {
-        width: 100%;
-        justify-content: center;
-    }
-    
     .aiohm-header-actions {
         flex-direction: column;
         width: 100%;
@@ -3193,8 +3183,6 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
 
 /* Responsive Design */
 @media (width <= 1200px) {
-    .aiohm-booking-accommodation-admin .aiohm-events-grid,
-    .aiohm-accommodation-admin .aiohm-events-grid,
     .aiohm-accommodation-container .aiohm-events-grid {
         grid-template-columns: 1fr;
         max-width: 100%;
@@ -3265,8 +3253,6 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
 }
 
 @media (width <= 768px) {
-    .aiohm-booking-accommodation-admin .aiohm-events-grid,
-    .aiohm-accommodation-admin .aiohm-events-grid,
     .aiohm-accommodation-container .aiohm-events-grid {
         gap: var(--spacing-4);
         margin: var(--spacing-4) 0;
@@ -3310,8 +3296,6 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
 }
 
 @media (width <= 480px) {
-    .aiohm-booking-accommodation-admin .aiohm-events-grid,
-    .aiohm-accommodation-admin .aiohm-events-grid,
     .aiohm-accommodation-container .aiohm-events-grid {
         gap: var(--spacing-3);
     }
@@ -3363,15 +3347,6 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
         display: none;
     }
     
-    .aiohm-booking-accommodation-admin .aiohm-events-grid,
-    .aiohm-accommodation-admin .aiohm-events-grid,
-    .aiohm-accommodation-container .aiohm-events-grid {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-4);
-    }
-    
-    .aiohm-booking-accommodation-admin .aiohm-events-grid,
-    .aiohm-accommodation-admin .aiohm-events-grid,
     .aiohm-accommodation-container .aiohm-events-grid {
         grid-template-columns: 1fr;
         gap: var(--spacing-4);
@@ -3383,38 +3358,6 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
     }
 }
 
-/* Tickets Admin Page - Specific responsive rules */
-.aiohm-booking-tickets-admin .aiohm-events-grid {
-    display: grid;
-    grid-template-columns: 1fr; /* Single column layout for wider events */
-    gap: var(--spacing-6);
-    margin: var(--spacing-6) 0;
-    padding: 0;
-}
-
-.aiohm-booking-tickets-admin .aiohm-events-grid .aiohm-booking-event-settings {
-    margin-bottom: var(--spacing-4);
-}
-
-@media (width <= 1200px) {
-    .aiohm-booking-tickets-admin .aiohm-events-grid {
-        grid-template-columns: 1fr; /* Maintain single column on all screen sizes */
-        gap: var(--spacing-4);
-    }
-}
-
-@media (width <= 768px) {
-    .aiohm-booking-tickets-admin .aiohm-events-grid {
-        grid-template-columns: 1fr; /* Single column for mobile */
-        gap: var(--spacing-4);
-        margin: var(--spacing-4) 0;
-    }
-    
-    .aiohm-booking-tickets-admin .aiohm-columns-2 {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-3);
-    }
-}
 
 /* ==========================================================================
    ACCOMMODATIONS PAGE - Accommodation management and configuration
@@ -3513,8 +3456,6 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
 }
 
 /* Accommodation Module Grid Layout - Two Column Layout for All Cards */
-.aiohm-booking-accommodation-admin .aiohm-events-grid,
-.aiohm-accommodation-admin .aiohm-events-grid,
 .aiohm-accommodation-container .aiohm-events-grid {
     display: grid;
     grid-template-columns: 1fr 1fr !important;
@@ -3972,26 +3913,6 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
     border-color: var(--status-paid);
 }
 
-/* Alternative Save Section */
-.aiohm-booking-admin form > div[style*="text-align: center"] {
-    text-align: center !important;
-    margin-top: var(--spacing-8) !important;
-    padding: var(--spacing-5) !important;
-    background: var(--ohm-gray-50) !important;
-    border-radius: var(--border-radius-lg) !important;
-    border: 1px solid var(--ohm-gray-200);
-}
-
-.aiohm-booking-admin form > div[style*="text-align: center"] p {
-    margin: 0 0 var(--spacing-4) 0 !important;
-    color: var(--ohm-gray-600) !important;
-    font-size: var(--ohm-font-size-sm) !important;
-}
-
-.aiohm-booking-admin form > div[style*="text-align: center"] strong {
-    color: var(--ohm-primary);
-    font-weight: var(--ohm-font-weight-bold);
-}
 
 /* Save Button Enhanced */
 .aiohm-save-button {
@@ -4034,8 +3955,6 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
 }
 
 @media (width <= 768px) {
-    .aiohm-booking-accommodation-admin .aiohm-events-grid,
-    .aiohm-accommodation-admin .aiohm-events-grid,
     .aiohm-accommodation-container .aiohm-events-grid {
         grid-template-columns: 1fr;
     }
@@ -6820,11 +6739,6 @@ input[type="color"]::-moz-color-swatch {
 
 /* Responsive Design */
 @media (width <= 1200px) {
-    .aiohm-booking-admin .aiohm-module-grid {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-4);
-    }
-    
     .aiohm-form-customization-grid {
         grid-template-columns: 1fr;
         gap: var(--spacing-4);
@@ -6855,15 +6769,6 @@ input[type="color"]::-moz-color-swatch {
 }
 
 @media (width <= 768px) {
-    .aiohm-booking-admin .aiohm-module-grid {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-3);
-    }
-    
-    .aiohm-booking-admin .aiohm-module-grid .aiohm-module-card {
-        padding: var(--spacing-4);
-    }
-    
     .aiohm-module-header {
         flex-direction: column;
         align-items: flex-start;
@@ -6917,10 +6822,6 @@ input[type="color"]::-moz-color-swatch {
 }
 
 @media (width <= 480px) {
-    .aiohm-booking-admin .aiohm-card {
-        padding: var(--spacing-3);
-    }
-    
     .aiohm-card__header,
     .aiohm-card__content {
         padding: var(--spacing-3);
@@ -6968,11 +6869,6 @@ input[type="color"]::-moz-color-swatch {
     .aiohm-form-preview,
     .aiohm-individual-save-btn {
         display: none;
-    }
-    
-    .aiohm-booking-admin .aiohm-module-grid {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-3);
     }
     
     .aiohm-accommodation-item {
@@ -8074,17 +7970,6 @@ input[type="color"]::-moz-color-swatch {
     }
 }
 
-/* Notification provider select with caret */
-.aiohm-booking-admin .notification-provider-select,
-.aiohm-booking-admin .enhanced-select {
-    appearance: none !important;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%236b7280' d='m0 0 2 2 2-2z'/></svg>") !important;
-    background-repeat: no-repeat !important;
-    background-position: right var(--spacing-3) center !important;
-    background-size: 12px !important;
-    padding-right: var(--spacing-10) !important;
-    cursor: pointer !important;
-}
 
 /* Responsive design for notifications */
 @media (width <= 1200px) {
@@ -9803,15 +9688,6 @@ form.has-unsaved-changes::before {
 
 
 
-/* Fix WordPress Admin Bar Overlap */
-.aiohm-booking-admin {
-    margin-top: 20px !important;
-}
-
-/* When admin bar is present, add more spacing */
-body.admin-bar .aiohm-booking-admin {
-    margin-top: 40px !important;
-}
 
 /* Booking Settings Subsections */
 .aiohm-settings-subsection {
@@ -9925,71 +9801,7 @@ body.admin-bar .aiohm-booking-admin {
 
 /* ===== NEW ORDERS PAGE SPECIFIC STYLES ===== */
 
-/* Admin Header Styles - Universal header for all admin pages */
-.aiohm-booking-admin-header {
-    margin-bottom: var(--spacing-6);
-    padding-bottom: var(--spacing-4);
-    border-bottom: 2px solid var(--ohm-light-accent);
-}
 
-.aiohm-booking-admin-header-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-4);
-    text-align: center;
-}
-
-.aiohm-booking-admin-logo {
-    flex-shrink: 0;
-}
-
-.aiohm-booking-admin-header-logo {
-    height: 48px;
-    width: auto;
-    max-width: 48px;
-}
-
-.aiohm-booking-admin-header-text {
-    flex: 1;
-}
-
-.aiohm-booking-admin-header-text h1 {
-    margin: 0 0 var(--spacing-2) 0;
-    font-size: var(--ohm-font-size-3xl);
-    line-height: var(--ohm-line-height-tight);
-    color: var(--ohm-dark-accent);
-}
-
-.aiohm-booking-admin-tagline {
-    font-size: var(--ohm-font-size-lg);
-    color: var(--ohm-muted-accent);
-    font-weight: 400;
-    margin: 0;
-    line-height: 1.4;
-}
-
-/* Admin Card Styles - Unified card for all admin pages */
-.aiohm-booking-admin-card {
-    background: var(--ohm-white);
-    border: none;
-    border-left: var(--spacing-1_5) solid var(--ohm-card-border);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-6);
-    margin-bottom: var(--spacing-5);
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-shadow);
-}
-
-.aiohm-booking-admin-card:hover {
-    box-shadow: var(--shadow-md);
-}
-
-.aiohm-booking-admin-card h3 {
-    font-family: var(--ohm-font-primary);
-    color: var(--ohm-dark-accent);
-    margin-top: 0;
-}
 
 /* Orders Stats Styles */
 .aiohm-booking-orders-stats {
@@ -10250,21 +10062,6 @@ body.admin-bar .aiohm-booking-admin {
    ============================================================================ */
 
 
-/* FORCE OVERRIDE AI INSIGHTS CARD STYLING - FINAL OVERRIDE */
-.wrap.aiohm-booking-admin div.aiohm-booking-card.aiohm-ai-insights-card {
-    background: var(--ohm-white) !important;
-    border: 1px solid var(--ohm-gray-200) !important;
-    border-left: 4px solid var(--ohm-card-border) !important;
-    border-radius: var(--border-radius) !important;
-    padding: var(--spacing-6) !important;
-    margin: var(--spacing-6) 0 var(--spacing-5) 0 !important;
-    box-shadow: var(--shadow-sm) !important;
-    color: var(--ohm-gray-900) !important;
-}
-
-.wrap.aiohm-booking-admin div.aiohm-booking-card.aiohm-ai-insights-card .aiohm-ai-status {
-    color: rgb(255 255 255 / 90%) !important;
-}
 
 /* Fix Bulk Actions inline layout */
 .tablenav .alignleft.actions.bulkactions {
@@ -10904,7 +10701,7 @@ body.admin-bar .aiohm-booking-admin {
 
 .aiohm-card-footer-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: center;
 }
 
@@ -11455,11 +11252,29 @@ body.admin-bar .aiohm-booking-admin {
 	backdrop-filter: blur(5px);
 	border: 1px solid rgb(255 255 255 / 20%);
 	transition: all 0.2s ease;
+	object-fit: contain;
 }
 
 .provider-icon:hover {
 	transform: scale(1.05);
 	background: rgb(255 255 255 / 15%);
+}
+
+.provider-icon-fallback {
+	width: 32px;
+	height: 32px;
+	border-radius: 6px;
+	background: rgb(255 255 255 / 10%);
+	padding: 4px;
+	backdrop-filter: blur(5px);
+	border: 1px solid rgb(255 255 255 / 20%);
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px;
+	font-weight: 600;
+	color: rgb(255 255 255 / 80%);
 }
 
 .ai-provider-name {
@@ -11518,7 +11333,8 @@ body.admin-bar .aiohm-booking-admin {
 		text-align: center;
 	}
 
-	.provider-icon {
+	.provider-icon,
+	.provider-icon-fallback {
 		width: 28px;
 		height: 28px;
 	}
