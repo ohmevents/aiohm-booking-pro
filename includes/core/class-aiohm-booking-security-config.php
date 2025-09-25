@@ -3,9 +3,9 @@
  * AIOHM Booking Security Configuration
  * Centralized security settings and constants.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.1.1
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -179,7 +179,7 @@ class AIOHM_BOOKING_Security_Config {
 	/**
 	 * Get security logs for admin review
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @return array Security logs
 	 */
 	public static function get_security_logs() {
@@ -189,7 +189,7 @@ class AIOHM_BOOKING_Security_Config {
 	/**
 	 * Clear security logs
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @return bool Success
 	 */
 	public static function clear_security_logs() {

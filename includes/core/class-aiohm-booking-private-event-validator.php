@@ -6,8 +6,8 @@
  * Handles the complex logic of validating accommodation selections
  * against private event requirements.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  *
  * @author OHM Events Agency <https://www.ohm.events>
  * @copyright  2025 AIOHM
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Centralizes private event validation logic that was previously
  * duplicated across multiple calendar rules and validators.
  *
- * @since 1.2.3
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Private_Event_Validator {
 
@@ -41,7 +41,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	 * Central method that replaces duplicate validation logic across
 	 * the date range validator and calendar rules.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $selected_accommodations Array of selected accommodation IDs.
 	 * @param array $private_events Array of private event dates and data.
@@ -91,7 +91,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Validate single date against private events
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $date Date in Y-m-d format.
 	 * @param array  $selected_accommodations Array of selected accommodation IDs.
@@ -146,7 +146,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Validate date range against private events
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $start_date Start date in Y-m-d format.
 	 * @param string $end_date End date in Y-m-d format.
@@ -163,7 +163,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Check if selection constitutes full property booking
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param int  $selected_count Number of selected accommodations.
 	 * @param int  $total_count Total available accommodations.
@@ -177,7 +177,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Build error data for private event restriction
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $private_events Private event data.
 	 * @param int   $selected_count Number of selected accommodations.
@@ -227,7 +227,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Get private events for a specific date
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $date Date in Y-m-d format.
 	 * @return array Private events for the date
@@ -253,7 +253,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Get private events in date range
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $start_date Start date in Y-m-d format.
 	 * @param string $end_date End date in Y-m-d format.
@@ -281,7 +281,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Generate validation messages for multi-day booking
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $private_event_dates Array of dates with private events.
 	 * @param array $selected_accommodations Array of selected accommodations.
@@ -310,7 +310,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Check if private events exist in cell statuses
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $cell_statuses Cell statuses data.
 	 * @return bool True if private events exist
@@ -332,7 +332,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Get all private event dates
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @return array Array of dates with private events
 	 */
@@ -359,7 +359,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Convert validation result to WP_Error if failed
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $validation_result Result from validation method.
 	 * @return bool|WP_Error True if passed, WP_Error if failed
@@ -378,7 +378,7 @@ class AIOHM_BOOKING_Private_Event_Validator {
 	/**
 	 * Get validation statistics
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @return array Statistics about private event validations
 	 */

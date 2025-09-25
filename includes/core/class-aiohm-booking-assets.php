@@ -2,9 +2,9 @@
 /**
  * Assets management class for AIOHM Booking.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.0.0
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Assets management class.
  *
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Assets {
 
@@ -545,17 +545,25 @@ class AIOHM_BOOKING_Assets {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- URL parameter for read-only booking display
 				( isset( $_GET['booking_id'] ) ? absint( $_GET['booking_id'] ) : 0 );
 
+			// Check if user has premium access
+			$is_premium_user = false;
+			if ( function_exists( 'aiohm_booking_fs' ) ) {
+				$is_premium_user = aiohm_booking_fs()->can_use_premium_code__premium_only();
+			}
+
 			wp_localize_script(
 				'aiohm-booking-frontend',
 				'aiohm_booking_frontend', // Changed to match checkout.js expectations.
 				array(
-					'ajax_url'   => admin_url( 'admin-ajax.php' ),
-					'rest_url'   => rest_url( 'aiohm-booking/v1/' ),
-					'nonce'      => wp_create_nonce( 'aiohm_booking_frontend_nonce' ),
+					'ajax_url'        => admin_url( 'admin-ajax.php' ),
+					'rest_url'        => rest_url( 'aiohm-booking/v1/' ),
+					'nonce'           => wp_create_nonce( 'aiohm_booking_frontend_nonce' ),
 					// Use properly sanitized booking ID
-					'booking_id' => $localization_booking_id,
+					'booking_id'      => $localization_booking_id,
+					// Premium user status for navigation logic
+					'is_premium_user' => $is_premium_user,
 					// Add i18n translations.
-					'i18n'       => array(
+					'i18n'            => array(
 						'select_payment_method'  => __( 'Please select a payment method.', 'aiohm-booking-pro' ),
 						'invalid_booking_id'     => __( 'Invalid booking ID.', 'aiohm-booking-pro' ),
 						'processing'             => __( 'Processing...', 'aiohm-booking-pro' ),
@@ -564,6 +572,18 @@ class AIOHM_BOOKING_Assets {
 						'payment_failed'         => __( 'Payment failed. Please try again.', 'aiohm-booking-pro' ),
 						'unknown_payment_method' => __( 'Unknown payment method selected.', 'aiohm-booking-pro' ),
 					),
+				)
+			);
+
+			// Also localize for compatibility with legacy JavaScript that expects 'aiohm_booking' object
+			wp_localize_script(
+				'aiohm-booking-frontend-base',
+				'aiohm_booking',
+				array(
+					'ajax_url'        => admin_url( 'admin-ajax.php' ),
+					'nonce'           => wp_create_nonce( 'aiohm_booking_frontend_nonce' ),
+					'booking_id'      => $localization_booking_id,
+					'is_premium_user' => $is_premium_user,
 				)
 			);
 
@@ -616,7 +636,7 @@ class AIOHM_BOOKING_Assets {
 	/**
 	 * Get asset URL.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param string $path Asset path relative to plugin assets directory.
 	 *
@@ -629,7 +649,7 @@ class AIOHM_BOOKING_Assets {
 	/**
 	 * Get asset path.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param string $path Asset path relative to plugin assets directory.
 	 *
@@ -642,7 +662,7 @@ class AIOHM_BOOKING_Assets {
 	/**
 	 * Suppress jQuery Migrate warnings for this plugin.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 */
 	public function suppress_jquery_migrate_warnings() {
 		// Output early JavaScript to fix jQuery migrate compatibility

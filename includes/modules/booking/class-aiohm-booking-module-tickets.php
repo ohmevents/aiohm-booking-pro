@@ -5,7 +5,7 @@
  * Comprehensive ticket sales management for events, workshops, concerts, classes, conferences,
  * experiences, and activities with advanced booking features and customizable forms.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  * @since 2.0.0
  */
 
@@ -183,6 +183,14 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			'aiohm-booking-admin',
 			AIOHM_BOOKING_URL . 'assets/css/aiohm-booking-admin.css',
 			array(),
+			AIOHM_BOOKING_VERSION
+		);
+
+		// Also enqueue unified CSS for additional styling.
+		wp_enqueue_style(
+			'aiohm-booking-unified',
+			AIOHM_BOOKING_URL . 'assets/css/aiohm-booking-unified.css',
+			array( 'aiohm-booking-admin' ),
 			AIOHM_BOOKING_VERSION
 		);
 
@@ -398,7 +406,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 				<td><input type="date" id="aiohm_event_early_bird_date" name="aiohm_event_early_bird_date" value="<?php echo esc_attr( $early_bird_date ); ?>" /></td>
 			</tr>
 			<tr>
-				<th><label for="aiohm_event_available_seats"><?php esc_html_e( 'Available Seats', 'aiohm-booking-pro' ); ?></label></th>
+				<th><label for="aiohm_event_available_seats"><?php esc_html_e( 'Available Tickets', 'aiohm-booking-pro' ); ?></label></th>
 				<td><input type="number" id="aiohm_event_available_seats" name="aiohm_event_available_seats" value="<?php echo esc_attr( $available_seats ); ?>" /></td>
 			</tr>
 			<tr>
@@ -824,12 +832,49 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 						}
 					}
 
-					// Calculate total available seats
-					$total_seats = 0;
+					// Calculate total available tickets
+					$total_tickets = 0;
 					foreach ( $events_data as $event ) {
 						if ( ! empty( $event['available_seats'] ) ) {
-							$total_seats += intval( $event['available_seats'] );
+							$total_tickets += intval( $event['available_seats'] );
 						}
+					}
+					
+					// Calculate additional statistics
+					global $wpdb;
+					$table_name = $wpdb->prefix . 'aiohm_booking_order';
+					$total_revenue = 0;
+					$tickets_sold = 0;
+					$pending_orders = 0;
+					
+					// Check if orders table exists before querying
+					if ( $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) ) {
+						// Get total revenue from paid orders
+						$total_revenue = $wpdb->get_var( $wpdb->prepare( 
+							'SELECT SUM(total_amount) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status = %s', 
+							'paid' 
+						) );
+						$total_revenue = floatval( $total_revenue );
+						
+						// Get tickets sold from paid orders
+						$tickets_sold = $wpdb->get_var( $wpdb->prepare( 
+							'SELECT SUM(guests_qty) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status = %s AND mode = %s', 
+							'paid', 'tickets' 
+						) );
+						$tickets_sold = intval( $tickets_sold );
+						
+						// Get pending orders count
+						$pending_orders = $wpdb->get_var( $wpdb->prepare( 
+							'SELECT COUNT(*) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status != %s', 
+							'paid' 
+						) );
+						$pending_orders = intval( $pending_orders );
+					}
+					
+					// Calculate occupancy rate
+					$occupancy_rate = 0;
+					if ( $total_tickets > 0 ) {
+						$occupancy_rate = round( ( $tickets_sold / $total_tickets ) * 100, 1 );
 					}
 					?>
 					<div class="aiohm-booking-orders-stat">
@@ -841,14 +886,27 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 						<div class="label"><?php esc_html_e( 'Upcoming Events', 'aiohm-booking-pro' ); ?></div>
 					</div>
 					<div class="aiohm-booking-orders-stat">
-						<div class="number"><?php echo esc_html( $total_seats ); ?></div>
-						<div class="label"><?php esc_html_e( 'Total Seats', 'aiohm-booking-pro' ); ?></div>
+						<div class="number"><?php echo esc_html( $total_tickets ); ?></div>
+						<div class="label"><?php esc_html_e( 'Total Tickets', 'aiohm-booking-pro' ); ?></div>
+					</div>
+					<div class="aiohm-booking-orders-stat">
+						<div class="number"><?php echo esc_html( $tickets_sold ); ?></div>
+						<div class="label"><?php esc_html_e( 'Tickets Sold', 'aiohm-booking-pro' ); ?></div>
+					</div>
+					<div class="aiohm-booking-orders-stat">
+						<div class="number"><?php echo esc_html( number_format( $total_revenue, 2 ) ); ?></div>
+						<div class="label"><?php esc_html_e( 'Total Revenue', 'aiohm-booking-pro' ); ?></div>
+					</div>
+					<div class="aiohm-booking-orders-stat">
+						<div class="number"><?php echo esc_html( $occupancy_rate . '%' ); ?></div>
+						<div class="label"><?php esc_html_e( 'Occupancy Rate', 'aiohm-booking-pro' ); ?></div>
+					</div>
+					<div class="aiohm-booking-orders-stat">
+						<div class="number"><?php echo esc_html( $pending_orders ); ?></div>
+						<div class="label"><?php esc_html_e( 'Pending Orders', 'aiohm-booking-pro' ); ?></div>
 					</div>
 				</div>
 			</div>
-
-			<!-- Booking Settings Section -->
-			<?php $this->render_booking_settings_section(); ?>
 
 			<!-- Event Management Section -->
 			<div class="aiohm-booking-admin-card">
@@ -879,6 +937,9 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 				</div>
 				</form>
 			</div>
+
+			<!-- Booking Settings Section -->
+			<?php $this->render_booking_settings_section(); ?>
 
 			<!-- Form Customization Section -->
 			<?php
@@ -1013,7 +1074,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			'form_data'           => $form_data,
 			'fields_definition'   => $fields_definition,
 			'shortcode_preview'   => '[aiohm_booking enable_tickets="true" enable_accommodations="false"]',
-			'nonce_action'        => 'aiohm_booking_save_form_settings',
+			'nonce_action'        => 'save_form_settings',
 			'nonce_name'          => 'aiohm_form_settings_nonce',
 			'option_name'         => 'aiohm_booking_tickets_form_settings',
 		);
@@ -1163,7 +1224,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	/**
 	 * Get ticket statistics.
 	 *
-	 * Calculates and returns statistics about tickets including total seats
+	 * Calculates and returns statistics about tickets including total tickets
 	 * available, tickets sold, events today, and upcoming events.
 	 *
 	 * @since 2.0.0
@@ -1174,12 +1235,12 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		$events_data = $this->get_events_data_compatible();
 		$today       = current_time( 'Y-m-d' );
 
-		$total_seats     = 0;
+		$total_tickets   = 0;
 		$events_today    = 0;
 		$upcoming_events = 0;
 
 		foreach ( $events_data as $event ) {
-			$total_seats += intval( $event['available_seats'] ?? 0 );
+			$total_tickets += intval( $event['available_seats'] ?? 0 );
 
 			if ( ! empty( $event['event_date'] ) ) {
 				if ( $event['event_date'] === $today ) {
@@ -1194,13 +1255,13 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		// Check if orders table exists before querying.
 		$table_name = $wpdb->prefix . 'aiohm_booking_order';
 		if ( $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) ) {	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for ticket lookup
-			$tickets_sold = $wpdb->get_var( $wpdb->prepare( 'SELECT SUM(tickets_qty) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status = %s', 'paid' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for plugin functionality
+			$tickets_sold = $wpdb->get_var( $wpdb->prepare( 'SELECT SUM(guests_qty) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status = %s AND mode = %s', 'paid', 'tickets' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for plugin functionality
 		} else {
 			$tickets_sold = 0;
 		}
 
 		return array(
-			'total_seats'     => $total_seats,
+			'total_tickets'   => $total_tickets,
 			'tickets_sold'    => intval( $tickets_sold ),
 			'events_today'    => $events_today,
 			'upcoming_events' => $upcoming_events,
@@ -1228,6 +1289,9 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	 * @since 2.0.0
 	 */
 	public function save_individual_event() {
+		// Add error debugging
+
+		
 		if ( ! check_ajax_referer( 'aiohm_booking_admin_nonce', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => 'Nonce verification failed.' ) );
 			return;
@@ -1249,10 +1313,20 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 
 		$event_data = $posted_events[ $event_index ];
 
-		$events = $this->get_events_data_compatible();
+		try {
+			$events = $this->get_events_data_compatible();
+		} catch ( Exception $e ) {
+			wp_send_json_error( array( 'message' => 'Error retrieving events data: ' . $e->getMessage() ) );
+			return;
+		}
 
 		// Sanitize teachers data separately as it contains URLs and needs specific handling.
-		$teachers = isset( $event_data['teachers'] ) && is_array( $event_data['teachers'] ) ? $this->sanitize_teachers_data( $event_data['teachers'] ) : array();
+		try {
+			$teachers = isset( $event_data['teachers'] ) && is_array( $event_data['teachers'] ) ? $this->sanitize_teachers_data( $event_data['teachers'] ) : array();
+		} catch ( Exception $e ) {
+			wp_send_json_error( array( 'message' => 'Error processing teachers data: ' . $e->getMessage() ) );
+			return;
+		}
 
 		$event_data_sanitized = array(
 			'title'              => substr( sanitize_text_field( $event_data['title'] ?? '' ), 0, 50 ),
@@ -1315,7 +1389,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	/**
 	 * AJAX handler for deleting an event.
 	 *
-	 * @since 1.2.6
+	 * @since  2.0.0
 	 */
 	public function ajax_delete_event() {
 		if ( ! check_ajax_referer( 'aiohm_booking_admin_nonce', 'nonce', false ) ) {
@@ -1368,7 +1442,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	/**
 	 * AJAX handler for incrementing the event count.
 	 *
-	 * @since 1.2.6
+	 * @since  2.0.0
 	 */
 	public function ajax_increment_event_count() {
 		if ( ! check_ajax_referer( 'aiohm_booking_admin_nonce', 'nonce', false ) ) {
@@ -1478,6 +1552,11 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 
 		// Update the events data in the database
 		update_option( 'aiohm_booking_events_data', $events_data );
+
+		// Clear any cached queries to ensure new event appears immediately in shortcode
+		clean_post_cache( $cloned_post_id );
+		wp_cache_delete( 'aiohm_booking_event', 'posts' );
+		wp_cache_flush();
 
 		// Update the number of events in global settings
 		$global_settings = AIOHM_BOOKING_Settings::get_all();
@@ -1619,12 +1698,21 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		$sanitized = array();
 		foreach ( $teachers as $teacher ) {
 			if ( is_array( $teacher ) ) {
-				$photo_url = esc_url_raw( $teacher['photo'] ?? '' );
-
-				// Force HTTPS for image URLs to prevent mixed content issues on SSL sites.
-				if ( is_ssl() && ! empty( $photo_url ) ) {
-					$photo_url = set_url_scheme( $photo_url, 'https' );
+				$photo_data = $teacher['photo'] ?? '';
+				
+				// Handle base64 data URLs (uploaded images)
+				if ( strpos( $photo_data, 'data:image/' ) === 0 ) {
+					// Process base64 image data
+					$photo_url = $this->handle_base64_image_upload( $photo_data );
+				} else {
+					// Handle regular URLs
+					$photo_url = esc_url_raw( $photo_data );
+					// Force HTTPS for image URLs to prevent mixed content issues on SSL sites.
+					if ( is_ssl() && ! empty( $photo_url ) ) {
+						$photo_url = set_url_scheme( $photo_url, 'https' );
+					}
 				}
+				
 				$sanitized[] = array(
 					'name'  => substr( sanitize_text_field( $teacher['name'] ?? '' ), 0, 50 ),
 					'photo' => $photo_url,
@@ -1633,6 +1721,94 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Handle base64 image upload from teacher photo field
+	 * 
+	 * @since 2.0.0
+	 * @param string $base64_data Base64 encoded image data URL
+	 * @return string URL of uploaded image or empty string on error
+	 */
+	private function handle_base64_image_upload( $base64_data ) {
+		try {
+			// Extract the base64 data and mime type
+			$data_parts = explode( ',', $base64_data );
+			if ( count( $data_parts ) !== 2 ) {
+				return '';
+			}
+
+			$header = $data_parts[0];
+			$data = $data_parts[1];
+
+			// Extract mime type from header
+			if ( ! preg_match( '/data:(image\/[^;]+);base64/', $header, $matches ) ) {
+				return '';
+			}
+			
+			$mime_type = $matches[1];
+			$allowed_types = array( 'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp' );
+			
+			if ( ! in_array( $mime_type, $allowed_types ) ) {
+				return '';
+			}
+
+			// Decode base64 data
+			$image_data = base64_decode( $data );
+			if ( $image_data === false ) {
+				return '';
+			}
+
+			// Check file size (limit to 5MB)
+			if ( strlen( $image_data ) > 5 * 1024 * 1024 ) {
+				return '';
+			}
+
+			// Generate filename
+			$extension = '';
+			switch ( $mime_type ) {
+				case 'image/jpeg':
+				case 'image/jpg':
+					$extension = 'jpg';
+					break;
+				case 'image/png':
+					$extension = 'png';
+					break;
+				case 'image/gif':
+					$extension = 'gif';
+					break;
+				case 'image/webp':
+					$extension = 'webp';
+					break;
+			}
+
+			$filename = 'aiohm_teacher_' . uniqid() . '.' . $extension;
+			
+			// Use WordPress upload functionality with custom subdirectory
+			$upload_dir = wp_upload_dir();
+			$aiohm_dir = $upload_dir['basedir'] . '/aiohm-booking/teachers';
+			$aiohm_url = $upload_dir['baseurl'] . '/aiohm-booking/teachers';
+			
+			// Create directory if it doesn't exist
+			if ( ! file_exists( $aiohm_dir ) ) {
+				wp_mkdir_p( $aiohm_dir );
+				// Add index.php for security
+				file_put_contents( $aiohm_dir . '/index.php', '<?php // Silence is golden' );
+			}
+			
+			$file_path = $aiohm_dir . '/' . $filename;
+			$file_url = $aiohm_url . '/' . $filename;
+
+			// Write file
+			if ( file_put_contents( $file_path, $image_data ) === false ) {
+				return '';
+			}
+
+			return $file_url;
+
+		} catch ( Exception $e ) {
+			return '';
+		}
 	}
 
 	/**
@@ -1718,11 +1894,35 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			'title'  => 'Euro',
 		);
 		$currency_symbol  = $current_currency['symbol'];
+		
+		// Generate event type color
+		$event_type_color = $this->get_event_type_color( $event['event_type'], $index );
 		?>
-		<div class="aiohm-booking-event-settings aiohm-booking-admin-card" data-event-index="<?php echo esc_attr( $index ); ?>">
+		<div class="aiohm-booking-event-settings aiohm-booking-admin-card aiohm-collapsed" 
+			 data-event-index="<?php echo esc_attr( $index ); ?>"
+			 <?php if ( ! empty( $event['event_type'] ) ) : ?>
+			 data-event-type-color="<?php echo esc_attr( $event_type_color ); ?>"
+			 style="--event-type-color: <?php echo esc_attr( $event_type_color ); ?>;"
+			 <?php endif; ?>>
 			<!-- Event Header -->
 			<div class="aiohm-card-header aiohm-event-card-header">
 				<div class="aiohm-card-header-title">
+					<?php if ( ! empty( $event['event_type'] ) ) : ?>
+						<div class="aiohm-event-type-badge-container">
+							<span class="aiohm-event-type-badge" 
+								  style="background-color: <?php echo esc_attr( $event_type_color ); ?>;" 
+								  data-event-type="<?php echo esc_attr( $event['event_type'] ); ?>"
+								  data-event-index="<?php echo esc_attr( $index ); ?>">
+								<?php echo esc_html( $event['event_type'] ); ?>
+							</span>
+							<input type="color" 
+								   class="aiohm-event-type-color-picker" 
+								   value="<?php echo esc_attr( $event_type_color ); ?>" 
+								   data-event-type="<?php echo esc_attr( $event['event_type'] ); ?>"
+								   data-event-index="<?php echo esc_attr( $index ); ?>"
+								   title="<?php esc_attr_e( 'Change event type color', 'aiohm-booking-pro' ); ?>">
+						</div>
+					<?php endif; ?>
 					<?php if ( ! empty( $event['event_date'] ) ) : ?>
 						<div class="aiohm-event-date-display">
 							<?php
@@ -1745,8 +1945,8 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 					</h3>
 				</div>
 				<div class="aiohm-card-header-actions">
-					<button type="button" class="aiohm-event-toggle-btn" data-event-index="<?php echo esc_attr( $index ); ?>" aria-label="<?php esc_attr_e( 'Collapse event details', 'aiohm-booking-pro' ); ?>" aria-expanded="true">
-						<span class="dashicons dashicons-arrow-up-alt2 aiohm-toggle-icon"></span>
+					<button type="button" class="aiohm-event-toggle-btn" data-event-index="<?php echo esc_attr( $index ); ?>" aria-label="<?php esc_attr_e( 'Expand event details', 'aiohm-booking-pro' ); ?>" aria-expanded="false">
+						<span class="dashicons dashicons-arrow-down-alt2 aiohm-toggle-icon"></span>
 					</button>
 				</div>
 			</div>
@@ -1883,7 +2083,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 
 						<div class="aiohm-columns-2">
 							<div class="aiohm-form-group">
-								<label><?php esc_html_e( 'Available Seats', 'aiohm-booking-pro' ); ?></label>
+								<label><?php esc_html_e( 'Available Tickets', 'aiohm-booking-pro' ); ?></label>
 								<input type="number" name="events[<?php echo esc_attr( $index ); ?>][available_seats]" value="<?php echo esc_attr( $event['available_seats'] ); ?>" min="1" max="10000" class="aiohm-number-input">
 							</div>
 							<div class="aiohm-form-group">
@@ -1971,7 +2171,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	/**
 	 * Check if AI modules are available for AI import functionality
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @return bool True if AI modules are available, false otherwise
 	 */
 	private function check_ai_modules_availability() {
@@ -2101,6 +2301,175 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	private function get_currency_setting() {
 		$settings = AIOHM_BOOKING_Settings::get_all();
 		return $settings['currency'] ?? 'EUR';
+	}
+
+	/**
+	 * Get event type color.
+	 *
+	 * Generates a consistent color for each event type using a hash-based approach.
+	 * Colors are stored in options to maintain consistency across sessions.
+	 *
+	 * @since 2.0.0
+	 * @param string $event_type The event type string.
+	 * @param int    $event_index The event index as fallback.
+	 * @return string Hex color code.
+	 */
+	private function get_event_type_color( $event_type, $event_index = 0 ) {
+		// Get stored event type colors
+		$stored_colors = get_option( 'aiohm_booking_event_type_colors', array() );
+		
+		// If event type is empty, return a default color
+		if ( empty( $event_type ) ) {
+			return '#6b7280'; // ohm-gray-500
+		}
+		
+		// If color already exists for this type, return it
+		if ( isset( $stored_colors[ $event_type ] ) ) {
+			return $stored_colors[ $event_type ];
+		}
+		
+		// Generate new color for this event type
+		$color = $this->generate_event_type_color( $event_type );
+		
+		// Store the color
+		$stored_colors[ $event_type ] = $color;
+		update_option( 'aiohm_booking_event_type_colors', $stored_colors );
+		
+		return $color;
+	}
+
+	/**
+	 * Generate a color for an event type using hash-based algorithm.
+	 *
+	 * @since 2.0.0
+	 * @param string $event_type The event type string.
+	 * @return string Hex color code.
+	 */
+	private function generate_event_type_color( $event_type ) {
+		// Predefined pleasant colors for common event types
+		$predefined_colors = array(
+			'breakfast'   => '#f59e0b', // amber-500
+			'lunch'       => '#10b981', // emerald-500  
+			'dinner'      => '#8b5cf6', // violet-500
+			'meeting'     => '#3b82f6', // blue-500
+			'workshop'    => '#06b6d4', // cyan-500
+			'conference'  => '#ef4444', // red-500
+			'concert'     => '#ec4899', // pink-500
+			'seminar'     => '#84cc16', // lime-500
+			'training'    => '#f97316', // orange-500
+			'party'       => '#a855f7', // purple-500
+		);
+		
+		// Check if we have a predefined color
+		$type_lower = strtolower( trim( $event_type ) );
+		if ( isset( $predefined_colors[ $type_lower ] ) ) {
+			return $predefined_colors[ $type_lower ];
+		}
+		
+		// Generate color from hash
+		$hash = md5( $event_type );
+		
+		// Extract RGB values from hash
+		$r = hexdec( substr( $hash, 0, 2 ) );
+		$g = hexdec( substr( $hash, 2, 2 ) );
+		$b = hexdec( substr( $hash, 4, 2 ) );
+		
+		// Adjust saturation and lightness for better visual appeal
+		// Convert to HSL, adjust, then back to RGB
+		list( $h, $s, $l ) = $this->rgb_to_hsl( $r, $g, $b );
+		
+		// Ensure good saturation (50-80%) and lightness (40-60%) for readability
+		$s = 0.5 + ( $s * 0.3 ); // 50-80%
+		$l = 0.4 + ( $l * 0.2 ); // 40-60%
+		
+		list( $r, $g, $b ) = $this->hsl_to_rgb( $h, $s, $l );
+		
+		return sprintf( '#%02x%02x%02x', $r, $g, $b );
+	}
+
+	/**
+	 * Convert RGB to HSL color space.
+	 *
+	 * @since 2.0.0
+	 * @param int $r Red component (0-255).
+	 * @param int $g Green component (0-255).
+	 * @param int $b Blue component (0-255).
+	 * @return array HSL values [h, s, l] where h is 0-1, s is 0-1, l is 0-1.
+	 */
+	private function rgb_to_hsl( $r, $g, $b ) {
+		$r /= 255;
+		$g /= 255;
+		$b /= 255;
+		
+		$max = max( $r, $g, $b );
+		$min = min( $r, $g, $b );
+		
+		$h = ( $max + $min ) / 2;
+		$s = ( $max + $min ) / 2;
+		$l = ( $max + $min ) / 2;
+		
+		if ( $max === $min ) {
+			$h = $s = 0; // achromatic
+		} else {
+			$d = $max - $min;
+			$s = $l > 0.5 ? $d / ( 2 - $max - $min ) : $d / ( $max + $min );
+			switch ( $max ) {
+				case $r:
+					$h = ( $g - $b ) / $d + ( $g < $b ? 6 : 0 );
+					break;
+				case $g:
+					$h = ( $b - $r ) / $d + 2;
+					break;
+				case $b:
+					$h = ( $r - $g ) / $d + 4;
+					break;
+			}
+			$h /= 6;
+		}
+		
+		return array( $h, $s, $l );
+	}
+
+	/**
+	 * Convert HSL to RGB color space.
+	 *
+	 * @since 2.0.0
+	 * @param float $h Hue (0-1).
+	 * @param float $s Saturation (0-1).
+	 * @param float $l Lightness (0-1).
+	 * @return array RGB values [r, g, b] where each component is 0-255.
+	 */
+	private function hsl_to_rgb( $h, $s, $l ) {
+		if ( $s === 0 ) {
+			$r = $g = $b = $l; // achromatic
+		} else {
+			$hue2rgb = function ( $p, $q, $t ) {
+				if ( $t < 0 ) {
+					$t += 1;
+				}
+				if ( $t > 1 ) {
+					$t -= 1;
+				}
+				if ( $t < 1/6 ) {
+					return $p + ( $q - $p ) * 6 * $t;
+				}
+				if ( $t < 1/2 ) {
+					return $q;
+				}
+				if ( $t < 2/3 ) {
+					return $p + ( $q - $p ) * ( 2/3 - $t ) * 6;
+				}
+				return $p;
+			};
+			
+			$q = $l < 0.5 ? $l * ( 1 + $s ) : $l + $s - $l * $s;
+			$p = 2 * $l - $q;
+			$r = $hue2rgb( $p, $q, $h + 1/3 );
+			$g = $hue2rgb( $p, $q, $h );
+			$b = $hue2rgb( $p, $q, $h - 1/3 );
+		}
+		
+		return array( round( $r * 255 ), round( $g * 255 ), round( $b * 255 ) );
 	}
 
 	/**
@@ -2268,7 +2637,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	/**
 	 * AJAX handler for processing event booking submissions from frontend
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 */
 	public function ajax_process_event_booking() {
 		// Verify security using centralized helper (only nonce for frontend)
@@ -2395,7 +2764,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			'check_in_date'  => $event_date, // Use event date as check-in for compatibility
 			'check_out_date' => $event_date, // Same day for events
 			'guests_qty'     => $ticket_quantity,
-			'rooms_qty'      => 1, // Always 1 for events
+			'units_qty'      => 1, // Always 1 for events
 			'total_amount'   => $total_amount,
 			'deposit_amount' => $deposit_amount,
 			'currency'       => $currency,
@@ -2477,7 +2846,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	 *
 	 * @param array $form_data Form data
 	 * @return int|WP_Error Booking ID on success, WP_Error on failure
-	 * @since 1.2.6
+	 * @since  2.0.0
 	 */
 	public function process_event_booking_part( $form_data ) {
 		// Extract event selection data - handle both single and multiple event selections
@@ -2581,7 +2950,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			'check_in_date'  => $event_date, // Use event date as check-in for compatibility
 			'check_out_date' => $event_date, // Same day for events
 			'guests_qty'     => $ticket_quantity,
-			'rooms_qty'      => 1, // Always 1 for events
+			'units_qty'      => 1, // Always 1 for events
 			'total_amount'   => $total_amount,
 			'deposit_amount' => $deposit_amount,
 			'currency'       => $currency,
@@ -2655,9 +3024,9 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	 * Update event availability when payment is completed
 	 *
 	 * This method is called when the 'aiohm_booking_payment_completed' action is triggered.
-	 * It updates the available seats for the booked event.
+	 * It updates the available tickets for the booked event.
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 * @param int    $booking_id    The booking ID
 	 * @param string $payment_method The payment method used
 	 * @param mixed  $payment_data  Additional payment data
@@ -2704,22 +3073,22 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			return; // Event doesn't exist
 		}
 
-		// Update available seats
+		// Update available tickets
 		$current_available = intval( $events[ $event_index ]['available_seats'] ?? 0 );
 		$new_available     = max( 0, $current_available - $ticket_quantity );
 
 		$events[ $event_index ]['available_seats'] = $new_available;
 
-		// Update available seats in CPT if post_id exists
+		// Update available tickets in CPT if post_id exists
 		if ( isset( $events[ $event_index ]['post_id'] ) ) {
 			update_post_meta( $events[ $event_index ]['post_id'], '_aiohm_booking_tickets_available_seats', $new_available );
 		}
 	}
 
 	/**
-	 * Calculate real-time available seats for events based on paid orders
+	 * Calculate real-time available tickets for events based on paid orders
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 * @param array $events_data The events data array
 	 * @return array Events data with updated available_seats reflecting real availability
 	 */
@@ -2856,7 +3225,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	/**
 	 * Extract event name from order notes (static version for use in templates)
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 * @param string $notes The notes field content
 	 * @return string Event name or empty string if not found
 	 */
@@ -2868,17 +3237,11 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		// Convert escaped newlines to actual newlines for proper parsing
 		$notes = str_replace( array( '\\n', '\n' ), "\n", $notes );
 
-		// Try to extract event name from notes format: "Event: 0, Event Name\nDate: ..."
-		if ( preg_match( '/Event:\s*\d+,\s*(.+?)(?=\n|$)/i', $notes, $matches ) ) {
-			return trim( $matches[1] );
-		}
-
-		// Fallback: try to extract from format: "Event: Event Name\nDate: ..." (without index)
-		if ( preg_match( '/Event:\s*(.+?)(?=\n|$)/i', $notes, $matches ) ) {
-			$event_part = trim( $matches[1] );
-			// Skip if it looks like "Event: 0, Event Name" format (already handled above)
-			if ( ! preg_match( '/^\d+,/', $event_part ) ) {
-				return $event_part;
+		// Extract from JSON format: "Event Tickets: [{"title":"Event Name",...}]"
+		if ( preg_match( '/Event Tickets:\s*(.+?)(?=\n\n|$)/s', $notes, $matches ) ) {
+			$json_data = json_decode( trim( $matches[1] ), true );
+			if ( is_array( $json_data ) && ! empty( $json_data ) && isset( $json_data[0]['title'] ) ) {
+				return $json_data[0]['title']; // Return first event title
 			}
 		}
 
@@ -2888,7 +3251,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 	/**
 	 * Extract event data from booking notes field
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 * @param string $notes The notes field content
 	 * @return array|false Event data or false if not found
 	 */
@@ -2897,10 +3260,12 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 			return false;
 		}
 
-		// Try to extract event index from notes
-		// Look for patterns like "Event: 0, Event Name"
-		if ( preg_match( '/Event:\s*(\d+),/', $notes, $matches ) ) {
-			return array( 'event_index' => intval( $matches[1] ) );
+		// Extract from JSON format: "Event Tickets: [{"title":"Event Name","index":0,...}]"
+		if ( preg_match( '/Event Tickets:\s*(.+?)(?=\n\n|$)/s', $notes, $matches ) ) {
+			$json_data = json_decode( trim( $matches[1] ), true );
+			if ( is_array( $json_data ) && ! empty( $json_data ) && isset( $json_data[0]['index'] ) ) {
+				return array( 'event_index' => intval( $json_data[0]['index'] ) );
+			}
 		}
 
 		return false;

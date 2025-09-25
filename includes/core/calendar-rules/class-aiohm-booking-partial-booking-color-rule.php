@@ -5,9 +5,9 @@
  * Determines calendar cell display colors based on accommodation availability.
  * Shows booked color when no units are available, free color when units are still available.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  * @subpackage Core\Calendar_Rules
- * @since 1.3.0
+ * @since  2.0.0
  */
 
 // Prevent direct access.

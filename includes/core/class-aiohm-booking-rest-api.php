@@ -3,9 +3,9 @@
  * AIOHM Booking REST API Controller
  * Handles REST API endpoints for payment processing and booking operations.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.1.1
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

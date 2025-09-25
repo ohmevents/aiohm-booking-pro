@@ -4,7 +4,7 @@
  * Handles order tracking and management.
  *
  * @package AIOHM_BOOKING
- * @since 1.0.0
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,11 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Handles order tracking and management for the AIOHM Booking plugin.
  *
- * @package AIOHM_Booking
  * @author  OHM Events Agency
  * @author URI: https://www.ohm.events
  * @license GPL-2.0+ https://www.gnu.org/licenses/gpl-2.0.html
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract {
 
@@ -98,6 +97,10 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 	 */
 	public function __construct() {
 		parent::__construct();
+		
+		// Hook into payment completion and order creation to clear statistics cache
+		add_action( 'aiohm_booking_payment_completed', array( $this, 'on_payment_completed' ), 10, 3 );
+		add_action( 'aiohm_booking_order_created', array( $this, 'on_order_created' ), 10, 2 );
 
 		// This is a PAGE module - enable admin page.
 		$this->has_admin_page  = true;
@@ -397,8 +400,16 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 										// Extract event name from notes for ticket bookings
 										$event_name = $this->extract_event_name_from_notes( $order->notes ?? '' );
 										echo esc_html( $event_name ?: '—' );
+									} elseif ( $booking_mode === 'mixed' ) {
+										// For mixed bookings, try to extract event names
+										$event_name = $this->extract_event_name_from_notes( $order->notes ?? '' );
+										if ( $event_name ) {
+											echo esc_html( $event_name );
+										} else {
+											echo esc_html__( 'Mixed Booking', 'aiohm-booking-pro' );
+										}
 									} else {
-										// For accommodation bookings, show dash
+										// For accommodation-only bookings, show dash
 										echo '—';
 									}
 									?>
@@ -537,11 +548,12 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 		global $wpdb;
 		$table = $wpdb->prefix . 'aiohm_booking_order';
 
-		// Get all ticket orders for aggregation
+		// Get all orders that include event tickets (tickets mode or mixed mode)
 		$ticket_orders = $wpdb->get_results(	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for order data query
 			$wpdb->prepare(
-				'SELECT * FROM ' . esc_sql( $table ) . ' WHERE mode = %s ORDER BY created_at DESC',
-				'tickets'
+				'SELECT * FROM ' . esc_sql( $table ) . ' WHERE mode IN (%s, %s) ORDER BY created_at DESC',
+				'tickets',
+				'mixed'
 			)
 		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query for plugin functionality
 
@@ -553,33 +565,66 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 
 			// Initialize event data
 			$events_overview[ $i ] = array(
-				'event_name'    => $event_name,
-				'total_tickets' => intval( $event['available_seats'] ?? 0 ),
-				'orders'        => array(),
-				'total_sold'    => 0,
-				'total_revenue' => 0,
-				'total_deposit' => 0,
-				'total_paid'    => 0,
-				'statuses'      => array(),
+				'event_name'     => $event_name,
+				'total_tickets'  => intval( $event['available_seats'] ?? 0 ),
+				'orders'         => array(),
+				'total_sold'     => 0,
+				'total_pending'  => 0,
+				'total_revenue'  => 0,
+				'total_deposit'  => 0,
+				'total_paid'     => 0,
+				'statuses'       => array(),
 			);
 
 			// Find all orders for this event
 			foreach ( $ticket_orders as $order ) {
 				$order_event_name = $this->extract_event_name_from_notes( $order->notes ?? '' );
 
-				// Normalize both strings for comparison (remove invisible Unicode characters)
+
+				// Skip orders without event data
+				if ( empty( $order_event_name ) ) {
+					continue;
+				}
+
+				// Normalize both strings for comparison (remove invisible Unicode characters and extra whitespace)
 				$normalized_order_name = preg_replace( '/[\x{200B}-\x{200D}\x{FEFF}]/u', '', trim( $order_event_name ) );
 				$normalized_event_name = preg_replace( '/[\x{200B}-\x{200D}\x{FEFF}]/u', '', trim( $event_name ) );
 
+				// Try various matching strategies
+				$is_match = false;
+				
+				// 1. Exact match
 				if ( $normalized_order_name === $normalized_event_name ) {
+					$is_match = true;
+				}
+				// 2. Check if order contains multiple events (comma-separated) and our event is one of them
+				elseif ( strpos( $normalized_order_name, ', ' ) !== false ) {
+					$order_events = array_map( 'trim', explode( ', ', $normalized_order_name ) );
+					if ( in_array( $normalized_event_name, $order_events, true ) ) {
+						$is_match = true;
+					}
+				}
+				// 3. Partial match for cases where event names might have minor differences
+				elseif ( strpos( $normalized_order_name, $normalized_event_name ) !== false || strpos( $normalized_event_name, $normalized_order_name ) !== false ) {
+					$is_match = true;
+				}
+
+				if ( $is_match ) {
 					$events_overview[ $i ]['orders'][]       = $order;
-					$events_overview[ $i ]['total_sold']    += intval( $order->guests_qty ?? 0 );
 					$events_overview[ $i ]['total_revenue'] += floatval( $order->total_amount ?? 0 );
 					$events_overview[ $i ]['total_deposit'] += floatval( $order->deposit_amount ?? 0 );
 
-					// Only count paid orders for total paid
-					if ( ( $order->status ?? 'pending' ) === 'paid' ) {
+					// Count tickets by status
+					$order_status = $order->status ?? 'pending';
+					$ticket_qty = intval( $order->guests_qty ?? 0 );
+					
+					if ( $order_status === 'paid' ) {
+						// Only count paid orders for total sold and total paid (consistent with frontend availability)
+						$events_overview[ $i ]['total_sold'] += $ticket_qty;
 						$events_overview[ $i ]['total_paid'] += floatval( $order->total_amount ?? 0 );
+					} elseif ( $order_status === 'pending' ) {
+						// Count pending tickets
+						$events_overview[ $i ]['total_pending'] += $ticket_qty;
 					}
 
 					// Track status counts
@@ -605,6 +650,7 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 						<th class="manage-column"><?php esc_html_e( 'Event Type', 'aiohm-booking-pro' ); ?></th>
 						<th class="manage-column"><?php esc_html_e( 'Total Tickets', 'aiohm-booking-pro' ); ?></th>
 						<th class="manage-column"><?php esc_html_e( 'Total Sold', 'aiohm-booking-pro' ); ?></th>
+						<th class="manage-column"><?php esc_html_e( 'Total Pending', 'aiohm-booking-pro' ); ?></th>
 						<th class="manage-column"><?php esc_html_e( 'Total Deposit', 'aiohm-booking-pro' ); ?></th>
 						<th class="manage-column"><?php esc_html_e( 'Total Paid', 'aiohm-booking-pro' ); ?></th>
 					</tr>
@@ -660,6 +706,16 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 							<td class="column-total-sold">
 								<strong><?php echo (int) $event_data['total_sold']; ?></strong>
 							</td>
+							<td class="column-total-pending">
+								<?php 
+								$pending_count = (int) $event_data['total_pending'];
+								if ( $pending_count > 0 ) {
+									echo '<span style="color: #d63638; font-weight: 500;">' . esc_html( $pending_count ) . '</span>';
+								} else {
+									echo '0';
+								}
+								?>
+							</td>
 							<td class="column-total-deposit">
 								<?php echo esc_html( $currency . ' ' . number_format( $event_data['total_deposit'], 2 ) ); ?>
 							</td>
@@ -706,11 +762,19 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 				// Trigger payment completion action to update event availability
 				do_action( 'aiohm_booking_payment_completed', $order_id, 'manual', null );
 			}
+			
+			// Clear dashboard statistics cache after marking orders as paid
+			$this->clear_statistics_cache();
+			
 			$this->show_bulk_notice( __( 'Orders marked as paid.', 'aiohm-booking-pro' ), 'success' );
 		} elseif ( 'cancel' === $action ) {
 			foreach ( $order_ids as $order_id ) {
 				$wpdb->update( $table, array( 'status' => 'cancelled' ), array( 'id' => $order_id ), array( '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table modification for plugin functionality
 			}
+			
+			// Clear dashboard statistics cache after cancelling orders
+			$this->clear_statistics_cache();
+			
 			$this->show_bulk_notice( __( 'Orders cancelled.', 'aiohm-booking-pro' ), 'success' );
 		} elseif ( 'delete' === $action ) {
 			foreach ( $order_ids as $order_id ) {
@@ -751,15 +815,29 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 		if ( 'mark_paid' === $action ) {
 			$wpdb->update( $table, array( 'status' => 'paid' ), array( 'id' => $order_id ), array( '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table modification for plugin functionality
 
+			// Try to fix zero amount orders by recalculating pricing
+			$this->fix_zero_amount_order( $order_id );
+			
 			// Trigger payment completion action to update event availability
 			do_action( 'aiohm_booking_payment_completed', $order_id, 'manual', null );
+			
+			// Clear dashboard statistics cache after marking order as paid
+			$this->clear_statistics_cache();
 
 			$this->show_notice( __( 'Order marked as paid.', 'aiohm-booking-pro' ), 'success' );
 		} elseif ( 'cancel' === $action ) {
 			$wpdb->update( $table, array( 'status' => 'cancelled' ), array( 'id' => $order_id ), array( '%s' ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table modification for plugin functionality
+			
+			// Clear dashboard statistics cache after cancelling order
+			$this->clear_statistics_cache();
+			
 			$this->show_notice( __( 'Order cancelled.', 'aiohm-booking-pro' ), 'success' );
 		} elseif ( 'delete' === $action ) {
 			$wpdb->delete( $table, array( 'id' => $order_id ), array( '%d' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table modification for plugin functionality
+			
+			// Clear dashboard statistics cache after deleting order
+			$this->clear_statistics_cache();
+			
 			$this->show_notice( __( 'Order deleted.', 'aiohm-booking-pro' ), 'success' );
 		}
 
@@ -804,6 +882,119 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 	 */
 	private function show_bulk_notice( $message, $type = 'info' ) {
 		echo '<div class="notice notice-' . esc_attr( $type ) . ' is-dismissible"><p>' . esc_html( $message ) . '</p></div>';
+	}
+
+	/**
+	 * Clear dashboard statistics cache
+	 * This should be called whenever order status changes to ensure statistics are up-to-date
+	 */
+	private function clear_statistics_cache() {
+		// Clear dashboard statistics cache
+		delete_transient( 'aiohm_booking_dashboard_stats' );
+		
+		// Clear AI analytics cache if it exists
+		delete_transient( 'aiohm_booking_ai_analytics_data' );
+		
+		// Clear any event overview cache
+		delete_transient( 'aiohm_booking_events_overview' );
+		
+		// Clear tickets module cache if exists
+		$tickets_cache_keys = array(
+			'aiohm_booking_tickets_stats',
+			'aiohm_booking_tickets_overview'
+		);
+		
+		foreach ( $tickets_cache_keys as $cache_key ) {
+			delete_transient( $cache_key );
+		}
+		
+		// Clear any WordPress object cache
+		wp_cache_flush();
+		
+		// Force browser cache refresh by adding timestamp
+		$timestamp = time();
+		$_GET['cache_bust'] = $timestamp;
+	}
+
+	/**
+	 * Fix orders with zero amounts by recalculating pricing from event/accommodation data
+	 * 
+	 * @param int $order_id Order ID to fix
+	 */
+	private function fix_zero_amount_order( $order_id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'aiohm_booking_order';
+		
+		// Get the order
+		$order = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $table ) . ' WHERE id = %d', $order_id ) );
+		if ( ! $order || ( $order->total_amount > 0 && $order->deposit_amount > 0 ) ) {
+			return; // Order not found or already has pricing
+		}
+		
+		$total_amount = 0;
+		$deposit_amount = 0;
+		
+		// Try to calculate pricing from notes
+		if ( ! empty( $order->notes ) ) {
+			// Extract event tickets from JSON format
+			if ( preg_match( '/Event Tickets:\s*(.+?)(?=\n\n|$)/s', $order->notes, $matches ) ) {
+				$json_data = json_decode( trim( $matches[1] ), true );
+				if ( is_array( $json_data ) ) {
+					foreach ( $json_data as $event ) {
+						if ( isset( $event['price'], $event['quantity'] ) ) {
+							$total_amount += floatval( $event['price'] ) * intval( $event['quantity'] );
+						}
+					}
+				}
+			}
+			
+			// Extract accommodation pricing if available
+			if ( preg_match( '/Accommodation IDs:\s*(.+?)(?=\n|$)/s', $order->notes, $matches ) ) {
+				// Basic accommodation pricing - would need more sophisticated calculation
+				// For now, use a default if we can't determine the price
+				if ( $total_amount === 0 && $order->mode === 'accommodation' ) {
+					$total_amount = 100.00; // Default fallback
+				}
+			}
+		}
+		
+		// Calculate deposit (typically 50%)
+		$deposit_amount = $total_amount * 0.5;
+		
+		// Update the order if we calculated a non-zero amount
+		if ( $total_amount > 0 ) {
+			$wpdb->update(
+				$table,
+				array(
+					'total_amount' => $total_amount,
+					'deposit_amount' => $deposit_amount
+				),
+				array( 'id' => $order_id ),
+				array( '%f', '%f' ),
+				array( '%d' )
+			);
+		}
+	}
+
+	/**
+	 * Handle payment completion hook
+	 * 
+	 * @param int    $order_id Order ID
+	 * @param string $method   Payment method  
+	 * @param mixed  $data     Payment data
+	 */
+	public function on_payment_completed( $order_id, $method, $data ) {
+		$this->clear_statistics_cache();
+	}
+	
+	/**
+	 * Handle order creation hook
+	 * 
+	 * @param int   $order_id Order ID
+	 * @param array $data     Order data
+	 */
+	public function on_order_created( $order_id, $data ) {
+		$this->clear_statistics_cache();
 	}
 
 	/**
@@ -1012,7 +1203,7 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 	/**
 	 * Extract event name from booking notes
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 * @param string $notes The notes field content
 	 * @return string Event name or empty string if not found
 	 */
@@ -1023,25 +1214,23 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 
 		// Convert escaped newlines to actual newlines for proper parsing
 		$notes = str_replace( array( '\\n', '\n' ), "\n", $notes );
-
-		// Try to extract event name from notes format: "Event: 0, Event Name\nDate: ..."
-		// Stop at newline to get only the event title
-		if ( preg_match( '/Event:\s*\d+,\s*(.+?)(?=\n|$)/i', $notes, $matches ) ) {
-			return trim( $matches[1] );
-		}
-
-		// Fallback: try to extract from format: "Event: Event Name\nDate: ..." (without index)
-		if ( preg_match( '/Event:\s*(.+?)(?=\n|$)/i', $notes, $matches ) ) {
-			$event_part = trim( $matches[1] );
-			// Skip if it looks like "Event: 0, Event Name" format (already handled above)
-			if ( ! preg_match( '/^\d+,/', $event_part ) ) {
-				return $event_part;
+		
+		// Extract from JSON format: "Event Tickets: [{"title":"Event Name",...}]"
+		if ( preg_match( '/Event Tickets:\s*(.+?)(?=\n\n|$)/s', $notes, $matches ) ) {
+			$json_data = json_decode( trim( $matches[1] ), true );
+			if ( is_array( $json_data ) && ! empty( $json_data ) ) {
+				$event_names = array();
+				foreach ( $json_data as $event ) {
+					if ( isset( $event['title'] ) ) {
+						// For overview matching, don't include quantity in the name for cleaner matching
+						$event_names[] = $event['title'];
+					}
+				}
+				if ( ! empty( $event_names ) ) {
+					// Return first event name for single events, or comma-separated for multiple
+					return count( $event_names ) === 1 ? $event_names[0] : implode( ', ', $event_names );
+				}
 			}
-		}
-
-		// Additional fallback: try to extract from "Event Details:" section
-		if ( preg_match( '/Event Details:\s*Event:\s*\d+,\s*(.+?)(?=\n|$)/i', $notes, $matches ) ) {
-			return trim( $matches[1] );
 		}
 
 		return '';

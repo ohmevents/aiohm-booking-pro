@@ -1788,6 +1788,11 @@
     $(document).ready(function() {
         AIOHM_Booking_Shortcode.init();
         initNewDesignFeatures();
+        
+        // Force unchecked state for all event checkboxes on page load
+        setTimeout(function() {
+            $('.aiohm-booking-event-checkbox, .aiohm-booking-event-radio').prop('checked', false);
+        }, 100);
 
         // Fallback: ensure pricing section is visible
         setTimeout(function() {
@@ -2794,14 +2799,9 @@
                 }
             },
             error: function(xhr, status, error) {
-                console.error('🚨 AJAX error getting calendar availability:', {
-                    error: error,
-                    status: status,
-                    responseText: xhr.responseText,
-                    statusCode: xhr.status
-                });
+                // AJAX error getting calendar availability
                 
-                // Don't reset to available on error - preserve existing status
+                // Do not reset to available on error - preserve existing status
                 // Optionally show a subtle indicator that availability check failed
                 unitRequests.forEach(function(req) {
                     const $card = req.card;

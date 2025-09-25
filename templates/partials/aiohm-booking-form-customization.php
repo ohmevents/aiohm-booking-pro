@@ -20,7 +20,7 @@ $section_description = $section_description ?? 'Customize the appearance and fie
 $form_data         = $form_data ?? array();
 $fields_definition = $fields_definition ?? array();
 $shortcode_preview = $shortcode_preview ?? '[aiohm_booking]';
-$nonce_action      = $nonce_action ?? 'aiohm_booking_save_form_settings';
+$nonce_action      = $nonce_action ?? 'save_form_settings';
 $nonce_name        = $nonce_name ?? 'aiohm_form_settings_nonce';
 $option_name       = $option_name ?? 'aiohm_booking_settings';
 
@@ -45,7 +45,7 @@ $data['font_color']  = $data['form_text_color'] ?? $data['font_color'] ?? '#3333
 		</div>
 
 		<div class="aiohm-form-customization-content">
-			<?php wp_nonce_field( $nonce_action, $nonce_name ); ?>
+			<input type="hidden" name="<?php echo esc_attr( $nonce_name ); ?>" value="<?php echo esc_attr( AIOHM_BOOKING_Security_Helper::create_nonce( $nonce_action ) ); ?>" />
 
 			<!-- Hidden fields for form submission -->
 			<input type="hidden" name="action" value="aiohm_save_form_settings" />

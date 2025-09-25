@@ -3,8 +3,8 @@
  * ShareAI Module for AIOHM Booking
  * Handles ShareAI integration for booking intelligence
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -159,12 +159,6 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 				'max'         => 4000,
 				'step'        => 1,
 			),
-			'shareai_analytics_enabled' => array(
-				'type'        => 'checkbox',
-				'label'       => 'Enable Analytics Integration',
-				'description' => 'Allow ShareAI to analyze your booking patterns for better insights',
-				'default'     => true,
-			),
 		);
 	}
 
@@ -179,7 +173,6 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 			'shareai_model'             => 'llama4:17b-scout-16e-instruct-fp16',
 			'shareai_temperature'       => 0.7,
 			'shareai_max_tokens'        => 1000,
-			'shareai_analytics_enabled' => true,
 		);
 	}
 
@@ -747,20 +740,6 @@ class AIOHM_BOOKING_Module_ShareAI extends AIOHM_BOOKING_AI_Provider_Module_Abst
 						step="1"
 						class="aiohm-form-input">
 					<small class="description">Maximum number of tokens in the response</small>
-				</div>
-
-				<div class="aiohm-form-group">
-					<label class="aiohm-form-label">
-						<input
-							type="checkbox"
-							name="aiohm_booking_settings[shareai_analytics_enabled]"
-							id="shareai_analytics_enabled"
-							value="1"
-							<?php checked( $settings['shareai_analytics_enabled'] ?? true ); ?>
-							class="aiohm-form-input">
-						Enable Analytics Integration
-					</label>
-					<small class="description">Allow ShareAI to analyze your booking patterns for better insights</small>
 				</div>
 
 				<div class="aiohm-form-actions">

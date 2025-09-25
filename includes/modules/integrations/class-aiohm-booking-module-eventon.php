@@ -5,8 +5,8 @@
  * Integrates with EventOn plugin to import event data into AIOHM Booking system.
  * Allows importing events from EventOn with data mapping for the booking system.
  *
- * @package AIOHM_Booking
- * @since 1.2.5
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,14 +19,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Provides EventOn import functionality without settings UI.
  * Handles importing event data from EventOn posts.
  *
- * @since 1.2.5
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 */
 	public function __construct() {
 		$this->init_hooks();
@@ -37,7 +37,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	 *
 	 * Returns a minimal definition to enable module loading but hide from UI.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @return array Module UI definition array.
 	 */
 	public static function get_ui_definition() {
@@ -61,7 +61,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	/**
 	 * Get default settings for this module.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @return array Default settings array.
 	 */
 	public function get_default_settings() {
@@ -71,7 +71,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	/**
 	 * Get settings fields configuration.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @return array Settings fields configuration array.
 	 */
 	public function get_settings_fields() {
@@ -81,7 +81,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	/**
 	 * Check if EventOn plugin is active.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @return bool True if EventOn is active, false otherwise.
 	 */
 	private function is_eventon_active() {
@@ -103,7 +103,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	 *
 	 * Sets up action hooks for AJAX endpoints and form handling.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 */
 	protected function init_hooks() {
 		// Only initialize if EventOn is active
@@ -120,7 +120,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	/**
 	 * Get EventOn events.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @return array Array of EventOn events.
 	 */
 	public function get_eventon_events() {
@@ -166,7 +166,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	/**
 	 * Extract EventOn event data.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @param WP_Post $post EventOn event post.
 	 * @return array|false Event data array or false on failure.
 	 */
@@ -212,7 +212,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	 *
 	 * Parses Gutenberg blocks and extracts clean text content without markup.
 	 *
-	 * @since 1.2.6
+	 * @since  2.0.0
 	 * @param string $content Raw post content that may contain Gutenberg blocks.
 	 * @return string Clean text content.
 	 */
@@ -300,7 +300,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	/**
 	 * AJAX handler for getting EventOn events list.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 */
 	public function ajax_get_eventon_events_list() {
 		// Verify nonce and permissions
@@ -321,7 +321,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	/**
 	 * AJAX handler for importing EventOn events.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 */
 	public function ajax_import_eventon_events() {
 		// Verify nonce and permissions
@@ -362,7 +362,7 @@ class AIOHM_BOOKING_Module_EventOn extends AIOHM_BOOKING_Module_Abstract {
 	/**
 	 * Import a single EventOn event.
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @param int    $event_id EventOn event ID.
 	 * @param string $status Import status.
 	 * @return array Import result.

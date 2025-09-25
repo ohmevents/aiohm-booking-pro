@@ -3,7 +3,7 @@
  * Accommodation Module for AIOHM Booking
  * Handles accommodation booking functionality with enhanced design
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  * @since 2.0.0
  */
 
@@ -20,7 +20,6 @@ require_once __DIR__ . '/class-accommodation-dto.php';
  *
  * Handles accommodation booking functionality with enhanced design.
  *
- * @package AIOHM_Booking
  * @since 2.0.0
  */
 class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_Abstract {
@@ -298,8 +297,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		// This object is used by accommodation-admin.js and settings-admin.js.
 		$localized_data = array(
 			'ajax_url'      => admin_url( 'admin-ajax.php' ),
-			'nonce'         => wp_create_nonce( 'aiohm_booking_admin_nonce' ),
-			'preview_nonce' => wp_create_nonce( 'aiohm_booking_update_preview' ),
+			'nonce'         => AIOHM_BOOKING_Security_Helper::create_nonce( 'admin_nonce' ),
+			'preview_nonce' => AIOHM_BOOKING_Security_Helper::create_nonce( 'update_preview' ),
 			'i18n'          => array(
 				'saving'                    => __( 'Saving...', 'aiohm-booking-pro' ),
 				'saved'                     => __( 'Saved!', 'aiohm-booking-pro' ),
@@ -419,7 +418,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 		// Handle legacy booking form customization form submission.
 		$nonce = sanitize_text_field( wp_unslash( $_POST['aiohm_booking_settings_nonce'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce retrieved for verification below
-		if ( isset( $_POST['form_submit'] ) && isset( $_POST['aiohm_booking_settings'] ) && AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'aiohm_booking_save_settings' ) && current_user_can( 'manage_options' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by AIOHM_BOOKING_Security_Helper
+		if ( isset( $_POST['form_submit'] ) && isset( $_POST['aiohm_booking_settings'] ) && AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'save_settings' ) && current_user_can( 'manage_options' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by AIOHM_BOOKING_Security_Helper
 			$posted_settings = wp_unslash( $_POST['aiohm_booking_settings'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified by AIOHM_BOOKING_Security_Helper, input sanitized in save_settings method
 
 			// Save the form customization settings using the already unslashed data
@@ -493,7 +492,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Nonce verification
 		$details_nonce = sanitize_text_field( wp_unslash( $_POST['aiohm_accommodation_details_nonce'] ?? '' ) );
-		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $details_nonce, 'aiohm_booking_save_accommodation_details' ) ) {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $details_nonce, 'save_accommodation_details' ) ) {
 			wp_die( esc_html__( 'Security check failed', 'aiohm-booking-pro' ) );
 		}
 
@@ -522,11 +521,13 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 				
 				// Validate accommodation data
 				if ( ! is_array( $accommodation ) ) {
+					/* translators: %d: accommodation ID */
 					$errors[] = sprintf( __( 'Invalid data for accommodation ID %d', 'aiohm-booking-pro' ), $post_id );
 					continue;
 				}
 				
 				if ( get_post_type( $post_id ) !== 'aiohm_accommodation' ) {
+					/* translators: %d: accommodation ID */
 					$errors[] = sprintf( __( 'Accommodation with ID %d not found or invalid type', 'aiohm-booking-pro' ), $post_id );
 					continue;
 				}
@@ -544,7 +545,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 				$updated_post_id = wp_update_post( $post_data, true );
 				
 				if ( is_wp_error( $updated_post_id ) ) {
-					$errors[] = sprintf( __( 'Failed to update accommodation ID %d: %s', 'aiohm-booking-pro' ), $post_id, $updated_post_id->get_error_message() );
+					/* translators: %1$d: accommodation ID, %2$s: error message */
+					$errors[] = sprintf( __( 'Failed to update accommodation ID %1$d: %2$s', 'aiohm-booking-pro' ), $post_id, $updated_post_id->get_error_message() );
 					continue;
 				}
 				
@@ -558,12 +560,14 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 					
 					// Validate price fields are numeric
 					if ( ! empty( $earlybird_price ) && ! is_numeric( $earlybird_price ) ) {
+						/* translators: %d: accommodation ID */
 						$errors[] = sprintf( __( 'Invalid early bird price for accommodation ID %d', 'aiohm-booking-pro' ), $post_id );
 					} else {
 						update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_earlybird_price', $earlybird_price );
 					}
 					
 					if ( ! empty( $price ) && ! is_numeric( $price ) ) {
+						/* translators: %d: accommodation ID */
 						$errors[] = sprintf( __( 'Invalid price for accommodation ID %d', 'aiohm-booking-pro' ), $post_id );
 					} else {
 						update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_price', $price );
@@ -578,12 +582,14 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 				add_action( 'admin_notices', function() use ( $errors, $updated_count ) {
 					$error_list = '<ul><li>' . implode( '</li><li>', array_map( 'esc_html', $errors ) ) . '</li></ul>';
 					echo '<div class="notice notice-warning"><p>' . 
-						sprintf( __( 'Updated %d accommodations with %d errors:', 'aiohm-booking-pro' ), $updated_count, count( $errors ) ) . 
+						/* translators: %1$d: number of updated accommodations, %2$d: number of errors */
+						sprintf( __( 'Updated %1$d accommodations with %2$d errors:', 'aiohm-booking-pro' ), $updated_count, count( $errors ) ) . 
 						'</p>' . $error_list . '</div>';
 				});
 			} else if ( $updated_count > 0 ) {
 				add_action( 'admin_notices', function() use ( $updated_count ) {
 					echo '<div class="notice notice-success"><p>' . 
+						/* translators: %d: number of updated accommodations */
 						sprintf( __( 'Successfully updated %d accommodations.', 'aiohm-booking-pro' ), $updated_count ) . 
 						'</p></div>';
 				});
@@ -596,8 +602,18 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 	/**
 	 * Save form settings from admin page
+	 *
+	 * Handles form customization settings for non-AJAX requests only.
+	 * AJAX requests are processed by the unified form settings handler.
+	 *
+	 * @since 2.0.3
 	 */
 	public function save_form_settings() {
+		// Skip AJAX requests - they are handled by dedicated AJAX handlers
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			return;
+		}
+		
 		// Check if this is our form submission.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Nonce verification happens below
 		if ( ! isset( $_POST['aiohm_form_settings_nonce'] ) ) {
@@ -720,7 +736,6 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			$settings_updated = AIOHM_BOOKING_Settings::update_multiple( array( 'available_accommodations' => $new_count ) );
 			
 			if ( ! $settings_updated ) {
-				error_log( 'AIOHM Booking - Failed to update available_accommodations setting' );
 				wp_die( esc_html__( 'Failed to update accommodation settings. Please try again.', 'aiohm-booking-pro' ) );
 			}
 			
@@ -740,7 +755,6 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			exit;
 			
 		} catch ( Exception $e ) {
-			error_log( 'AIOHM Booking - Error adding accommodation: ' . $e->getMessage() );
 			wp_die( 
 				sprintf( 
 					/* translators: %s: error message */
@@ -757,7 +771,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	public function ajax_save_individual_accommodation() {
 		// Verify nonce first.
 		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
-		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+		
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' ) ) {
 			wp_send_json_error( 
 				array( 
 					'message' => __( 'Security verification failed. Please refresh the page and try again.', 'aiohm-booking-pro' ),
@@ -821,12 +836,12 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		} catch ( InvalidArgumentException $e ) {
 			wp_send_json_error( 
 				array( 
+					/* translators: %s: validation error message */
 					'message' => sprintf( __( 'Validation error: %s', 'aiohm-booking-pro' ), $e->getMessage() ),
 					'code'    => 'validation_exception'
 				)
 			);
 		} catch ( Exception $e ) {
-			error_log( 'AIOHM Booking - Accommodation save error: ' . $e->getMessage() );
 			wp_send_json_error( 
 				array( 
 					'message' => __( 'An unexpected error occurred while saving accommodation data.', 'aiohm-booking-pro' ),
@@ -846,9 +861,9 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		$updated_post_id = wp_update_post( $post_data, true );
 
 		if ( is_wp_error( $updated_post_id ) ) {
-			error_log( 'AIOHM Booking - Failed to update accommodation post: ' . $updated_post_id->get_error_message() );
 			wp_send_json_error( 
 				array( 
+					/* translators: %s: error message from WordPress */
 					'message' => sprintf( __( 'Failed to update accommodation: %s', 'aiohm-booking-pro' ), $updated_post_id->get_error_message() ),
 					'code'    => 'post_update_failed'
 				)
@@ -963,7 +978,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			'form_data'           => $form_data,
 			'fields_definition'   => $fields_definition,
 			'shortcode_preview'   => '[aiohm_booking enable_accommodations="true" enable_tickets="false"]',
-			'nonce_action'        => 'aiohm_booking_save_form_settings',
+			'nonce_action'        => 'save_form_settings',
 			'nonce_name'          => 'aiohm_form_settings_nonce',
 			'option_name'         => 'aiohm_booking_form_settings',
 		);

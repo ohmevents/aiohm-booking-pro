@@ -3,8 +3,8 @@
  * Shortcode Module for AIOHM Booking
  * Handles all booking shortcodes and frontend display functionality
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Shortcode Admin Module Class
  *
- * @package AIOHM_Booking
  */
 class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module_Abstract {
 
@@ -167,6 +166,11 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		// TEMPORARY: Add handler for old action to catch any legacy requests
 		add_action( 'wp_ajax_aiohm_booking_submit', array( $this, 'ajax_legacy_booking_handler' ) );
 		add_action( 'wp_ajax_nopriv_aiohm_booking_submit', array( $this, 'ajax_legacy_booking_handler' ) );
+
+
+		// AJAX handler for initial booking form processing
+		add_action( 'wp_ajax_aiohm_process_checkout', array( $this, 'ajax_process_checkout' ) );
+		add_action( 'wp_ajax_nopriv_aiohm_process_checkout', array( $this, 'ajax_process_checkout' ) );
 
 		// AJAX handler for checkout completion.
 		add_action( 'wp_ajax_aiohm_booking_complete_checkout', array( $this, 'ajax_complete_checkout' ) );
@@ -1174,7 +1178,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 	/**
 	 * Process accommodation booking form submission via AJAX
 	 *
-	 * @since 1.2.6
+	 * @since  2.0.0
 	 */
 	public function ajax_process_accommodation_booking() {
 		// Verify security using centralized helper (only nonce for frontend).
@@ -1468,7 +1472,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 	/**
 	 * Process unified booking form submission via AJAX (accommodations + events)
 	 *
-	 * @since 1.2.6
+	 * @since  2.0.0
 	 */
 	public function ajax_process_unified_booking() {
 		// Verify security using centralized helper (only nonce for frontend).
@@ -1677,7 +1681,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 	 * TEMPORARY: Handle legacy AJAX requests to the old general handler
 	 * This helps us debug what's calling the old action
 	 *
-	 * @since 1.2.6
+	 * @since  2.0.0
 	 */
 	public function ajax_legacy_booking_handler() {
 		// Verify nonce first
@@ -1704,6 +1708,74 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 			}
 		} else {
 			wp_send_json_error( array( 'message' => 'Legacy handler: Unable to determine booking type' ) );
+		}
+	}
+
+	/**
+	 * Process initial checkout form submission
+	 */
+	public function ajax_process_checkout() {
+		// Verify security using centralized helper (only nonce for frontend)
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_ajax_nonce( 'frontend_nonce' ) ) {
+			return; // Error response already sent by helper
+		}
+
+		// Get raw form data from $_POST
+		$form_data = array();
+		
+		// Extract basic contact information
+		if ( isset( $_POST['name'] ) ) {
+			$form_data['contact_info']['name'] = sanitize_text_field( wp_unslash( $_POST['name'] ) );
+		}
+		if ( isset( $_POST['email'] ) ) {
+			$form_data['contact_info']['email'] = sanitize_email( wp_unslash( $_POST['email'] ) );
+		}
+		if ( isset( $_POST['phone'] ) ) {
+			$form_data['contact_info']['phone'] = sanitize_text_field( wp_unslash( $_POST['phone'] ) );
+		}
+		if ( isset( $_POST['message'] ) ) {
+			$form_data['contact_info']['message'] = sanitize_textarea_field( wp_unslash( $_POST['message'] ) );
+		}
+
+		// Extract booking dates
+		if ( isset( $_POST['checkin_date'] ) ) {
+			$form_data['dates']['checkin'] = sanitize_text_field( wp_unslash( $_POST['checkin_date'] ) );
+		}
+		if ( isset( $_POST['checkout_date'] ) ) {
+			$form_data['dates']['checkout'] = sanitize_text_field( wp_unslash( $_POST['checkout_date'] ) );
+		}
+
+		// Extract pricing information
+		if ( isset( $_POST['total_amount'] ) ) {
+			$form_data['pricing']['total'] = floatval( wp_unslash( $_POST['total_amount'] ) );
+		}
+		if ( isset( $_POST['deposit_amount'] ) ) {
+			$form_data['pricing']['deposit'] = floatval( wp_unslash( $_POST['deposit_amount'] ) );
+		}
+		if ( isset( $_POST['currency'] ) ) {
+			$form_data['pricing']['currency'] = sanitize_text_field( wp_unslash( $_POST['currency'] ) );
+		}
+
+		// Extract selected items
+		if ( isset( $_POST['selected_accommodations'] ) ) {
+			$form_data['accommodations'] = array_map( 'intval', (array) wp_unslash( $_POST['selected_accommodations'] ) );
+		}
+		if ( isset( $_POST['selected_events'] ) ) {
+			$form_data['events'] = array_map( 'intval', (array) wp_unslash( $_POST['selected_events'] ) );
+		}
+
+		// Use the checkout AJAX class to process the booking
+		try {
+			$result = AIOHM_BOOKING_Checkout_Ajax::process_booking_request( $form_data );
+			
+			if ( $result && ! is_wp_error( $result ) ) {
+				wp_send_json_success( $result );
+			} else {
+				$error_message = is_wp_error( $result ) ? $result->get_error_message() : 'Booking processing failed';
+				wp_send_json_error( array( 'message' => $error_message ) );
+			}
+		} catch ( Exception $e ) {
+			wp_send_json_error( array( 'message' => $e->getMessage() ) );
 		}
 	}
 

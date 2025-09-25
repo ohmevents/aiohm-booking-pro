@@ -5,8 +5,8 @@
  * Centralized utility class containing singleton patterns, URL generation,
  * and other common helper methods used across the plugin.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  *
  * @author  OHM Events Agency <https://www.ohm.events>
  * @copyright  2025 AIOHM
@@ -23,14 +23,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Provides reusable utility methods for singleton instances,
  * URL generation, and common helper functions.
  *
- * @since 1.2.3
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Utilities {
 
 	/**
 	 * Store singleton instances
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @var array
 	 */
 	private static $instances = array();
@@ -38,7 +38,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Cache for module availability checks
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 * @var array
 	 */
 	private static $module_availability_cache = array();
@@ -49,7 +49,7 @@ class AIOHM_BOOKING_Utilities {
 	 * Provides a consistent singleton pattern implementation
 	 * that can be used by any class extending this functionality.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $class_name The class name to get instance for.
 	 * @return object The singleton instance
@@ -70,7 +70,7 @@ class AIOHM_BOOKING_Utilities {
 	 * Consistent URL generation for plugin assets with proper
 	 * path normalization and WordPress compatibility.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $path Path relative to plugin assets directory.
 	 * @param string $type Asset type (css, js, images). Optional.
@@ -90,7 +90,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Generate plugin URL for any file
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $path Path relative to plugin root directory.
 	 * @return string Full URL to the file
@@ -102,7 +102,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Generate plugin path for any file
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $path Path relative to plugin root directory.
 	 * @return string Full filesystem path to the file
@@ -114,7 +114,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Check if we're on an AIOHM Booking admin page
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $hook_suffix Optional. Current admin page hook suffix.
 	 * @return bool True if on plugin admin page
@@ -130,7 +130,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Sanitize and validate array of data
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $data Data to sanitize.
 	 * @param array $rules Sanitization rules per field.
@@ -178,7 +178,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Get current user capability for plugin operations
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $context Optional. Context for capability check.
 	 * @return string Required capability
@@ -197,7 +197,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Check if current user can perform plugin action
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $context Optional. Context for capability check.
 	 * @return bool True if user has required capability
@@ -209,7 +209,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Generate secure nonce for plugin actions
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $action Action name.
 	 * @return string Nonce value
@@ -221,7 +221,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Verify nonce for plugin actions
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $nonce Nonce value to verify.
 	 * @param string $action Action name.
@@ -234,7 +234,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Check if a module is available and loaded
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 *
 	 * @param string $module_id Module ID to check.
 	 * @return bool True if module is available and loaded
@@ -257,7 +257,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Get available payment methods (only loaded modules)
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 *
 	 * @return array Available payment methods
 	 */
@@ -293,7 +293,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Check if any payment gateways are available
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 *
 	 * @return bool True if at least one payment gateway is available
 	 */
@@ -309,7 +309,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Get available AI providers
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 *
 	 * @return array Available AI providers
 	 */
@@ -334,7 +334,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Check if any AI providers are available
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 *
 	 * @return bool True if at least one AI provider is available
 	 */
@@ -346,7 +346,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Get missing optional modules with user-friendly names
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 *
 	 * @return array Missing modules with display names
 	 */
@@ -376,7 +376,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Clear module availability cache
 	 *
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 */
 	public static function clear_module_cache() {
 		self::$module_availability_cache = array();
@@ -385,7 +385,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Format currency amount for display
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param float  $amount Amount to format.
 	 * @param string $currency Currency code.
@@ -414,7 +414,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Get plugin version for cache busting
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @return string Plugin version
 	 */
@@ -426,7 +426,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Get list of PRO modules
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 *
 	 * @return array List of PRO module names
 	 */
@@ -444,7 +444,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Check if a module is a PRO feature
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 *
 	 * @param string $module_name Module name to check
 	 * @return bool True if module is PRO
@@ -457,7 +457,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Get Go PRO message for a specific feature
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 *
 	 * @param string $feature_name Feature name (e.g., 'Stripe payments', 'AI analytics')
 	 * @return string HTML Go PRO message
@@ -490,7 +490,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Get Go PRO notice for admin settings
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 *
 	 * @param string $feature_name Feature name
 	 * @return string HTML notice
@@ -514,7 +514,7 @@ class AIOHM_BOOKING_Utilities {
 	/**
 	 * Check if PRO features should be disabled
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 *
 	 * @return bool True if PRO features should be disabled (for free version)
 	 */

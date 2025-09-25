@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				}
 			})
 			.catch(error => {
-				console.error('Error submitting booking:', error);
+				// Error submitting booking
 				showError('Error submitting booking. Please try again.');
 				resetButton();
 			});
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		})
 		.catch(error => {
-			console.error('Error loading checkout:', error);
+			// Error loading checkout
 			showError('Error loading checkout. Please refresh the page.');
 			resetButton();
 		});
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		})
 		.catch(error => {
-			console.error('Error loading payment method:', error);
+			// Error loading payment method
 			paymentDetails.innerHTML = '<p>Error loading payment method.</p>';
 		});
 	}
@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		})
 		.catch(error => {
-			console.error('Error completing manual payment:', error);
+			// Error completing manual payment
 			showError('Error completing booking. Please try again.');
 		});
 	}

@@ -3,8 +3,8 @@
  * AI Analytics Module for AIOHM Booking
  * Provides AI-powered insights and analytics for booking data
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,8 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Provides AI-powered insights and analytics for booking data
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 
@@ -389,7 +388,7 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
                 currency,
                 status,
                 payment_method,
-                rooms_qty,
+                units_qty,
                 guests_qty
             FROM %i
             ORDER BY created_at DESC

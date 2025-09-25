@@ -15,9 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 $booking_data = $booking_data ?? array();
 $show_summary = $show_summary ?? true;
 
-// Only show if this is an accommodation booking (or no mode specified for backward compatibility)
+// Only show if this is an accommodation booking
 $booking_mode = $booking_data['mode'] ?? 'accommodation';
-if ( empty( $booking_data ) || ( $booking_mode !== 'accommodation' && $booking_mode !== '' ) ) {
+if ( empty( $booking_data ) || $booking_mode !== 'accommodation' ) {
 	return;
 }
 
@@ -26,7 +26,7 @@ $checkin_date  = $booking_data['dates']['check_in'] ?? $booking_data['check_in_d
 $checkout_date = $booking_data['dates']['check_out'] ?? $booking_data['check_out_date'] ?? '';
 $nights        = intval( $booking_data['nights'] ?? 1 );
 $guests        = intval( $booking_data['guests'] ?? $booking_data['guests_qty'] ?? 1 );
-$units         = intval( $booking_data['units'] ?? $booking_data['units_qty'] ?? $booking_data['rooms'] ?? $booking_data['rooms_qty'] ?? 1 );
+$units         = intval( $booking_data['units'] ?? $booking_data['units_qty'] ?? 1 );
 $currency      = $booking_data['currency'] ?? 'EUR';
 
 // Get deposit percentage from settings

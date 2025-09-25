@@ -187,10 +187,10 @@ if ( ! empty( $event_date ) ) {
 				</div>
 				<?php endif; ?>
 				
-				<?php if ( ! empty( $booking->rooms_qty ) && $booking->rooms_qty > 1 ) : ?>
+				<?php if ( ! empty( $booking->units_qty ) && $booking->units_qty > 1 ) : ?>
 				<div class="aiohm-rooms-row">
-					<span class="aiohm-label"><?php esc_html_e( 'Rooms:', 'aiohm-booking-pro' ); ?></span>
-					<span class="aiohm-value"><?php echo esc_html( $booking->rooms_qty ); ?></span>
+					<span class="aiohm-label"><?php esc_html_e( 'Units:', 'aiohm-booking-pro' ); ?></span>
+					<span class="aiohm-value"><?php echo esc_html( $booking->units_qty ); ?></span>
 				</div>
 				<?php endif; ?>
 			<?php endif; ?>

@@ -3,11 +3,11 @@
  * Abstract AI Provider class
  * Base class for all AI provider implementations
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  * @author  OHM Events Agency
  * @author URI: https://www.ohm.events
  * @license GPL-2.0+ https://www.gnu.org/licenses/gpl-2.0.html
- * @since 1.1.1
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,8 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Abstract AI Provider class
  *
- * @package AIOHM_Booking
- * @since 1.1.1
+ * @since  2.0.0
  */
 abstract class AIOHM_BOOKING_AI_Provider_Abstract {
 

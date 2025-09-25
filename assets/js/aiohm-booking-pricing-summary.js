@@ -65,6 +65,7 @@
                 selectedEvents: this.pricingCard.querySelector('.aiohm-selected-events'),
                 selectedAccommodations: this.pricingCard.querySelector('.aiohm-selected-accommodations'),
                 eventSummaryItem: this.pricingCard.querySelector('.aiohm-booking-event-summary-item'),
+                eventsList: this.pricingCard.querySelector('.aiohm-events-list'),
                 accommodationsList: this.pricingCard.querySelector('.aiohm-accommodations-list'),
                 
                 // Pricing rows
@@ -189,9 +190,9 @@
             
             if (eventData.selectedEvents && eventData.selectedEvents.length > 0) {
                 this.selectedEvents = eventData.selectedEvents;
-                // Update early bird days based on first selected event (for backwards compatibility)
+                // Update early bird days based on first selected event
                 this.earlybirdDays = eventData.selectedEvents[0].earlyBirdDays || this.earlybirdDays;
-                // Update deposit percentage based on first selected event (for backwards compatibility)
+                // Update deposit percentage based on first selected event
                 this.depositPercent = eventData.selectedEvents[0].depositPercentage || this.depositPercent;
             } else {
                 this.selectedEvents = [];
@@ -351,7 +352,7 @@
         updateEventsList() {
             
             // Find the event list container (similar to accommodationsList)
-            const eventListContainer = this.elements.selectedEvents.querySelector('.aiohm-booking-event-summary-content') || 
+            const eventListContainer = this.elements.eventsList || 
                                        this.elements.selectedEvents.querySelector('.aiohm-events-list') ||
                                        this.elements.selectedEvents;
             
@@ -951,7 +952,7 @@
             if (this.selectedEvents.length > 0) {
                 // Use multiple events format to match the event selection template
                 if (this.selectedEvents.length === 1) {
-                    // Single event - maintain backward compatibility
+                    // Single event format
                     const event = this.selectedEvents[0];
                     formData.append('selected_event', event.index || 0);
                     formData.append('ticket_quantity', this.ticketQuantity);

@@ -3,9 +3,9 @@
  * Error Handling and Logging Utilities for AIOHM Booking
  * Provides centralized error handling, logging, and user feedback.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.1.1
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

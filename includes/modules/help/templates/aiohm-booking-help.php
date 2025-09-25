@@ -3,7 +3,7 @@
  * Help Template
  *
  * @package AIOHM Booking
- * @since 1.0.0
+ * @since  2.0.0
  */
 
 // Prevent direct access.

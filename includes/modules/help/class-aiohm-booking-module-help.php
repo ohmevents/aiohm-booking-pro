@@ -2,8 +2,8 @@
 /**
  * Help Module - Provides documentation and support functionality
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

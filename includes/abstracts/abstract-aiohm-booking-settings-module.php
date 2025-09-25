@@ -3,8 +3,8 @@
  * Abstract Settings Module Class
  * Base class for modules that provide settings sections
  *
- * @package AIOHM_Booking
- * @since 1.1.1
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

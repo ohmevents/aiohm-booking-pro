@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the AIOHM Booking plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: AIOHM Booking Pro 2.0.3\n"
+"Project-Id-Version: AIOHM Booking Pro 2.0.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiohm-booking-pro\n"
 "Last-Translator: AIOHM Team\n"
 "Language-Team: Romanian <ro@li.org>\n"

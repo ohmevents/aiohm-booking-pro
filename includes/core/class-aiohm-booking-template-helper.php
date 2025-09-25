@@ -3,9 +3,9 @@
  * Template Helper Class
  * Provides data and logic without cluttering templates.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.1.1
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,11 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Template Helper Class
- * Provides data and logic without cluttering templates.
- *
- * @package AIOHM_Booking
- *
- * @since 1.1.1
  */
 class AIOHM_BOOKING_Template_Helper {
 

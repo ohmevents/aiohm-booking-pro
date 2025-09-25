@@ -2,8 +2,8 @@
 /**
  * Stripe Payment Module - Professional payment processing with Stripe
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -28,8 +28,7 @@ use Stripe\Customer;
  *
  * Handles Stripe payment processing for AIOHM Booking system.
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract {
 
@@ -296,7 +295,7 @@ class AIOHM_BOOKING_Module_Stripe extends AIOHM_BOOKING_Payment_Module_Abstract 
 	/**
 	 * Render settings template.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 */
 	public function render_settings() {
 		$settings = $this->get_settings();

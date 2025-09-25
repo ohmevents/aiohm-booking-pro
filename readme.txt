@@ -3,7 +3,7 @@ Contributors: ohm-events, aiohm, freemius
 Tags: booking, events, tickets, calendar, accommodation
 Requires at least: 6.2
 Tested up to: 6.8
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -228,6 +228,13 @@ The plugin uses a modular architecture. Enable only what you need:
 
 == Changelog ==
 
+= 2.0.4 =
+* **PRODUCTION READY**: Comprehensive debug code cleanup - removed all console.log, console.error, and development debug statements for production deployment
+* **ORDER SYSTEM**: Enhanced order creation system to properly collect event ticket data, pricing information, and populate order items table
+* **DATA INTEGRITY**: Fixed systematic order data issues including missing email collection, zero pricing data, and empty order items
+* **BUGFIX**: Resolved Order ID display issues with missing event tickets, email addresses, and incorrect total amounts
+* **CODE QUALITY**: Maintained legitimate error handling and logging systems while removing debug output for clean production code
+
 = 2.0.3 =
 * **MAJOR ARCHITECTURAL UPGRADE**: Migrated events from array storage to Custom Post Type (aiohm_booking_event) for consistency with accommodations
 * **FEATURE**: Automatic migration system converts existing events to CPT while maintaining backward compatibility
@@ -324,6 +331,9 @@ The plugin uses a modular architecture. Enable only what you need:
 * Module system foundation
 
 == Upgrade Notice ==
+
+= 2.0.4 =
+Production-ready update with comprehensive debug code cleanup and enhanced order system. Critical fixes for order data integrity including proper event ticket collection and email handling. Recommended for all production sites.
 
 = 1.2.8 =
 Critical bugfix update that resolves Stripe payment redirect issues and accommodation pricing display problems. Includes production-ready code cleanup with all debug statements removed. Essential update for proper payment processing.

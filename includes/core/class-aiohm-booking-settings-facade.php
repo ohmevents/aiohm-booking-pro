@@ -5,8 +5,8 @@
  * Provides a unified interface for all settings operations across the plugin,
  * integrating global settings, module settings, and validation.
  *
- * @package AIOHM_Booking
- * @since 1.2.5
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

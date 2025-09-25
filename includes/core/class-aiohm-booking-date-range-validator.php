@@ -5,9 +5,9 @@
  * Specialized utility class for validating date ranges and handling
  * private event conflicts in booking requests.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.2.4
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

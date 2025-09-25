@@ -87,6 +87,12 @@
             
             // Event card toggle handlers
             $(document).on('click.aiohm-settings', '.aiohm-event-toggle-btn', AIOHM_Booking_Settings_Admin.handleEventCardToggle);
+            
+            // Event type color picker handlers
+            $(document).on('change.aiohm-settings', '.aiohm-event-type-color-picker', AIOHM_Booking_Settings_Admin.handleEventTypeColorChange);
+            
+            // Event type input change handlers
+            $(document).on('input.aiohm-settings change.aiohm-settings', 'input[name*="[event_type]"]', AIOHM_Booking_Settings_Admin.handleEventTypeInputChange);
             // Bind status badge events with more specific selectors
             $(document).on('click.aiohm-settings', '.status-badge[data-field]', AIOHM_Booking_Settings_Admin.handleFieldStatusToggle);
             $(document).on('click.aiohm-settings', '.field-status-badge .status-badge', AIOHM_Booking_Settings_Admin.handleFieldStatusToggle);
@@ -826,8 +832,6 @@
                 nonce = aiohm_booking_admin[provider + '_nonce'];
             } else if (typeof aiohm_booking_admin !== 'undefined' && aiohm_booking_admin.nonce) {
                 nonce = aiohm_booking_admin.nonce;
-            } else {
-                console.error('No nonce available');
             }
             
             $.ajax({
@@ -873,7 +877,7 @@
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error('AJAX error:', xhr, status, error);
+                    // AJAX error occurred
                     $button.removeClass('testing');
                     $button.prop('disabled', false);
                     if ($button.find('.btn-text').length) {
@@ -937,25 +941,30 @@
 
         handleFormCustomizationSave: function($button) {
             $button.prop('disabled', true).text('Saving...');
-            
+
             // Find the form customization form (the form contains the card, not vice versa)
             var $container = $button.closest('form.aiohm-form-customization-form');
-            
+
             // Get the option name from the hidden field
             var optionName = $container.find('input[name="option_name"]').val() || 'aiohm_booking_form_settings';
             var formType = $container.find('input[name="form_type"]').val() || 'tickets';
-            
+
             // Create the data object with the correct structure
             var formData = {
                 action: 'aiohm_save_form_settings',
                 form_type: formType,
                 option_name: optionName
             };
-            
-            // Add nonce
-            var nonceField = $container.find('input[name="aiohm_form_settings_nonce"]');
+
+            // Add nonce - try multiple possible nonce field names
+            var nonceField = $container.find('input[name="aiohm_form_settings_nonce"], input[name="_wpnonce"]');
             if (nonceField.length > 0) {
                 formData.aiohm_form_settings_nonce = nonceField.val();
+            } else {
+                // Try to find any nonce field in the entire form
+                var allNonceFields = $container.find('input[type="hidden"]').filter(function() {
+                    return $(this).attr('name') && $(this).attr('name').indexOf('nonce') !== -1;
+                });
             }
             
             // Create the settings object with the correct key
@@ -1001,8 +1010,9 @@
                     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 },
                 success: function(response) {
+                    // AJAX Success
                     $button.prop('disabled', false).text('Save Settings');
-                    
+
                     if (response.success) {
                         AIOHM_Booking_Settings_Admin.showNotice('Form customization saved successfully!', 'success');
                         // Reload the page to show updated settings
@@ -1014,6 +1024,7 @@
                     }
                 },
                 error: function(xhr, status, error) {
+                    // AJAX Error occurred
                     $button.prop('disabled', false).text('Save Settings');
                     AIOHM_Booking_Settings_Admin.showNotice('Network error while saving form customization: ' + error, 'error');
                 }
@@ -1567,15 +1578,33 @@
             var currency = '€'; // Default currency symbol
 
             return `
-                <div class="aiohm-booking-event-settings aiohm-booking-admin-card" data-event-index="${eventIndex}">
+                <div class="aiohm-booking-event-settings aiohm-booking-admin-card aiohm-collapsed" 
+                     data-event-index="${eventIndex}"
+                     ${event.event_type ? `data-event-type-color="${this.generateEventTypeColor(event.event_type)}" style="--event-type-color: ${this.generateEventTypeColor(event.event_type)};"` : ''}>
                     <!-- Event Header -->
                     <div class="aiohm-card-header aiohm-event-card-header">
                         <div class="aiohm-card-header-title">
+                            ${event.event_type ? `
+                                <div class="aiohm-event-type-badge-container">
+                                    <span class="aiohm-event-type-badge" 
+                                          style="background-color: ${this.generateEventTypeColor(event.event_type)};" 
+                                          data-event-type="${this.escapeHtml(event.event_type)}"
+                                          data-event-index="${eventIndex}">
+                                        ${this.escapeHtml(event.event_type)}
+                                    </span>
+                                    <input type="color" 
+                                           class="aiohm-event-type-color-picker" 
+                                           value="${this.generateEventTypeColor(event.event_type)}" 
+                                           data-event-type="${this.escapeHtml(event.event_type)}"
+                                           data-event-index="${eventIndex}"
+                                           title="Change event type color">
+                                </div>
+                            ` : ''}
                             <h3 class="aiohm-card-title">${this.escapeHtml(event.title)}</h3>
                         </div>
                         <div class="aiohm-card-header-actions">
-                            <button type="button" class="aiohm-event-toggle-btn" data-event-index="${eventIndex}" aria-label="Collapse event details" aria-expanded="true">
-                                <span class="dashicons dashicons-arrow-up-alt2 aiohm-toggle-icon"></span>
+                            <button type="button" class="aiohm-event-toggle-btn" data-event-index="${eventIndex}" aria-label="Expand event details" aria-expanded="false">
+                                <span class="dashicons dashicons-arrow-down-alt2 aiohm-toggle-icon"></span>
                             </button>
                         </div>
                     </div>
@@ -1633,7 +1662,7 @@
 
                                 <div class="aiohm-columns-2">
                                     <div class="aiohm-form-group">
-                                        <label>Available Seats</label>
+                                        <label>Available Tickets</label>
                                         <input type="number" name="events[${eventIndex}][available_seats]" value="${event.available_seats || ''}" min="1" max="10000" class="aiohm-number-input">
                                     </div>
                                     <div class="aiohm-form-group">
@@ -1748,20 +1777,36 @@
             var $statsContainer = $('.aiohm-booking-orders-stats');
             if ($statsContainer.length) {
                 var totalEvents = $('.aiohm-booking-event-settings').length;
-
-                // Update the total events count
-                $statsContainer.find('.aiohm-booking-orders-stat').first().find('.number').text(totalEvents);
-
-                // Update total seats count
-                var totalSeats = 0;
+                var totalTickets = 0;
+                var upcomingEvents = 0;
+                var currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+                
+                // Calculate statistics from event cards
                 $('.aiohm-booking-event-settings').each(function() {
                     var $card = $(this);
-                    var seatsInput = $card.find('input[name*="[available_seats]"]').val();
-                    if (seatsInput) {
-                        totalSeats += parseInt(seatsInput);
+                    var ticketsInput = $card.find('input[name*="[available_seats]"]').val();
+                    var dateInput = $card.find('input[name*="[event_date]"]').val();
+                    
+                    if (ticketsInput) {
+                        totalTickets += parseInt(ticketsInput) || 0;
+                    }
+                    
+                    if (dateInput && dateInput >= currentDate) {
+                        upcomingEvents++;
                     }
                 });
-                $statsContainer.find('.aiohm-booking-orders-stat').last().find('.number').text(totalSeats);
+                
+                var $stats = $statsContainer.find('.aiohm-booking-orders-stat');
+                
+                // Update statistics in order: Total Events, Upcoming Events, Total Tickets
+                if ($stats.length >= 3) {
+                    $stats.eq(0).find('.number').text(totalEvents);
+                    $stats.eq(1).find('.number').text(upcomingEvents);
+                    $stats.eq(2).find('.number').text(totalTickets);
+                }
+                
+                // Note: Revenue, occupancy rate, and pending orders require server data
+                // and will be updated via AJAX if needed in future enhancement
             }
         },
 
@@ -1799,6 +1844,121 @@
             var div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        },
+
+        // Generate consistent color for event type
+        generateEventTypeColor: function(eventType) {
+            if (!eventType || eventType.trim() === '') {
+                return '#6b7280'; // ohm-gray-500
+            }
+
+            // Check if we have a stored color for this type
+            var storedColors = JSON.parse(localStorage.getItem('aiohm_event_type_colors') || '{}');
+            if (storedColors[eventType]) {
+                return storedColors[eventType];
+            }
+
+            // Predefined colors for common event types
+            var predefinedColors = {
+                'breakfast': '#f59e0b',   // amber-500
+                'lunch': '#10b981',       // emerald-500  
+                'dinner': '#8b5cf6',      // violet-500
+                'meeting': '#3b82f6',     // blue-500
+                'workshop': '#06b6d4',    // cyan-500
+                'conference': '#ef4444',  // red-500
+                'concert': '#ec4899',     // pink-500
+                'seminar': '#84cc16',     // lime-500
+                'training': '#f97316',    // orange-500
+                'party': '#a855f7'       // purple-500
+            };
+
+            var typeLower = eventType.toLowerCase().trim();
+            if (predefinedColors[typeLower]) {
+                var color = predefinedColors[typeLower];
+                storedColors[eventType] = color;
+                localStorage.setItem('aiohm_event_type_colors', JSON.stringify(storedColors));
+                return color;
+            }
+
+            // Generate color from hash
+            var hash = this.hashCode(eventType);
+            var hue = Math.abs(hash) % 360;
+            var saturation = 60 + (Math.abs(hash >> 8) % 20); // 60-80%
+            var lightness = 45 + (Math.abs(hash >> 16) % 15); // 45-60%
+            
+            var color = this.hslToHex(hue, saturation, lightness);
+            
+            // Store the generated color
+            storedColors[eventType] = color;
+            localStorage.setItem('aiohm_event_type_colors', JSON.stringify(storedColors));
+            
+            return color;
+        },
+
+        // Simple hash function for strings
+        hashCode: function(str) {
+            var hash = 0;
+            if (str.length === 0) return hash;
+            for (var i = 0; i < str.length; i++) {
+                var char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            return hash;
+        },
+
+        // Convert HSL to Hex
+        hslToHex: function(h, s, l) {
+            s /= 100;
+            l /= 100;
+
+            var c = (1 - Math.abs(2 * l - 1)) * s;
+            var x = c * (1 - Math.abs((h / 60) % 2 - 1));
+            var m = l - c / 2;
+            var r = 0, g = 0, b = 0;
+
+            if (0 <= h && h < 60) {
+                r = c; g = x; b = 0;
+            } else if (60 <= h && h < 120) {
+                r = x; g = c; b = 0;
+            } else if (120 <= h && h < 180) {
+                r = 0; g = c; b = x;
+            } else if (180 <= h && h < 240) {
+                r = 0; g = x; b = c;
+            } else if (240 <= h && h < 300) {
+                r = x; g = 0; b = c;
+            } else if (300 <= h && h < 360) {
+                r = c; g = 0; b = x;
+            }
+
+            r = Math.round((r + m) * 255);
+            g = Math.round((g + m) * 255);
+            b = Math.round((b + m) * 255);
+
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        },
+
+        // Update event type color
+        updateEventTypeColor: function(eventType, newColor) {
+            var storedColors = JSON.parse(localStorage.getItem('aiohm_event_type_colors') || '{}');
+            storedColors[eventType] = newColor;
+            localStorage.setItem('aiohm_event_type_colors', JSON.stringify(storedColors));
+            
+            // Update all badges with this event type
+            $('.aiohm-event-type-badge[data-event-type="' + eventType + '"]').css('background-color', newColor);
+            $('.aiohm-event-type-color-picker[data-event-type="' + eventType + '"]').val(newColor);
+            
+            // Update all event card borders with this event type
+            $('.aiohm-booking-event-settings').each(function() {
+                var $card = $(this);
+                var $badge = $card.find('.aiohm-event-type-badge[data-event-type="' + eventType + '"]');
+                
+                if ($badge.length > 0) {
+                    // Update CSS custom property and data attribute
+                    $card.css('--event-type-color', newColor);
+                    $card.attr('data-event-type-color', newColor);
+                }
+            });
         },
 
         handleEventONImport: function(e) {
@@ -1995,11 +2155,11 @@
             var eventIndex = $button.data('event-index') || $eventCard.data('event-index') || $eventCard.index();
             
             // Toggle collapsed state
-            $eventCard.toggleClass('collapsed');
+            $eventCard.toggleClass('aiohm-collapsed');
             
             // Update button icon
             var $icon = $button.find('.dashicons');
-            if ($eventCard.hasClass('collapsed')) {
+            if ($eventCard.hasClass('aiohm-collapsed')) {
                 $icon.removeClass('dashicons-arrow-up-alt2').addClass('dashicons-arrow-down-alt2');
                 $button.attr('title', 'Expand event settings');
             } else {
@@ -2008,7 +2168,84 @@
             }
             
             // Save state to localStorage
-            AIOHM_Booking_Settings_Admin.saveEventCardState(eventIndex, $eventCard.hasClass('collapsed'));
+            AIOHM_Booking_Settings_Admin.saveEventCardState(eventIndex, $eventCard.hasClass('aiohm-collapsed'));
+        },
+
+        // Handle event type color picker changes
+        handleEventTypeColorChange: function(e) {
+            var $colorPicker = $(this);
+            var eventType = $colorPicker.data('event-type');
+            var newColor = $colorPicker.val();
+            
+            if (eventType && newColor) {
+                // Update the color for this event type
+                AIOHM_Booking_Settings_Admin.updateEventTypeColor(eventType, newColor);
+                
+                // Also update the badge color immediately
+                $colorPicker.siblings('.aiohm-event-type-badge').css('background-color', newColor);
+            }
+        },
+
+        // Handle event type input changes to update badge
+        handleEventTypeInputChange: function(e) {
+            var $input = $(this);
+            var $eventCard = $input.closest('.aiohm-booking-event-settings');
+            var $badgeContainer = $eventCard.find('.aiohm-event-type-badge-container');
+            var $header = $eventCard.find('.aiohm-card-header-title');
+            var eventIndex = $eventCard.data('event-index');
+            var newEventType = $input.val().trim();
+            
+            if (newEventType) {
+                // Generate color for the new event type
+                var color = AIOHM_Booking_Settings_Admin.generateEventTypeColor(newEventType);
+                
+                // If badge container doesn't exist, create it
+                if ($badgeContainer.length === 0) {
+                    var badgeHtml = `
+                        <div class="aiohm-event-type-badge-container">
+                            <span class="aiohm-event-type-badge" 
+                                  style="background-color: ${color};" 
+                                  data-event-type="${AIOHM_Booking_Settings_Admin.escapeHtml(newEventType)}"
+                                  data-event-index="${eventIndex}">
+                                ${AIOHM_Booking_Settings_Admin.escapeHtml(newEventType)}
+                            </span>
+                            <input type="color" 
+                                   class="aiohm-event-type-color-picker" 
+                                   value="${color}" 
+                                   data-event-type="${AIOHM_Booking_Settings_Admin.escapeHtml(newEventType)}"
+                                   data-event-index="${eventIndex}"
+                                   title="Change event type color">
+                        </div>
+                    `;
+                    $header.prepend(badgeHtml);
+                    
+                    // Update card borders
+                    $eventCard.css('--event-type-color', color);
+                    $eventCard.attr('data-event-type-color', color);
+                } else {
+                    // Update existing badge
+                    var $badge = $badgeContainer.find('.aiohm-event-type-badge');
+                    var $colorPicker = $badgeContainer.find('.aiohm-event-type-color-picker');
+                    
+                    $badge.text(newEventType)
+                          .css('background-color', color)
+                          .attr('data-event-type', newEventType);
+                    
+                    $colorPicker.val(color)
+                               .attr('data-event-type', newEventType);
+                    
+                    // Update card borders
+                    $eventCard.css('--event-type-color', color);
+                    $eventCard.attr('data-event-type-color', color);
+                }
+            } else {
+                // Remove badge if event type is empty
+                $badgeContainer.remove();
+                
+                // Remove card borders
+                $eventCard.removeAttr('data-event-type-color');
+                $eventCard.css('--event-type-color', '');
+            }
         },
 
         // Save event card toggle state to localStorage
@@ -2036,7 +2273,7 @@
                     
                     if (states[pageKey][eventIndex] === true) {
                         // Apply collapsed state
-                        $eventCard.addClass('collapsed');
+                        $eventCard.addClass('aiohm-collapsed');
                         
                         // Update toggle button icon
                         var $toggleBtn = $eventCard.find('.aiohm-event-toggle-btn');

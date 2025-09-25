@@ -6,8 +6,8 @@
  * Provides static methods for easy access to accommodation data
  * while maintaining consistency across the plugin.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  *
  * @author OHM Events Agency <https://www.ohm.events>
  * @copyright  2025 AIOHM
@@ -24,14 +24,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Static service for accommodation counting and management operations.
  * Acts as a centralized facade for the AIOHM_BOOKING_Accommodation_Counter class.
  *
- * @since 1.2.3
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Accommodation_Service {
 
 	/**
 	 * Cached accommodation counter instance
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @var AIOHM_BOOKING_Accommodation_Counter|null
 	 */
 	private static $counter_instance = null;
@@ -42,7 +42,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	 * Creates and caches a single instance of the accommodation counter
 	 * with current cell statuses data.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param bool $force_refresh Force refresh of the counter instance.
 	 * @return AIOHM_BOOKING_Accommodation_Counter
@@ -67,7 +67,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	 * Centralized method for getting the total number of accommodations.
 	 * Replaces duplicate implementations across the plugin.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @return int Total number of accommodation units
 	 */
@@ -79,7 +79,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	/**
 	 * Get accommodations list
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @return array Array of accommodation IDs
 	 */
@@ -91,7 +91,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	/**
 	 * Get unit counts for a specific date
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $date Date in Y-m-d format.
 	 * @return array Unit counts with keys: booked, pending, blocked, external, available
@@ -104,7 +104,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	/**
 	 * Check if accommodation exists
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param int $accommodation_id Accommodation ID to check.
 	 * @return bool True if accommodation exists
@@ -120,7 +120,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	 * Centralized validation logic for accommodation selection
 	 * in booking contexts.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $selected_accommodations Array of selected accommodation IDs.
 	 * @param array $context Booking context data.
@@ -170,7 +170,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	/**
 	 * Check if selection is for full property booking
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $selected_accommodations Array of selected accommodation IDs.
 	 * @param array $context Optional booking context.
@@ -187,7 +187,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	/**
 	 * Get accommodation availability for date range
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $start_date Start date in Y-m-d format.
 	 * @param string $end_date End date in Y-m-d format.
@@ -212,7 +212,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	/**
 	 * Calculate accommodation pricing
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $selected_accommodations Array of accommodation IDs.
 	 * @param int   $nights Number of nights.
@@ -249,7 +249,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	 *
 	 * Forces refresh of accommodation data on next access.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 */
 	public static function clear_cache() {
 		self::$counter_instance = null;
@@ -258,7 +258,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	/**
 	 * Get accommodation statistics
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @return array Statistics about accommodations
 	 */
@@ -293,7 +293,7 @@ class AIOHM_BOOKING_Accommodation_Service {
 	/**
 	 * Check if a specific accommodation is available for a date range
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param int    $accommodation_id Accommodation ID to check.
 	 * @param string $start_date Start date in Y-m-d format.

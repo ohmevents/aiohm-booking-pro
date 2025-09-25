@@ -264,9 +264,7 @@
             const eventIndex = $button.data('event-index');
             const $eventCard = $button.closest('.aiohm-booking-event-settings');
             
-            // Debug: Log the event index
-            console.log('Event Index:', eventIndex);
-            
+
             if (eventIndex === undefined || eventIndex === null) {
                 alert('Error: Could not determine event index. Please refresh the page and try again.');
                 return;
@@ -335,18 +333,7 @@
             };
             ajaxData.events[eventIndex] = eventData;
             
-            // Debug: Log the data being sent
-            console.log('AJAX Data:', ajaxData);
-            console.log('Event Data:', eventData);
-            console.log('Event Data Keys:', Object.keys(eventData));
-            
-            // Debug: Log all field names found in the event card
-            const fieldNames = [];
-            $eventCard.find('input, textarea, select').each(function() {
-                const name = $(this).attr('name');
-                if (name) fieldNames.push(name);
-            });
-            console.log('All field names in event card:', fieldNames);
+
             
             // Send AJAX request
             $.ajax({

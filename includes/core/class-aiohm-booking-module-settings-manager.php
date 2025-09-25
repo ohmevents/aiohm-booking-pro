@@ -5,8 +5,8 @@
  * Handles settings validation, sanitization, and processing for all modules.
  * Extracts complex logic from the abstract module class to reduce complexity.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

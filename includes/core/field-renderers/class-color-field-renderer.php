@@ -5,8 +5,8 @@
  * Handles rendering and sanitization of color picker fields.
  * Uses HTML5 color input type for native color picker support.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 // phpcs:disable WordPress.Files.FileName

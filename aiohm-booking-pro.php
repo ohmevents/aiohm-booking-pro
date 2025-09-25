@@ -1,16 +1,10 @@
 <?php
 
 /**
- * Main plugin file for AIOHM Booking
- *
- * @package AIOHM_Booking_PRO
- */
-// phpcs:disable WordPress.Files.FileName.InvalidClassFileName
-/**
  * Plugin Name: AIOHM Booking Pro
  * Plugin URI:  https://wordpress.org/plugins/aiohm-booking/
  * Description: Professional event booking and accommodation management system. Streamlined booking experience for events and accommodations with secure Stripe payments and comprehensive utilities.
- * Version:     2.0.3
+ * Version:     2.0.4
  * Author:      OHM Events Agency
  * Author URI:  https://www.ohm.events
  * Text Domain: aiohm-booking-pro
@@ -24,13 +18,7 @@
  * @fs_premium_only /includes/modules/payments/stripe/
  *
  * @package AIOHM_Booking_PRO
- */
-/**
- * Main plugin file for AIOHM Booking
- * Handles accommodation booking with rooms and deposit management
- *
- * @package AIOHM_Booking_PRO
- * @since   1.2.6
+ * @since   2.0.0
  */
 if ( !defined( 'ABSPATH' ) ) {
     exit;
@@ -463,7 +451,7 @@ if ( function_exists( 'aiohm_booking_fs' ) ) {
 
     }
 }
-define( 'AIOHM_BOOKING_VERSION', '2.0.3' );
+define( 'AIOHM_BOOKING_VERSION', '2.0.4' );
 define( 'AIOHM_BOOKING_FILE', __FILE__ );
 define( 'AIOHM_BOOKING_DIR', __DIR__ . '/' );
 define( 'AIOHM_BOOKING_URL', plugins_url( '', __FILE__ ) . '/' );
@@ -506,9 +494,10 @@ function aiohm_booking_payment_module_exists(  $module_name  ) {
  * Initialize plugin components
  *
  * @package AIOHM_Booking_PRO
- * @since   1.2.6
+ * @since   2.0.0
  * @author  OHM Events Agency
- * @author URI: https://www.ohm.events */
+ * @author URI: https://www.ohm.events
+ */
 class AIOHM_Booking {
     /**
      * Singleton instance

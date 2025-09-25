@@ -5,8 +5,8 @@
  * Handles rendering and sanitization of text-based input fields.
  * Supports text, email, url, and password field types.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 // phpcs:disable WordPress.Files.FileName

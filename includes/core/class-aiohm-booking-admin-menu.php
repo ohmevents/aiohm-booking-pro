@@ -6,9 +6,9 @@
  * structure for the AIOHM Booking plugin. This class is responsible for
  * creating all admin menu items based on module settings and user permissions.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.2.6
+ * @since  2.0.0
  *
  * @author OHM Events Agency <https://www.ohm.events>
  * @copyright  2025 AIOHM
@@ -27,14 +27,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Creates and manages the WordPress admin menu structure for the booking system,
  * including dynamic menu item creation based on enabled modules and user settings.
  *
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Admin_Menu {
 
 	/**
 	 * Module registry instance.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @var AIOHM_BOOKING_Module_Registry
 	 */
 	private $module_registry;
@@ -42,7 +42,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Plugin settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @var array
 	 */
 	private $settings;
@@ -52,7 +52,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	 *
 	 * Initializes the menu system and sets up WordPress hooks.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param AIOHM_BOOKING_Module_Registry $module_registry The module registry instance.
 	 */
@@ -63,7 +63,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Initialize the admin menu system.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -74,7 +74,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Initialize WordPress hooks.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -88,7 +88,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	 * Builds the complete admin menu structure for AIOHM Booking,
 	 * including conditional menu items based on enabled modules.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -121,7 +121,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Add core menu items that are always visible.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -150,7 +150,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Add conditional menu items based on enabled modules.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -221,7 +221,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Add developer-only menu items.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -243,7 +243,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Get enabled modules based on current settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return array Array of enabled module flags
 	 */
@@ -262,7 +262,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Check if a module is enabled in settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param string $setting_key The setting key to check.
 	 *
@@ -278,7 +278,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Check if notifications module is available (file exists).
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 *
 	 * @return bool True if notifications module file exists
 	 */
@@ -290,7 +290,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Get menu icon for admin menu.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return string Menu icon data URI or dashicon class
 	 */
@@ -318,7 +318,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Check if current user is a developer.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return bool True if user is a developer
 	 */
@@ -342,7 +342,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Render the Settings admin page.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -364,7 +364,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Calendar page handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -387,7 +387,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Orders page handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -404,7 +404,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Notifications page handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -421,7 +421,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Event Tickets page handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -438,7 +438,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * Accommodations page handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -455,7 +455,7 @@ class AIOHM_BOOKING_Admin_Menu {
 	/**
 	 * CSS Manager page handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */

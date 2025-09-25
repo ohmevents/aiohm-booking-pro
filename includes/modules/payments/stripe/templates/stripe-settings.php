@@ -4,7 +4,7 @@
  * Stripe Settings Template
  *
  * @package AIOHM_Booking_PRO
- * @since 1.0.0
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

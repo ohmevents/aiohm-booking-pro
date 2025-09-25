@@ -4,8 +4,8 @@
  *
  * Provides common functionality for all payment modules to reduce code duplication.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

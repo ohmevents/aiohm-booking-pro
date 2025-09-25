@@ -193,5 +193,5 @@ For translation support or to contribute translations:
 ---
 
 **Last Updated:** December 15, 2024  
-**Plugin Version:** 2.0.3  
+**Plugin Version:** 2.0.4  
 **Translation Template Version:** 1.0.0

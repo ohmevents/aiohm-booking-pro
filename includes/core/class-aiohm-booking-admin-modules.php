@@ -5,9 +5,9 @@
  * Handles module coordination and management functionality for the admin interface.
  * Manages module availability, dependencies, coordination, and integration.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.2.6
+ * @since  2.0.0
  *
  * @author OHM Events Agency <https://www.ohm.events>
  * @copyright  2025 AIOHM
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Provides module coordination, availability checking, dependency management,
  * and integration services for the admin interface.
  *
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Admin_Modules {
 
@@ -556,7 +556,7 @@ class AIOHM_BOOKING_Admin_Modules {
 	/**
 	 * Render the dashboard page
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -573,7 +573,7 @@ class AIOHM_BOOKING_Admin_Modules {
 	/**
 	 * Render the tickets page
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */

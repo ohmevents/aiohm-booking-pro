@@ -4,9 +4,9 @@
  *
  * Handles fetching, updating, and caching of plugin settings.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.0.0
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Settings management class.
  *
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Settings {
 
@@ -37,7 +37,7 @@ class AIOHM_BOOKING_Settings {
 	/**
 	 * Get all plugin settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return array Plugin settings array.
 	 */
@@ -130,7 +130,7 @@ class AIOHM_BOOKING_Settings {
 	/**
 	 * Get a specific plugin setting.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param string $key The setting key.
 	 * @param mixed  $default_value The default value if the key is not found.
@@ -145,7 +145,7 @@ class AIOHM_BOOKING_Settings {
 	/**
 	 * Update plugin settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param array $settings The new settings array.
 	 *
@@ -190,7 +190,7 @@ class AIOHM_BOOKING_Settings {
 	/**
 	 * Save settings (alias for update).
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param array $settings The new settings array.
 	 *
@@ -203,7 +203,7 @@ class AIOHM_BOOKING_Settings {
 	/**
 	 * Update multiple settings by merging with existing ones.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param array $new_settings The new settings to merge.
 	 *
@@ -218,7 +218,7 @@ class AIOHM_BOOKING_Settings {
 	/**
 	 * Clear the settings cache.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */

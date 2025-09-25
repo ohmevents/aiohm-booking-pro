@@ -5,8 +5,8 @@
  * Extends the main error handler with module-specific error handling,
  * automatic error reporting, and module context awareness.
  *
- * @package AIOHM_Booking
- * @since 1.2.5
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

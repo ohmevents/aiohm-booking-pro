@@ -96,6 +96,22 @@ class AIOHMBookingSandwichNavigation {
 			return;
 		}
 		
+		// Step 2: Check if premium user - if yes, go to step 3, if not create pending order
+		if (this.currentStep === 2) {
+			// Check if user has premium access (check both possible variable names)
+			const isPremiumUser = window.aiohm_booking_frontend?.is_premium_user || 
+								 window.aiohm_booking?.is_premium_user || false;
+			
+			if (isPremiumUser) {
+				// Premium user: go to payment step
+				await this.animateToStep(3);
+			} else {
+				// Free user: create pending order and show message
+				await this.createPendingOrder();
+			}
+			return;
+		}
+		
 		if (this.currentStep < this.maxSteps) {
 			await this.animateToStep(this.currentStep + 1);
 		}
@@ -195,8 +211,6 @@ class AIOHMBookingSandwichNavigation {
 			if (targetStepElement) {
 				targetStepElement.classList.remove('aiohm-booking-step-hidden');
 				targetStepElement.classList.add('aiohm-booking-step-active');
-			} else {
-				console.error('AIOHM: Target step element not found!');
 			}
 			
 			// Wait for content to fade in
@@ -221,7 +235,6 @@ class AIOHMBookingSandwichNavigation {
 			}
 			
 		} catch (error) {
-			console.error('AIOHM Booking: Animation error:', error);
 			this.hideLoadingWidget();
 		} finally {
 			this.isAnimating = false;
@@ -242,7 +255,6 @@ class AIOHMBookingSandwichNavigation {
 					return false;
 				}
 			} catch (error) {
-				console.error('AIOHM Booking: Validation error:', error);
 				this.showMessage('Validation failed. Please try again.', 'error');
 				return false;
 			}
@@ -347,9 +359,24 @@ class AIOHMBookingSandwichNavigation {
 			if (this.currentStep === this.maxSteps) {
 				// Hide the next button on final step since Stripe handles payment flow
 				nextBtn.style.display = 'none';
+			} else if (this.currentStep === 2) {
+				// Step 2: Check premium status to determine button text
+				const isPremiumUser = window.aiohm_booking_frontend?.is_premium_user || 
+									 window.aiohm_booking?.is_premium_user || false;
+				
+				if (isPremiumUser) {
+					// Premium user: continue to payment step
+					if (nextText) nextText.textContent = 'Continue';
+					nextBtn.classList.remove('aiohm-booking-btn-final', 'aiohm-booking-btn-confirm');
+				} else {
+					// Free user: confirm booking (creates pending order)
+					if (nextText) nextText.textContent = 'Confirm Booking';
+					nextBtn.classList.add('aiohm-booking-btn-confirm');
+				}
+				nextBtn.style.display = '';
 			} else {
 				if (nextText) nextText.textContent = 'Continue';
-				nextBtn.classList.remove('aiohm-booking-btn-final');
+				nextBtn.classList.remove('aiohm-booking-btn-final', 'aiohm-booking-btn-confirm');
 				nextBtn.style.display = '';
 			}
 		}
@@ -484,6 +511,91 @@ class AIOHMBookingSandwichNavigation {
 	}
 	
 	/**
+	 * Create a pending order when user clicks "Confirm Booking" on step 2
+	 */
+	async createPendingOrder() {
+		try {
+			// Show loading state
+			const nextBtn = this.container.querySelector('.aiohm-booking-btn-next');
+			const nextText = nextBtn.querySelector('.aiohm-booking-btn-text');
+			const originalText = nextText.textContent;
+			
+			nextBtn.disabled = true;
+			nextText.textContent = 'Processing...';
+			
+			// Get the form data
+			const form = this.container.querySelector('#aiohm-booking-sandwich-form');
+			if (!form) {
+				throw new Error('Form not found for order creation');
+			}
+			
+			// Serialize form data as expected by the PHP handler
+			const formDataObj = new FormData(form);
+			const formDataString = new URLSearchParams(formDataObj).toString();
+			
+			// Create AJAX data
+			const ajaxData = new FormData();
+			ajaxData.append('action', 'aiohm_booking_create_pending_order');
+			ajaxData.append('nonce', window.aiohm_booking_frontend?.nonce || window.aiohm_booking?.nonce || '');
+			ajaxData.append('form_data', formDataString);
+			
+			// Get pricing data from the pricing summary
+			let pricingData = {};
+			if (window.AIOHM_Booking_Pricing_Summary && window.AIOHM_Booking_Pricing_Summary.instance) {
+				pricingData = window.AIOHM_Booking_Pricing_Summary.instance.getPricingData();
+			}
+			
+			// Add pricing data to form data
+			const updatedFormDataString = formDataString + '&pricing_data=' + encodeURIComponent(JSON.stringify({
+				total: pricingData.totals?.total || 0,
+				deposit: (pricingData.totals?.total || 0) * (pricingData.depositPercent || 50) / 100,
+				currency: pricingData.currency || 'RON'
+			}));
+			
+			ajaxData.set('form_data', updatedFormDataString);
+			
+			// Submit the booking to create a pending order
+			const response = await fetch(window.aiohm_booking?.ajax_url || ajaxurl, {
+				method: 'POST',
+				body: ajaxData
+			});
+			
+			const result = await response.json();
+			
+			if (result.success) {
+				// Show success message
+				this.showMessage(result.data.message || 'Booking confirmed! You will receive an email with payment instructions.', 'success');
+				
+				// Store the booking ID for later use
+				if (result.data.booking_id) {
+					this.container.dataset.bookingId = result.data.booking_id;
+				}
+				
+				// Optionally redirect or show success content
+				setTimeout(() => {
+					// You could redirect to a success page or show confirmation
+					// For now, just reset the form
+					this.showMessage('Thank you! Your booking has been confirmed and you will receive an email shortly.', 'success');
+				}, 1500);
+				
+			} else {
+				throw new Error(result.data?.message || 'Failed to create booking');
+			}
+			
+		} catch (error) {
+			this.showMessage('Error: ' + error.message, 'error');
+		} finally {
+			// Reset button state
+			const nextBtn = this.container.querySelector('.aiohm-booking-btn-next');
+			const nextText = nextBtn.querySelector('.aiohm-booking-btn-text');
+			if (nextBtn && nextText) {
+				nextBtn.disabled = false;
+				nextText.textContent = 'Confirm Booking';
+			}
+		}
+	}
+
+	/**
 	 * Create a pending order and trigger notification when moving to checkout
 	 */
 	async createPendingOrderAndNotify() {
@@ -491,7 +603,6 @@ class AIOHMBookingSandwichNavigation {
 			// Get the form data
 			const form = this.container.querySelector('#aiohm-booking-sandwich-form');
 			if (!form) {
-				console.error('AIOHM Booking: Form not found for order creation');
 				return;
 			}
 			
@@ -534,12 +645,10 @@ class AIOHMBookingSandwichNavigation {
 				if (result.data.booking_id) {
 					this.container.dataset.bookingId = result.data.booking_id;
 				}
-			} else {
-				console.error('AIOHM Booking: Failed to create pending order', result.data);
 			}
 			
 		} catch (error) {
-			console.error('AIOHM Booking: Error creating pending order', error);
+			// Error occurred creating pending order
 		}
 	}
 	

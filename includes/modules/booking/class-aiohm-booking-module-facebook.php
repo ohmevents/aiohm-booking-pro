@@ -5,8 +5,8 @@
  * Integrates with Facebook Graph API to import event data into AIOHM Booking system.
  * Supports event import from Facebook Events with comprehensive data mapping.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,14 +19,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles Facebook Graph API integration for importing event data including
  * event details, date/time, description, and cover images.
  *
- * @since 1.2.3
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstract {
 
 	/**
 	 * Facebook Graph API base URL.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @var string
 	 */
 	private $graph_api_url = 'https://graph.facebook.com/v18.0/';
@@ -37,7 +37,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * Returns the configuration array that defines this module's appearance
 	 * and behavior in the admin interface.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @return array Module UI definition array.
 	 */
 	public static function get_ui_definition() {
@@ -61,7 +61,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 *
 	 * Sets up action hooks for AJAX endpoints and form handling.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 */
 	protected function init_hooks() {
 		// AJAX handlers for Facebook import.
@@ -78,7 +78,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * Returns an array of settings fields that define the Facebook module's
 	 * configuration options including API access tokens and permissions.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @return array Settings fields configuration array.
 	 */
 	public function get_settings_fields() {
@@ -116,7 +116,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * Returns the default configuration values for the Facebook module
 	 * when no custom settings have been saved.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @return array Default settings array.
 	 */
 	protected function get_default_settings() {
@@ -133,7 +133,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 *
 	 * Loads JavaScript files needed for Facebook event import on the tickets admin page.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @param string $hook The current admin page hook.
 	 */
 	public function enqueue_facebook_scripts( $hook ) {
@@ -179,7 +179,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * Processes AJAX requests to import event data from Facebook Graph API
 	 * and populate the event form with the imported information.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 */
 	public function ajax_import_facebook_event() {
 		if ( ! check_ajax_referer( 'aiohm_booking_facebook_import', 'nonce', false ) ) {
@@ -227,7 +227,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 *
 	 * Returns basic event information for preview before importing.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 */
 	public function ajax_get_facebook_event_info() {
 		if ( ! check_ajax_referer( 'aiohm_booking_facebook_import', 'nonce', false ) ) {
@@ -272,7 +272,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * - https://facebook.com/events/123456789/
 	 * - https://m.facebook.com/events/123456789
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @param string $url Facebook event URL.
 	 * @return string|false Event ID or false on failure.
 	 */
@@ -298,7 +298,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 *
 	 * Returns limited event data for preview purposes before full import.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @param string $event_id Facebook event ID.
 	 * @return array|WP_Error Event information or error.
 	 */
@@ -340,7 +340,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * Fetches comprehensive event data from Facebook Graph API and formats it
 	 * for use in the AIOHM Booking system.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @param string $event_id Facebook event ID.
 	 * @return array|WP_Error Complete event data or error.
 	 */
@@ -379,7 +379,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 * Converts Facebook event data structure to match the expected format
 	 * for AIOHM Booking events.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @param array $facebook_data Raw Facebook event data.
 	 * @return array Formatted event data.
 	 */
@@ -425,7 +425,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 *
 	 * Displays Facebook integration setup instructions and connection status.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 */
 	public function render_admin_card_extras() {
 		$settings     = $this->get_module_settings();
@@ -469,7 +469,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 	 *
 	 * Makes a test request to Facebook Graph API to validate credentials.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 * @return bool|WP_Error True on success, WP_Error on failure.
 	 */
 	private function test_facebook_connection() {

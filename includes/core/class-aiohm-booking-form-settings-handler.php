@@ -5,8 +5,8 @@
  * Centralized handler for form settings to avoid duplication
  * between accommodation and tickets modules.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -21,35 +21,39 @@ class AIOHM_BOOKING_Form_Settings_Handler {
 	/**
 	 * Save unified form settings for both accommodation and tickets
 	 *
+	 * Handles form customization settings submission with proper security validation
+	 * and cross-module synchronization between tickets and accommodations.
+	 *
+	 * @since 2.0.3
 	 * @return void
 	 */
 	public static function save_unified_form_settings() {
-		// Verify nonce for security - check multiple possible nonce field names and actions.
-		$nonce_verified = false;
-
-		// Check for different possible nonce field names.
-		$possible_nonce_fields = array( 'aiohm_form_settings_nonce', '_wpnonce' );
-		foreach ( $possible_nonce_fields as $nonce_field ) {
-			if ( isset( $_POST[ $nonce_field ] ) ) {
-				$nonce = sanitize_text_field( wp_unslash( $_POST[ $nonce_field ] ) );
-				// Check both possible nonce actions for backwards compatibility.
-				if ( wp_verify_nonce( $nonce, 'aiohm_booking_form_settings' ) ||
-					wp_verify_nonce( $nonce, 'aiohm_booking_save_form_settings' ) ) {
-					$nonce_verified = true;
-					break;
+		// Verify nonce for security - use security helper for AJAX requests
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			// For AJAX requests, use the security helper
+			if ( ! AIOHM_BOOKING_Security_Helper::verify_ajax_nonce( 'save_form_settings', 'aiohm_form_settings_nonce' ) ) {
+				return; // Error response already sent by security helper
+			}
+		} else {
+			// For non-AJAX requests, verify nonce manually
+			$nonce_verified = false;
+			$possible_nonce_fields = array( 'aiohm_form_settings_nonce', '_wpnonce' );
+			foreach ( $possible_nonce_fields as $nonce_field ) {
+				if ( isset( $_POST[ $nonce_field ] ) ) {
+					$nonce = sanitize_text_field( wp_unslash( $_POST[ $nonce_field ] ) );
+					// Check for both possible nonce actions for backwards compatibility
+					$check1 = wp_verify_nonce( $nonce, 'aiohm_booking_save_form_settings' );
+					$check2 = wp_verify_nonce( $nonce, 'aiohm_booking_form_settings' );
+					
+					if ( $check1 || $check2 ) {
+						$nonce_verified = true;
+						break;
+					}
 				}
 			}
-		}
-
-		if ( ! $nonce_verified ) {
-			if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-				wp_send_json_error(
-					array(
-						'message' => 'Security check failed. Please refresh the page and try again.',
-					)
-				);
-			} else {
-				wp_die( 'Security check failed.' );
+			
+			if ( ! $nonce_verified ) {
+				wp_die( esc_html__( 'Security check failed.', 'aiohm-booking-pro' ) );
 			}
 		}
 
@@ -308,7 +312,18 @@ class AIOHM_BOOKING_Form_Settings_Handler {
 			update_option( 'aiohm_booking_settings', $main_settings );
 		}
 
-		return update_option( $option_name, $sanitized_settings );
+		$result = update_option( $option_name, $sanitized_settings );
+		
+		// Handle AJAX response
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			if ( $result ) {
+				wp_send_json_success( array( 'message' => 'Settings saved successfully!' ) );
+			} else {
+				wp_send_json_error( array( 'message' => 'Failed to save settings.' ) );
+			}
+		}
+		
+		return $result;
 	}
 
 	/**

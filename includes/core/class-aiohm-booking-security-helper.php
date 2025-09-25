@@ -5,8 +5,8 @@
  * Centralized security utilities for nonce verification, sanitization,
  * and common security patterns used throughout the plugin.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  *
  * @author OHM Events Agency
  * @copyright  2025 AIOHM
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Provides centralized security methods for nonce verification,
  * data sanitization, and permission checking.
  *
- * @since 1.2.3
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Security_Helper {
 
@@ -33,7 +33,7 @@ class AIOHM_BOOKING_Security_Helper {
 	 * Combines nonce verification with sanitization in a single method
 	 * to reduce code duplication across AJAX handlers.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $action Nonce action name.
 	 * @param string $nonce_key POST key containing the nonce. Default 'nonce'.
@@ -61,7 +61,7 @@ class AIOHM_BOOKING_Security_Helper {
 	/**
 	 * Verify nonce from any source (POST, GET, etc.)
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $nonce Nonce value to verify.
 	 * @param string $action Nonce action name.
@@ -74,7 +74,7 @@ class AIOHM_BOOKING_Security_Helper {
 	/**
 	 * Create nonce for plugin actions
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $action Action name.
 	 * @return string Nonce value
@@ -89,7 +89,7 @@ class AIOHM_BOOKING_Security_Helper {
 	 * Centralizes the common pattern of sanitizing POST data
 	 * with proper WordPress unslashing.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $key POST key to sanitize.
 	 * @param mixed  $default_value Default value if key doesn't exist.
@@ -142,7 +142,7 @@ class AIOHM_BOOKING_Security_Helper {
 	/**
 	 * Sanitize multiple POST fields at once
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $fields Array of field configurations: key => sanitize_type or key => [type, default].
 	 * @return array Sanitized data
@@ -168,7 +168,7 @@ class AIOHM_BOOKING_Security_Helper {
 	/**
 	 * Verify user capability for plugin operations
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $capability Required capability.
 	 * @param bool   $send_json_error Whether to send JSON error on failure.
@@ -196,7 +196,7 @@ class AIOHM_BOOKING_Security_Helper {
 	 * Performs both nonce verification and capability check in one call
 	 * for maximum security with minimal code duplication.
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $action Nonce action name.
 	 * @param string $capability Required capability. Default 'manage_options'.
@@ -220,7 +220,7 @@ class AIOHM_BOOKING_Security_Helper {
 	/**
 	 * Sanitize and validate booking data
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $data Raw booking data.
 	 * @return array Sanitized booking data
@@ -280,7 +280,7 @@ class AIOHM_BOOKING_Security_Helper {
 	/**
 	 * Check if current request is a valid AJAX request
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @return bool True if valid AJAX request
 	 */
@@ -291,7 +291,7 @@ class AIOHM_BOOKING_Security_Helper {
 	/**
 	 * Validate and sanitize file upload
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array $file $_FILES array element.
 	 * @param array $allowed_types Allowed file types.
@@ -327,7 +327,7 @@ class AIOHM_BOOKING_Security_Helper {
 	/**
 	 * Log security events for audit trail
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $event Event description.
 	 * @param array  $context Additional context data.

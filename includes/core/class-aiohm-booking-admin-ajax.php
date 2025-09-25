@@ -5,9 +5,9 @@
  * Handles all AJAX requests for the WordPress admin interface,
  * providing secure endpoints for settings management and administrative operations.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.2.6
+ * @since  2.0.0
  *
  * @author OHM Events Agency <https://www.ohm.events>
  * @copyright  2025 AIOHM
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Manages all AJAX requests for admin functionality with proper security,
  * validation, and error handling.
  *
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Admin_Ajax {
 
@@ -34,7 +34,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	 *
 	 * Sets up WordPress AJAX hooks for all admin endpoints.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -74,7 +74,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * Verify AJAX request security.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param string $nonce_action The nonce action to verify against.
 	 *
@@ -100,7 +100,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * Check memory and data size limits.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return bool True if limits are acceptable.
 	 */
@@ -129,7 +129,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for saving global settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -188,7 +188,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for saving API keys.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -233,7 +233,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for saving server URLs.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -275,7 +275,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for testing server connections.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -339,7 +339,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for saving toggle settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -435,7 +435,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for saving AI consent.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -466,7 +466,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for setting default AI provider.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -495,7 +495,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for saving individual accommodations.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -581,7 +581,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for saving grid module order.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -616,7 +616,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for testing Mautic connection.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -665,7 +665,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for sending test emails.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -711,7 +711,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * Log email activity for debugging and tracking.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param string $to_email The recipient email.
 	 * @param string $subject  The email subject.
@@ -893,7 +893,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	 * AJAX handler for testing Stripe connection.
 	 *
 	 * @deprecated This method is now handled by the Stripe module itself
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void
 	 */
 	/*
@@ -925,7 +925,7 @@ class AIOHM_BOOKING_Admin_Ajax {
 	/**
 	 * AJAX handler for testing PayPal connection.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */

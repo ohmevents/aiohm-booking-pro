@@ -4,8 +4,8 @@
  *
  * Handles AJAX requests for the integrated checkout flow
  *
- * @package AIOHM_Booking
- * @since 1.2.7
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -622,23 +622,48 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			// Parse form data
 			$form_data_raw = isset( $_POST['form_data'] ) ? sanitize_textarea_field( wp_unslash( $_POST['form_data'] ) ) : '';
 			parse_str( $form_data_raw, $form_data );
+			
+			// FIX: Email parsing issue - the @ symbol gets lost during URL encoding/decoding
+			if ( !empty( $form_data['email'] ) && strpos( $form_data['email'], '@' ) === false ) {
+				$malformed_email = $form_data['email'];
+				
+				// Common domain patterns where @ symbol is missing
+				$domain_patterns = array(
+					'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com',
+					'icloud.com', 'protonmail.com', 'zoho.com', 'mail.com',
+					'smartpanel.com'
+				);
+				
+				foreach ( $domain_patterns as $domain ) {
+					if ( strpos( $malformed_email, $domain ) !== false ) {
+						// Extract username part (everything before the domain)
+						$username = str_replace( $domain, '', $malformed_email );
+						$fixed_email = $username . '@' . $domain;
+						$form_data['email'] = $fixed_email;
+						break;
+					}
+				}
+			}
 
 			// Get pricing data from the pricing summary (this should be available from the form)
 			$pricing_data = json_decode( stripslashes( $form_data['pricing_data'] ?? '{}' ), true );
 			if ( empty( $pricing_data ) ) {
-				// Fallback: try to get from session or calculate
+				// Fallback: try to get from global settings
+				$global_settings = AIOHM_BOOKING_Settings::get_all();
+				$default_currency = $global_settings['currency'] ?? 'USD';
+				
 				$pricing_data = array(
 					'total' => 0.00,
 					'deposit' => 0.00,
-					'currency' => 'RON'
+					'currency' => $default_currency
 				);
 			}
 
 			// Prepare booking data
 			$booking_data = array(
-				'customer_first_name' => $form_data['name'] ?? '',
-				'customer_email'      => $form_data['email'] ?? '',
-				'customer_phone'      => $form_data['phone'] ?? '',
+				'customer_first_name' => $form_data['contact_info']['name'] ?? $form_data['name'] ?? '',
+				'customer_email'      => $form_data['contact_info']['email'] ?? $form_data['email'] ?? '',
+				'customer_phone'      => $form_data['contact_info']['phone'] ?? $form_data['phone'] ?? '',
 				'checkin_date'        => $form_data['checkin_date'] ?? '',
 				'checkout_date'       => $form_data['checkout_date'] ?? '',
 				'guests'              => $form_data['guests_qty'] ?? 1,
@@ -654,14 +679,46 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			$checkout_date  = $sanitized_data['checkout_date'];
 			$guest_count    = $sanitized_data['guests'];
 
-			// Get pricing info
-			$total_amount   = floatval( $pricing_data['total'] ?? 0 );
-			$deposit_amount = floatval( $pricing_data['deposit'] ?? 0 );
-			$currency       = $pricing_data['currency'] ?? 'RON';
+			// Get pricing info - try multiple possible keys for better compatibility
+			$total_amount   = floatval( $pricing_data['total'] ?? $pricing_data['total_amount'] ?? $form_data['total_amount'] ?? 0 );
+			$deposit_amount = floatval( $pricing_data['deposit'] ?? $pricing_data['deposit_amount'] ?? $form_data['deposit_amount'] ?? 0 );
+			$currency       = strtoupper( $pricing_data['currency'] ?? $form_data['currency'] ?? AIOHM_BOOKING_Settings::get_all()['currency'] ?? 'USD' );
 
-			// Get selected items
-			$selected_events = $form_data['selected_events'] ?? array();
+			// Get selected items - handle both event tickets and accommodations
+			$selected_events = array();
 			$selected_accommodations = $form_data['selected_accommodations'] ?? $form_data['accommodations'] ?? array();
+			
+			// Collect event ticket data from form
+			if ( isset( $form_data['event_tickets'] ) && is_array( $form_data['event_tickets'] ) ) {
+				foreach ( $form_data['event_tickets'] as $event_index => $quantity ) {
+					$quantity = intval( $quantity );
+					if ( $quantity > 0 ) {
+						$selected_events[] = array(
+							'index' => $event_index,
+							'quantity' => $quantity
+						);
+					}
+				}
+			}
+			
+			// Also check for selected events array format
+			if ( empty( $selected_events ) ) {
+				$selected_events_raw = $form_data['selected_events'] ?? array();
+				if ( ! is_array( $selected_events_raw ) ) {
+					$selected_events_raw = empty( $selected_events_raw ) ? array() : array( $selected_events_raw );
+				}
+				foreach ( $selected_events_raw as $event_index ) {
+					$selected_events[] = array(
+						'index' => $event_index,
+						'quantity' => 1
+					);
+				}
+			}
+			
+			// Ensure selected accommodations is array
+			if ( ! is_array( $selected_accommodations ) ) {
+				$selected_accommodations = empty( $selected_accommodations ) ? array() : array( $selected_accommodations );
+			}
 
 			// Determine mode
 			$mode = 'accommodation';
@@ -671,8 +728,12 @@ class AIOHM_BOOKING_Checkout_Ajax {
 				$mode = 'mixed';
 			}
 
-			// Calculate quantities
-			$units_qty = count( $selected_accommodations ) + count( $selected_events );
+			// Calculate quantities properly - sum actual quantities for events, count accommodations
+			$total_event_tickets = 0;
+			foreach ( $selected_events as $event_selection ) {
+				$total_event_tickets += intval( $event_selection['quantity'] );
+			}
+			$units_qty = count( $selected_accommodations ) + $total_event_tickets;
 
 			// Notes
 			$notes = sanitize_textarea_field( $form_data['notes'] ?? '' );
@@ -683,6 +744,38 @@ class AIOHM_BOOKING_Checkout_Ajax {
 					$notes = 'Accommodation IDs: ' . wp_json_encode( $selected_accommodations );
 				} else {
 					$notes .= "\n\nAccommodation IDs: " . wp_json_encode( $selected_accommodations );
+				}
+			}
+
+			// Store event ticket details in notes
+			if ( ! empty( $selected_events ) ) {
+				$events_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'tickets' );
+				if ( $events_module ) {
+					$events_data = $events_module->get_events_data();
+					
+					$event_details = array();
+					foreach ( $selected_events as $event_selection ) {
+						$event_index = $event_selection['index'];
+						$quantity = $event_selection['quantity'];
+						
+						if ( isset( $events_data[ $event_index ] ) ) {
+							$event = $events_data[ $event_index ];
+							$event_details[] = array(
+								'index' => $event_index,
+								'title' => $event['title'] ?? "Event $event_index",
+								'quantity' => $quantity,
+								'price' => $event['price'] ?? 0
+							);
+						}
+					}
+					
+					if ( ! empty( $event_details ) ) {
+						if ( empty( $notes ) ) {
+							$notes = 'Event Tickets: ' . wp_json_encode( $event_details );
+						} else {
+							$notes .= "\n\nEvent Tickets: " . wp_json_encode( $event_details );
+						}
+					}
 				}
 			}
 
@@ -716,6 +809,95 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			}
 
 			$booking_id = $wpdb->insert_id;
+
+			// Create order items for detailed breakdown
+			$items_table = $wpdb->prefix . 'aiohm_booking_items';
+			
+			// Add event ticket items
+			if ( ! empty( $selected_events ) ) {
+				$events_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'tickets' );
+				if ( $events_module ) {
+					$events_data = $events_module->get_events_data();
+					
+					foreach ( $selected_events as $event_selection ) {
+						$event_index = $event_selection['index'];
+						$quantity = $event_selection['quantity'];
+						
+						if ( isset( $events_data[ $event_index ] ) ) {
+							$event = $events_data[ $event_index ];
+							$event_title = $event['title'] ?? "Event $event_index";
+							$event_price = floatval( $event['early_bird_price'] ?? $event['price'] ?? 0 );
+							
+							$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table for order items
+								$items_table,
+								array(
+									'order_id'   => $booking_id,
+									'item_type'  => 'event_ticket',
+									'item_name'  => $event_title,
+									'quantity'   => $quantity,
+									'price'      => $event_price,
+									'item_data'  => wp_json_encode( array(
+										'event_index' => $event_index,
+										'event_date'  => $event['event_date'] ?? '',
+										'event_time'  => $event['event_time'] ?? '',
+									) ),
+								),
+								array( '%d', '%s', '%s', '%d', '%f', '%s' )
+							);
+						}
+					}
+				}
+			}
+			
+			// Add accommodation items
+			if ( ! empty( $selected_accommodations ) ) {
+				foreach ( $selected_accommodations as $accommodation_id ) {
+					$accommodation = get_post( $accommodation_id );
+					if ( $accommodation ) {
+						// Get accommodation pricing (this would need to be implemented)
+						$accommodation_price = 0; // TODO: Calculate accommodation pricing based on dates
+						
+						$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table for order items
+							$items_table,
+							array(
+								'order_id'   => $booking_id,
+								'item_type'  => 'accommodation',
+								'item_name'  => $accommodation->post_title,
+								'quantity'   => 1,
+								'price'      => $accommodation_price,
+								'item_data'  => wp_json_encode( array(
+									'accommodation_id' => $accommodation_id,
+									'check_in'         => $checkin_date,
+									'check_out'        => $checkout_date,
+								) ),
+							),
+							array( '%d', '%s', '%s', '%d', '%f', '%s' )
+						);
+					}
+				}
+			}
+
+			// Trigger action hooks for calendar updates and other integrations
+			do_action( 'aiohm_booking_order_created', $booking_id, array(
+				'buyer_name'             => $buyer_name,
+				'buyer_email'            => $buyer_email,
+				'buyer_phone'            => $buyer_phone,
+				'mode'                   => $mode,
+				'units_qty'              => $units_qty,
+				'guests_qty'             => $guest_count,
+				'currency'               => $currency,
+				'total_amount'           => $total_amount,
+				'deposit_amount'         => $deposit_amount,
+				'status'                 => 'pending',
+				'check_in_date'          => $checkin_date,
+				'check_out_date'         => $checkout_date,
+				'selected_accommodations' => $selected_accommodations,
+				'selected_events'        => $selected_events,
+				'notes'                  => $notes,
+			) );
+
+			// Trigger calendar update hooks
+			do_action( 'aiohm_booking_calendar_update_needed', $booking_id, $checkin_date, $checkout_date );
 
 			// Send notification using the notifications module
 			$notifications_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'notifications' );

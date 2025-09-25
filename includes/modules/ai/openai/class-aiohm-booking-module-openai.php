@@ -3,8 +3,8 @@
  * OpenAI Module for AIOHM Booking
  * Handles OpenAI GPT integration for booking intelligence
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

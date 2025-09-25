@@ -5,8 +5,8 @@
  * Handles rendering and sanitization of checkbox input fields.
  * Includes inline label rendering for the checkbox.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 // phpcs:disable WordPress.Files.FileName

@@ -109,7 +109,7 @@ class AIOHMBookingCheckout {
             }
 
         } catch (error) {
-            console.error('AIOHM Checkout: Stripe payment error:', error);
+            // Stripe payment error
             this.showError(error.message || 'Payment processing failed');
         } finally {
             this.hideProcessingStatus();
@@ -142,7 +142,7 @@ class AIOHMBookingCheckout {
             }
 
         } catch (error) {
-            console.error('AIOHM Checkout: Invoice error:', error);
+            // Invoice error
             this.showError(error.message || 'Failed to send invoice');
         } finally {
             this.hideProcessingStatus();
@@ -177,7 +177,7 @@ class AIOHMBookingCheckout {
      */
     collectBookingData() {
         // Use fallback method for more reliable data collection
-        console.debug('AIOHM Booking: Using fallback data collection method');
+        // Using fallback data collection method
         return this.collectBookingDataFallback();
     }
 
@@ -837,7 +837,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             window.AIOHMBookingCheckout = new AIOHMBookingCheckout();
         } catch (error) {
-            console.warn('AIOHM Booking: Error initializing checkout:', error);
+            // Error initializing checkout
         }
     }
 });

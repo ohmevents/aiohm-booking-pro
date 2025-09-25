@@ -5,8 +5,8 @@
  * Factory class for creating field renderer instances.
  * Manages the registry of field types and their corresponding renderers.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

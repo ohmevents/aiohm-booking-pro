@@ -2,8 +2,8 @@
 /**
  * Abstract Admin Module Class
  *
- * @package AIOHM_Booking
- * @since 1.1.1
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 // phpcs:disable WordPress.Files.FileName.InvalidClassFileName -- Abstract class file
@@ -15,8 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Abstract AIOHM_Booking_Admin_Module class.
  *
- * @package AIOHM_Booking
- * @since 1.1.1
+ * @since  2.0.0
  * @author  OHM Events Agency
  * @author URI: https://www.ohm.events */
 abstract class AIOHM_Booking_Admin_Module {

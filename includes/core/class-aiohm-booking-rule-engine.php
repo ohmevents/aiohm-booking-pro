@@ -5,9 +5,9 @@
  * Manages calendar rule registration, execution, and coordination using the Strategy Pattern.
  * This engine dramatically reduces complexity by separating rule logic into individual classes.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  * @subpackage Core
- * @since 1.3.0
+ * @since  2.0.0
  */
 
 // Prevent direct access.

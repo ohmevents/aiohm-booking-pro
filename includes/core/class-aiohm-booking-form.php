@@ -5,8 +5,8 @@
  * Central form data provider and logic for all booking shortcodes.
  * Ensures consistent form behavior across events, accommodations, and mixed modes.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Provides unified form data and rendering logic for all booking shortcodes.
  * Handles form settings merging, field definitions, and context detection.
  *
- * @since 1.2.3
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Form {
 

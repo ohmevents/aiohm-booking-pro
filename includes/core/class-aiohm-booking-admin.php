@@ -5,8 +5,8 @@
  * Lightweight coordinator that orchestrates specialized admin classes.
  * Handles WordPress admin interface coordination and initialization.
  *
- * @package AIOHM_Booking
- * @since 1.2.6
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  *
  * @author  OHM Events Agency <https://www.ohm.events>
  * @copyright  2025 AIOHM
@@ -24,14 +24,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Lightweight coordinator that orchestrates specialized admin classes
  * for menu management, AJAX handling, settings, and module coordination.
  *
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Admin {
 
 	/**
 	 * Admin menu handler instance.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @var AIOHM_BOOKING_Admin_Menu|null
 	 */
 	private static $menu_handler = null;
@@ -39,7 +39,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Admin AJAX handler instance.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @var AIOHM_BOOKING_Admin_Ajax|null
 	 */
 	private static $ajax_handler = null;
@@ -47,7 +47,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Admin settings handler instance.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @var AIOHM_BOOKING_Admin_Settings|null
 	 */
 	private static $settings_handler = null;
@@ -55,7 +55,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Admin modules handler instance.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @var AIOHM_BOOKING_Admin_Modules|null
 	 */
 	private static $modules_handler = null;
@@ -65,7 +65,7 @@ class AIOHM_BOOKING_Admin {
 	 *
 	 * Sets up WordPress admin hooks and initializes specialized admin classes.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -81,7 +81,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Initialize specialized admin handler classes.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -116,7 +116,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Get menu handler instance.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return AIOHM_BOOKING_Admin_Menu|null
 	 */
@@ -127,7 +127,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Get AJAX handler instance.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return AIOHM_BOOKING_Admin_Ajax|null
 	 */
@@ -138,7 +138,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Get settings handler instance.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return AIOHM_BOOKING_Admin_Settings|null
 	 */
@@ -149,7 +149,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Get modules handler instance.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return AIOHM_BOOKING_Admin_Modules|null
 	 */
@@ -160,7 +160,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Add settings link to plugin action links.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param array $links The existing links.
 	 *
@@ -175,7 +175,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Handle activation redirect to dashboard.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -202,7 +202,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Dashboard page - delegates to modules handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -218,7 +218,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Calendar page - delegates to modules handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -233,7 +233,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Orders page - delegates to modules handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -248,7 +248,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Notifications page - delegates to modules handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -263,7 +263,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Settings page - delegates to settings handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -282,7 +282,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Accommodations page - delegates to modules handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -297,7 +297,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * CSS Manager page - delegates to modules handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -316,7 +316,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Legacy menu method - delegates to menu handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @deprecated 1.2.0 Use AIOHM_BOOKING_Admin_Menu class instead.
 	 *
 	 * @return void
@@ -330,7 +330,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Legacy sanitize settings method - delegates to settings handler.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @deprecated 1.2.0 Use AIOHM_BOOKING_Admin_Settings class instead.
 	 *
 	 * @param array $settings The settings array to sanitize.
@@ -354,7 +354,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Render fallback page for modules.
 	 *
-	 * @since 1.2.0
+	 * @since  2.0.0
 	 *
 	 * @param string $module_key The module key.
 	 * @param string $page_title The page title.
@@ -374,14 +374,14 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Render the dashboard template with booking statistics
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
 	/**
 	 * Get dashboard statistics with caching.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return array Dashboard statistics.
 	 */
@@ -473,7 +473,7 @@ class AIOHM_BOOKING_Admin {
 	/**
 	 * Render dashboard template.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */

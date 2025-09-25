@@ -5,7 +5,7 @@
  *
  * @package AIOHM_Booking_PRO
  *
- * @since 1.2.6
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -16,9 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Central registry for all AIOHM Booking modules
  * Manages module loading, initialization, and lifecycle.
  *
- * @package AIOHM_Booking_PRO
  *
- * @since 1.2.6
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Module_Registry {
 
@@ -480,7 +479,7 @@ class AIOHM_BOOKING_Module_Registry {
 	 *
 	 * @param string $module_file_path Path to the module file.
 	 * @return bool True if module directory exists and should be loaded.
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 */
 	private function is_module_directory_available( $module_file_path ) {
 		$module_dir = dirname( $module_file_path );
@@ -503,7 +502,7 @@ class AIOHM_BOOKING_Module_Registry {
 	 *
 	 * @param string $module_type Module type (e.g., 'stripe', 'paypal').
 	 * @return bool True if module is available.
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 */
 	public function is_module_type_available( $module_type ) {
 		$modules_dir = AIOHM_BOOKING_DIR . 'includes/modules/';
@@ -529,7 +528,7 @@ class AIOHM_BOOKING_Module_Registry {
 	 * Get list of missing optional modules.
 	 *
 	 * @return array List of missing module types.
-	 * @since 1.2.4
+	 * @since  2.0.0
 	 */
 	public function get_missing_optional_modules() {
 		$optional_modules = array_merge( AIOHM_BOOKING_Utilities::get_pro_modules(), array( 'dev' ) );
@@ -550,7 +549,7 @@ class AIOHM_BOOKING_Module_Registry {
 	 * This is hooked to actions like plugin activation/deactivation to ensure
 	 * the module list is refreshed.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 */
 	public function clear_module_cache() {
 		delete_transient( 'aiohm_booking_module_list' );

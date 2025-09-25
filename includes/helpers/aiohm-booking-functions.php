@@ -2,8 +2,8 @@
 /**
  * Helper Functions for AIOHM Booking
  *
- * @package AIOHM_Booking
- * @since 1.2.6
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

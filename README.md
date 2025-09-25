@@ -1,6 +1,6 @@
 # AIOHM Booking Pro
 
-**Version**: 2.0.3  
+**Version**: 2.0.4  
 **WordPress Plugin**: Advanced Booking & Event Management System  
 **License**: Freemius Premium/Free Tiers  
 
@@ -60,15 +60,15 @@ includes/modules/
 - **Orders**: `aiohm_booking_order` custom table
 - **Settings**: WordPress options with centralized management
 
-## 🚀 Latest Release: v2.0.3
+## 🚀 Latest Release: v2.0.4
 
-### Major Architectural Improvements ⭐
+### Production Ready Release ⭐
 
-**Unified Custom Post Type System**: Events migrated from array storage to CPT architecture, matching accommodations for consistency and scalability.
+**Debug Code Cleanup**: Comprehensive removal of all development debug statements for clean production deployment.
 
-**Complete Shortcode System**: All referenced shortcodes now functional with unified backend.
+**Enhanced Order System**: Improved order creation with proper event ticket data collection and order items population.
 
-**Cross-Module Integration**: Consistent data access methods across all modules.
+**Data Integrity Fixes**: Resolved systematic order issues including missing email collection and pricing data.
 
 [View Full Changelog](CHANGELOG.md)
 
@@ -142,4 +142,4 @@ This plugin uses Freemius for licensing:
 
 **Developed by**: OHM Events  
 **Plugin URI**: [WordPress Plugin Repository](#)  
-**Current Version**: 2.0.3
+**Current Version**: 2.0.4

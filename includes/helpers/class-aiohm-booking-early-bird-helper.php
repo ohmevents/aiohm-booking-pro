@@ -3,8 +3,8 @@
  * Early Bird Helper Functions for AIOHM Booking
  * Provides separate early bird functionality for accommodations and events
  *
- * @package AIOHM_Booking
- * @since 1.2.6
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,8 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Helper class for managing early bird pricing across different modules
  * without conflicts between accommodations and events
  *
- * @package AIOHM_Booking
- * @since 1.2.6
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Early_Bird_Helper {
 

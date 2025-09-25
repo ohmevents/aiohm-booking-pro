@@ -3,8 +3,8 @@
  * Abstract base class for all AIOHM Booking modules
  * Provides standardized interface and common functionality
  *
- * @package AIOHM_Booking
- * @since 1.2.6
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

@@ -5,9 +5,9 @@
  * Prevents partial room bookings when date range includes private event days.
  * Validates multi-day bookings to ensure private event restrictions are enforced across ranges.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  * @subpackage Core\Calendar_Rules
- * @since 1.3.0
+ * @since  2.0.0
  */
 
 // Prevent direct access.

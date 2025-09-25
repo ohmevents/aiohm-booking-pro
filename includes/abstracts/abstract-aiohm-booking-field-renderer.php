@@ -5,8 +5,8 @@
  * Provides common functionality for field renderers in the AIOHM Booking system.
  * All field renderers should extend this class.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

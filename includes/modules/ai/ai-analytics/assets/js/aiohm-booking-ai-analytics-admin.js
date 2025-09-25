@@ -462,7 +462,7 @@
                     }
                 },
                 error: (xhr, status, error) => {
-                    console.error('AI query failed:', error);
+                    // AI query failed
                     this.showCalendarAIResponse(query, 'Error: Could not connect to the server. ' + error);
                 },
                 complete: () => {

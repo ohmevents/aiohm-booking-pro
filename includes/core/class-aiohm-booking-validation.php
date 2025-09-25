@@ -3,9 +3,9 @@
  * Validation and Sanitization Utilities for AIOHM Booking
  * Provides comprehensive validation, sanitization, and error handling.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.1.1
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -246,6 +246,7 @@ class AIOHM_BOOKING_Validation {
 
 				case 'guests':
 				case 'rooms_qty':
+				case 'units_qty':
 					$sanitized[ $key ] = absint( $value );
 					break;
 
@@ -555,7 +556,7 @@ class AIOHM_BOOKING_Validation {
 	/**
 	 * Get validation logs for admin review
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @return array Validation logs
 	 */
 	public static function get_validation_logs() {
@@ -565,7 +566,7 @@ class AIOHM_BOOKING_Validation {
 	/**
 	 * Clear validation logs
 	 *
-	 * @since 1.2.5
+	 * @since  2.0.0
 	 * @return bool Success
 	 */
 	public static function clear_validation_logs() {

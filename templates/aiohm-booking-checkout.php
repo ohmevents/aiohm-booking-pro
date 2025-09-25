@@ -104,8 +104,8 @@ if ( $booking_id > 0 ) {
 				'nights'         => $nights,
 				'guests'         => $booking['guests_qty'],
 				'guests_qty'     => $booking['guests_qty'],
-				'rooms'          => $booking['rooms_qty'],
-				'rooms_qty'      => $booking['rooms_qty'],
+				'units'          => $booking['units_qty'],
+				'units_qty'      => $booking['units_qty'],
 				'total_amount'   => $total_amount,
 				'deposit_amount' => $deposit_amount,
 				'currency'       => $currency,
@@ -157,7 +157,7 @@ $tickets_enabled        = $global_settings['enable_tickets'] ?? true;
 // Determine booking type if we have booking data
 $booking_mode = '';
 if ( ! empty( $booking_data ) ) {
-	$booking_mode = $booking_data['mode'] ?? 'accommodation'; // Default to accommodation for backward compatibility
+	$booking_mode = $booking_data['mode'] ?? 'accommodation';
 }
 
 ?>

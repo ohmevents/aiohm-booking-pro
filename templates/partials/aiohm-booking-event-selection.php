@@ -14,6 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Get events data and settings.
 $events_data     = AIOHM_BOOKING_Module_Tickets::get_events_data();
+
+// Debug: Log events count for troubleshooting
+
 $global_settings = get_option( 'aiohm_booking_settings', array() );
 
 // Check if multiple event bookings are enabled
@@ -25,18 +28,25 @@ if ( class_exists( 'AIOHM_BOOKING_Module_Tickets' ) ) {
 	$events_data = AIOHM_BOOKING_Module_Tickets::get_events_with_realtime_availability( $events_data );
 }
 $num_events      = intval( $global_settings['number_of_events'] ?? 5 );
+
+
 $current_date    = current_time( 'Y-m-d' );
 $upcoming_events = array();
 
 // Filter for upcoming events only, respecting the configured number limit.
 $event_count = 0;
 foreach ( $events_data as $event ) {
-	if ( ! empty( $event['event_date'] ) && $event['event_date'] >= $current_date ) {
+
+	
+	// Show events with no date or future dates (cloned events might have empty dates)
+	if ( empty( $event['event_date'] ) || $event['event_date'] >= $current_date ) {
 		$upcoming_events[] = $event;
 		++$event_count;
-		if ( $event_count >= $num_events ) {
-			break; // Stop when we reach the configured limit.
-		}
+
+		// Temporarily remove limit to show all events for testing
+		// if ( $event_count >= $num_events ) {
+		// 	break; // Stop when we reach the configured limit.
+		// }
 	}
 }
 

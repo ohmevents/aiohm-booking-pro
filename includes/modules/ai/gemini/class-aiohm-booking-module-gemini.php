@@ -3,8 +3,8 @@
  * Google Gemini Module for AIOHM Booking
  * Handles Google Gemini AI integration for booking intelligence
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -532,6 +532,9 @@ class AIOHM_BOOKING_Module_Gemini extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 	public function get_module_settings() {
 		// Get settings from main plugin settings
 		$main_settings = get_option( 'aiohm_booking_settings', array() );
+		
+		// Also check the separate gemini settings option (for standalone usage)
+		$gemini_settings = get_option( 'aiohm_booking_gemini_settings', array() );
 
 		// Extract Gemini settings with defaults
 		$defaults = array(
@@ -541,10 +544,11 @@ class AIOHM_BOOKING_Module_Gemini extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 			'gemini_max_tokens'  => 500,
 		);
 
-		// Merge main settings with defaults, prioritizing main settings
+		// Merge settings with priority: main settings > gemini settings > defaults
 		$settings = array();
 		foreach ( $defaults as $key => $default_value ) {
-			$settings[ $key ] = $main_settings[ $key ] ?? $default_value;
+			// Priority: main_settings > gemini_settings > defaults
+			$settings[ $key ] = $main_settings[ $key ] ?? $gemini_settings[ $key ] ?? $default_value;
 		}
 
 		return $settings;
@@ -554,23 +558,51 @@ class AIOHM_BOOKING_Module_Gemini extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 	 * Handle settings save
 	 */
 	public function handle_settings_save() {
+		// Handle both standalone form (with gemini_nonce) and main settings form (with save_gemini_settings button)
+		$is_gemini_save = false;
+		$gemini_data = array();
+		
+		// Check for standalone form submission
 		if ( isset( $_POST['gemini_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['gemini_nonce'] ) ), 'aiohm_booking_gemini_settings' ) ) {
 			if ( current_user_can( 'manage_options' ) && isset( $_POST['gemini_settings'] ) ) {
-				$settings                       = array();
-				$settings['gemini_api_key']     = sanitize_text_field( wp_unslash( $_POST['gemini_settings']['gemini_api_key'] ?? '' ) );
-				$settings['gemini_model']       = sanitize_text_field( wp_unslash( $_POST['gemini_settings']['gemini_model'] ?? 'gemini-pro' ) );
-				$settings['gemini_temperature'] = floatval( $_POST['gemini_settings']['gemini_temperature'] ?? 0.7 );
-				$settings['gemini_max_tokens']  = intval( $_POST['gemini_settings']['gemini_max_tokens'] ?? 1000 );
-
-				update_option( 'aiohm_booking_gemini_settings', $settings );
-
-				add_action(
-					'admin_notices',
-					function () {
-						echo '<div class="notice notice-success is-dismissible"><p>Gemini settings saved successfully!</p></div>';
-					}
-				);
+				$is_gemini_save = true;
+				$raw_data = wp_unslash( $_POST['gemini_settings'] );
+				$gemini_data['gemini_api_key']     = sanitize_text_field( $raw_data['gemini_api_key'] ?? '' );
+				$gemini_data['gemini_model']       = sanitize_text_field( $raw_data['gemini_model'] ?? 'gemini-pro' );
+				$gemini_data['gemini_temperature'] = floatval( $raw_data['gemini_temperature'] ?? 0.7 );
+				$gemini_data['gemini_max_tokens']  = intval( $raw_data['gemini_max_tokens'] ?? 1000 );
 			}
+		}
+		// Check for main settings form submission
+		elseif ( isset( $_POST['save_gemini_settings'] ) && isset( $_POST['aiohm_booking_settings_nonce'] ) ) {
+			if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_booking_settings_nonce'] ) ), 'aiohm_booking_save_settings' ) ) {
+				if ( current_user_can( 'manage_options' ) && isset( $_POST['aiohm_booking_settings'] ) ) {
+					$is_gemini_save = true;
+					$raw_data = wp_unslash( $_POST['aiohm_booking_settings'] );
+					$gemini_data['gemini_api_key']     = sanitize_text_field( $raw_data['gemini_api_key'] ?? '' );
+					$gemini_data['gemini_model']       = sanitize_text_field( $raw_data['gemini_model'] ?? 'gemini-pro' );
+					$gemini_data['gemini_temperature'] = floatval( $raw_data['gemini_temperature'] ?? 0.7 );
+					$gemini_data['gemini_max_tokens']  = intval( $raw_data['gemini_max_tokens'] ?? 1000 );
+				}
+			}
+		}
+		
+		if ( $is_gemini_save ) {
+			// Save to the separate gemini settings option
+			update_option( 'aiohm_booking_gemini_settings', $gemini_data );
+			
+			// Also sync the core settings to the main plugin settings for compatibility
+			$main_settings = get_option( 'aiohm_booking_settings', array() );
+			$main_settings['gemini_api_key'] = $gemini_data['gemini_api_key'];
+			$main_settings['gemini_model'] = $gemini_data['gemini_model'];
+			update_option( 'aiohm_booking_settings', $main_settings );
+
+			add_action(
+				'admin_notices',
+				function () {
+					echo '<div class="notice notice-success is-dismissible"><p>Gemini settings saved successfully!</p></div>';
+				}
+			);
 		}
 	}
 

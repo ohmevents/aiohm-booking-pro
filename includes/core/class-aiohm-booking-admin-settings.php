@@ -5,9 +5,9 @@
  * Handles all settings validation, sanitization, schema management, and
  * administrative functionality for the AIOHM Booking plugin settings.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  *
- * @since 1.2.6
+ * @since  2.0.0
  *
  * @author OHM Events Agency <https://www.ohm.events>
  * @copyright  2025 AIOHM
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Provides comprehensive settings management including validation,
  * sanitization, schema management, and backup/restore capabilities.
  *
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Admin_Settings {
 
@@ -55,7 +55,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	 *
 	 * Sets up WordPress hooks and filters for settings management.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -67,7 +67,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Register WordPress settings with proper sanitization.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return void
 	 */
@@ -86,7 +86,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Get the complete settings schema for validation.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return array Settings schema definition
 	 */
@@ -291,7 +291,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Get default settings based on schema.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return array Default settings array
 	 */
@@ -311,7 +311,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	 *
 	 * Enhanced version of the original sanitization with schema-based validation.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param array $settings The settings array to sanitize.
 	 *
@@ -347,7 +347,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Sanitize a field based on its schema configuration.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param mixed $value  The value to sanitize.
 	 * @param array $config The field configuration from schema.
@@ -380,7 +380,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Sanitize boolean values.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param mixed $value Value to sanitize.
 	 *
@@ -402,7 +402,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Sanitize integer values with validation.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param mixed $value    Value to sanitize.
 	 * @param mixed $validate Validation rules.
@@ -427,7 +427,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Sanitize string values with validation.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param mixed $value    Value to sanitize.
 	 * @param mixed $validate Validation type or allowed values.
@@ -474,7 +474,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Sanitize array fields.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param mixed $value Array value to sanitize.
 	 *
@@ -493,7 +493,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	 *
 	 * Enhanced version from original Admin class.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param array $value Array value to sanitize.
 	 * @param int   $depth Current recursion depth.
@@ -526,7 +526,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Sanitize unknown fields with generic sanitization.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param mixed $value Value to sanitize.
 	 *
@@ -547,7 +547,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Sanitize API keys.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param string $api_key API key to sanitize.
 	 *
@@ -575,7 +575,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Sanitize currency codes.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param string $currency_code Currency code to validate.
 	 *
@@ -616,7 +616,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Sanitize locale codes.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param string $locale Locale code to validate.
 	 *
@@ -636,7 +636,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Validate settings before saving (pre-update hook).
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param mixed $new_value New settings value.
 	 * @param mixed $old_value Current settings value.
@@ -658,7 +658,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Perform advanced validation on settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param mixed $new_value New settings.
 	 * @param mixed $old_value Current settings.
@@ -709,7 +709,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Create a backup of current settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param array $settings Settings to backup.
 	 *
@@ -728,7 +728,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Restore settings from backup.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return bool True on success, false on failure
 	 */
@@ -753,7 +753,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Export settings for backup or migration.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return array|false Settings export data or false on failure
 	 */
@@ -776,7 +776,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Import settings from export data.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param array $import_data Export data to import.
 	 *
@@ -814,7 +814,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Reset settings to defaults.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @param bool $create_backup Whether to create backup before reset.
 	 *
@@ -839,7 +839,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Get option name for consistent naming.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return string The main settings option name
 	 */
@@ -850,7 +850,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Check if backup exists.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return bool True if backup exists, false otherwise
 	 */
@@ -862,7 +862,7 @@ class AIOHM_BOOKING_Admin_Settings {
 	/**
 	 * Get backup information.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 *
 	 * @return array|false Backup info or false if no backup
 	 */

@@ -5,8 +5,8 @@
  * Defines the contract for field renderer classes in the AIOHM Booking system.
  * Each field type has its own renderer that implements this interface.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

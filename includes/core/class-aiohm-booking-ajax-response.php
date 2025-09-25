@@ -6,8 +6,8 @@
  * Standardizes wp_send_json_error and wp_send_json_success patterns across
  * the plugin to ensure consistent API responses.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  *
  * @author OHM Events Agency <https://www.ohm.events>
  * @copyright  2025 AIOHM
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Provides standardized methods for AJAX responses with consistent
  * error codes, messages, and data structures.
  *
- * @since 1.2.3
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Ajax_Response {
 
@@ -43,7 +43,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send standardized security error response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $custom_message Optional custom message.
 	 */
@@ -64,7 +64,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send standardized permission error response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $custom_message Optional custom message.
 	 */
@@ -85,7 +85,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send standardized validation error response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $message Error message.
 	 * @param array  $validation_errors Optional validation error details.
@@ -105,7 +105,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send standardized not found error response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $resource_type Type of resource not found.
 	 * @param mixed  $resource_id Optional resource identifier.
@@ -139,7 +139,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send standardized system error response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $message Error message.
 	 * @param string $system_component Optional system component name.
@@ -169,7 +169,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send standardized payment error response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $message Payment error message.
 	 * @param array  $payment_data Optional payment context data.
@@ -192,7 +192,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send standardized booking error response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $message Booking error message.
 	 * @param array  $booking_data Optional booking context data.
@@ -215,7 +215,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send standardized success response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param mixed  $data Success data.
 	 * @param string $message Optional success message.
@@ -233,7 +233,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send payment success response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array  $payment_data Payment result data.
 	 * @param string $message Optional success message.
@@ -254,7 +254,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send booking success response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array  $booking_data Booking result data.
 	 * @param string $message Optional success message.
@@ -275,7 +275,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send generic error response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $message Error message.
 	 * @param string $code Optional error code.
@@ -297,7 +297,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Handle WP_Error objects and send appropriate response
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param WP_Error $error WP_Error object.
 	 */
@@ -329,7 +329,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Send response for multiple errors
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param array  $errors Array of error messages or WP_Error objects.
 	 * @param string $main_message Main error message.
@@ -368,7 +368,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Check if this is an AJAX request
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @return bool True if AJAX request
 	 */
@@ -379,7 +379,7 @@ class AIOHM_BOOKING_Ajax_Response {
 	/**
 	 * Ensure we're in an AJAX context, otherwise redirect
 	 *
-	 * @since 1.2.3
+	 * @since  2.0.0
 	 *
 	 * @param string $redirect_url Optional redirect URL for non-AJAX requests.
 	 */

@@ -4,7 +4,7 @@
  * Handles email notifications, SMTP configuration, and email templates.
  *
  * @package AIOHM_BOOKING
- * @since 1.2.6
+ * @since  2.0.0
  */
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName
@@ -24,8 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Manages automated emails for booking confirmations, cancellations, payment reminders,
  * and other booking-related communications.
  *
- * @package AIOHM_BOOKING
- * @since 1.2.6
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_Abstract {
 
@@ -35,7 +34,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Creates the email logs table for tracking sent and failed email notifications.
 	 * This should be called from the main plugin activation hook.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void
 	 */
 	public static function on_activation() {
@@ -72,7 +71,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Defines module metadata including name, description, category, and settings configuration
 	 * for the WordPress admin interface.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return array Module UI definition array.
 	 */
 	public static function get_ui_definition() {
@@ -97,7 +96,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Initializes the notifications module and sets up admin page configuration.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 */
 	public function __construct() {
 		parent::__construct();
@@ -115,7 +114,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Sets up settings configuration and prepares the module for operation.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void
 	 */
 	public function init() {
@@ -132,7 +131,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Sets up AJAX handlers, email configuration hooks, logging hooks,
 	 * and booking notification triggers.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void
 	 */
 	protected function init_hooks() {
@@ -177,7 +176,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Defines the configuration fields for email notifications, SMTP settings,
 	 * and sender information.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return array Array of settings field definitions.
 	 */
 	public function get_settings_fields() {
@@ -267,7 +266,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Provides default configuration values for email notifications and SMTP settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return array Array of default settings.
 	 */
 	protected function get_default_settings() {
@@ -304,7 +303,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Displays the notifications configuration interface in the WordPress admin.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void
 	 */
 	public function render_admin_page() {
@@ -319,7 +318,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Determines whether email notifications are active based on module settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return bool True if enabled, false otherwise.
 	 */
 
@@ -331,7 +330,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Internal method to verify module activation status from stored settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return bool True if enabled, false otherwise.
 	 */
 	protected function check_if_enabled() {
@@ -355,7 +354,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Loads JavaScript and CSS files needed for the notifications admin interface.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param string $hook_suffix The current admin page hook suffix.
 	 * @return void
 	 */
@@ -425,7 +424,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	/**
 	 * Output company data script for invoice generation.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void
 	 */
 	public function output_company_data_script() {
@@ -466,7 +465,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Displays the main notifications configuration interface including
 	 * settings, email templates, and SMTP configuration.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void
 	 */
 	private function render_notifications_page() {
@@ -524,7 +523,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Merges saved templates with default template structure, providing
 	 * comprehensive email template definitions for all booking scenarios.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param array $saved_templates Previously saved template configurations.
 	 * @return array Complete email templates array.
 	 */
@@ -1005,7 +1004,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Provides default email content for various booking scenarios when
 	 * no custom template has been configured.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param string $template_type The type of template to retrieve.
 	 * @return string Default template content or empty string if not found.
 	 */
@@ -1100,7 +1099,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Processes and saves notification configuration including SMTP settings,
 	 * sender information, and email preferences.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void Outputs JSON response.
 	 */
 	public function ajax_save_notification_settings() {
@@ -1165,7 +1164,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Validates SMTP settings by attempting to send a test email using
 	 * the configured SMTP parameters.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void Outputs JSON response with test results.
 	 */
 	public function ajax_test_smtp() {
@@ -1270,7 +1269,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Sends a test email using current notification settings to verify
 	 * email delivery configuration.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void Outputs JSON response with send results.
 	 */
 	public function ajax_send_test_email() {
@@ -1324,7 +1323,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Sends an invoice email notification for a specific booking to the
 	 * specified recipient or the booking contact.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param int         $booking_id The booking ID to send notification for.
 	 * @param string|null $recipient  Optional specific recipient email address.
 	 * @return bool True on success, false on failure.
@@ -1436,7 +1435,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Sends an email using WordPress mail functions with merge tag replacement,
 	 * custom headers, and HTML template wrapping.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param string $to               Recipient email address.
 	 * @param string $subject          Email subject line.
 	 * @param string $content          Email content body.
@@ -1487,7 +1486,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Wraps email content in an HTML template with customizable styling
 	 * based on notification settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param string $content  The email content to wrap.
 	 * @param array  $settings Module settings for styling customization.
 	 * @return string Complete HTML email template.
@@ -1534,7 +1533,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Saves custom email template configuration including content, timing,
 	 * and delivery settings for specific notification types.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void Outputs JSON response.
 	 */
 	public function ajax_save_email_template() {
@@ -1590,7 +1589,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Resets a specific email template back to its default content and settings.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void Outputs JSON response.
 	 */
 	public function ajax_reset_email_template() {
@@ -1637,7 +1636,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Fetches email template configuration for editing in the admin interface.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void Outputs JSON response with template data.
 	 */
 	public function ajax_get_email_template() {
@@ -1683,7 +1682,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Stores notification module settings in the WordPress options table.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param array $data Settings data to save.
 	 * @return bool True on success, false on failure.
 	 */
@@ -1703,7 +1702,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Processes scheduled email notifications triggered by WordPress cron.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param array $args Scheduled email arguments including template and order data.
 	 * @return void
 	 */
@@ -1727,7 +1726,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Determines whether to send an email immediately or schedule it for later
 	 * based on template timing configuration.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param string      $template_key The email template key to use.
 	 * @param int         $order_id     The order ID for the notification.
 	 * @param string|null $recipient    Optional specific recipient email.
@@ -1812,7 +1811,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Sends a notification email using the specified template with order data
 	 * for merge tag replacement.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param string      $template_key The email template key to use.
 	 * @param int         $order_id     The order ID for data retrieval.
 	 * @param string|null $recipient    Optional specific recipient email.
@@ -1868,7 +1867,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Retrieves and formats order data for use in email template merge tags.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param object|null $order Order object from database.
 	 * @return array Array of merge tag keys and values.
 	 */
@@ -1891,7 +1890,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Provides sample data for merge tags when no real order data is available,
 	 * useful for template previews and testing.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return array Array of sample merge tag keys and values.
 	 */
 	private function get_sample_merge_tag_data() {
@@ -1930,7 +1929,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 * Performs string replacement to substitute merge tags with real values
 	 * in email content.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param string $text The text containing merge tags.
 	 * @param array  $data Array of merge tag keys and replacement values.
 	 * @return string Text with merge tags replaced.
@@ -1949,7 +1948,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Sets up SMTP configuration for outgoing emails when SMTP provider is selected.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param PHPMailer $phpmailer The PHPMailer instance to configure.
 	 * @return void
 	 */
@@ -1979,7 +1978,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Returns the configured sender email address or falls back to the original.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param string $original_email_address The original WordPress From email.
 	 * @return string The From email address to use.
 	 */
@@ -1993,7 +1992,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Returns the configured sender name or falls back to the original.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param string $original_from_name The original WordPress From name.
 	 * @return string The From name to use.
 	 */
@@ -2013,7 +2012,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Fetches email log data for display in the admin interface.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void Outputs JSON response with log data.
 	 */
 	public function ajax_get_email_logs() {
@@ -2045,7 +2044,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Retrieves email log entries from the database with pagination support.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return array Array of email log entries.
 	 */
 	private function get_email_logs() {
@@ -2108,7 +2107,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Records email sending success in the email logs table.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param array $mail_data Email data from wp_mail_succeeded action.
 	 * @return void
 	 */
@@ -2134,7 +2133,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Records email sending failure in the email logs table with error details.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param WP_Error $wp_error Error object from wp_mail_failed action.
 	 * @return void
 	 */
@@ -2162,7 +2161,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Internal method to insert email log entries into the database table.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @param array $args Email log data including recipient, subject, status, etc.
 	 * @return void
 	 */
@@ -2197,7 +2196,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 	 *
 	 * Clears all email log entries from the database.
 	 *
-	 * @since 1.0.0
+	 * @since  2.0.0
 	 * @return void Outputs JSON response.
 	 */
 	public function ajax_clear_email_logs() {

@@ -3,8 +3,8 @@
  * Accommodation Data Transfer Object
  * Handles validation and sanitization of accommodation data
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

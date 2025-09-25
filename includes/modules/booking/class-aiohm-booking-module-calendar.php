@@ -2,11 +2,11 @@
 /**
  * Calendar Module - Visual booking calendar with availability management
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  * @author  OHM Events Agency
  * @author URI: https://www.ohm.events
  * @license GPL-2.0+ https://www.gnu.org/licenses/gpl-2.0.html
- * @since 1.0.0
+ * @since  2.0.0
  */
 
 // phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Legacy method names
@@ -15,8 +15,7 @@
 /**
  * Calendar Module class
  *
- * @package AIOHM_Booking
- * @since 1.0.0
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstract {
 

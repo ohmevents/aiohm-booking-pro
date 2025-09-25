@@ -5,9 +5,9 @@
  * Defines the contract for all calendar rules in the AIOHM Booking system.
  * Each rule implements specific calendar logic using the Strategy Pattern.
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  * @subpackage Abstracts
- * @since 1.3.0
+ * @since  2.0.0
  */
 
 // Prevent direct access.

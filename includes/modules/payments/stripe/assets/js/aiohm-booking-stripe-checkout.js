@@ -22,7 +22,7 @@
          */
         processPayment: function(bookingId, button) {
             if (!bookingId) {
-                console.error('Stripe checkout: Missing booking ID');
+                // Missing booking ID
                 return;
             }
 
@@ -52,7 +52,7 @@
                 }
             })
             .catch(error => {
-                console.error('Stripe payment error:', error);
+                // Stripe payment error
                 this.handleError('Payment failed. Please try again.', button, originalText);
             });
         },

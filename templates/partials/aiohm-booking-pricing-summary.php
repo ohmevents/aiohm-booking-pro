@@ -55,44 +55,8 @@ $earlybird_days  = $pricing_config['earlybird_days'] ?? 30;
 					</svg>
 					<?php esc_html_e( 'Selected Events', 'aiohm-booking-pro' ); ?>
 				</h4>
-				<div class="aiohm-event-summary-item">
-					<div class="aiohm-event-summary-grid">
-						<!-- Left Column: Event Type Badge and Title -->
-						<div class="aiohm-event-info-column">
-							<div class="aiohm-event-title-section">
-								<div class="aiohm-event-type-badge" style="display: none;"></div>
-								<h4 class="aiohm-event-title"></h4>
-							</div>
-							<div class="aiohm-event-date-time">
-								<div class="aiohm-event-start-info">
-									<strong><?php esc_html_e( 'START:', 'aiohm-booking-pro' ); ?></strong>
-									<span class="aiohm-event-start-date"></span>
-									<span class="aiohm-event-start-time"></span>
-								</div>
-								<div class="aiohm-event-end-info" style="display: none;">
-									<strong><?php esc_html_e( 'END:', 'aiohm-booking-pro' ); ?></strong>
-									<span class="aiohm-event-end-date"></span>
-									<span class="aiohm-event-end-time"></span>
-								</div>
-							</div>
-						</div>
-						
-						<!-- Right Column: Quantity and Pricing -->
-						<div class="aiohm-event-pricing-column">
-							<div class="aiohm-price-display">
-								<span class="aiohm-current-price"></span>
-								<span class="aiohm-original-price" style="display: none;"></span>
-								<div class="aiohm-pricing-badges">
-									<span class="aiohm-early-bird-badge" style="display: none;"><?php esc_html_e( 'EARLY BIRD', 'aiohm-booking-pro' ); ?></span>
-									<span class="aiohm-special-pricing-badge" style="display: none;"><?php esc_html_e( 'SPECIAL PRICING', 'aiohm-booking-pro' ); ?></span>
-								</div>
-							</div>
-							<div class="aiohm-ticket-quantity">
-								<span class="aiohm-quantity-label"><?php esc_html_e( 'Tickets:', 'aiohm-booking-pro' ); ?></span>
-								<span class="aiohm-quantity-value">1</span>
-							</div>
-						</div>
-					</div>
+				<div class="aiohm-events-list">
+					<!-- Multiple event items will be populated by JavaScript -->
 				</div>
 			</div>
 			

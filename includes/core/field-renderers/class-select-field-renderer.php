@@ -5,8 +5,8 @@
  * Handles rendering and sanitization of select dropdown fields.
  * Supports single and multiple selection options.
  *
- * @package AIOHM_Booking
- * @since 1.2.3
+ * @package AIOHM_Booking_PRO
+ * @since  2.0.0
  */
 
 // phpcs:disable WordPress.Files.FileName

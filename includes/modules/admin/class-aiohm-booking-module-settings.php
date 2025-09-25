@@ -4,14 +4,14 @@
  *
  * Module - Main plugin settings management
  *
- * @package AIOHM_Booking
+ * @package AIOHM_Booking_PRO
  * @author  OHM Events Agency
  * @author URI: https://www.ohm.events
  * @license GPL-2.0+ https://www.gnu.org/licenses/gpl       // Only process on settings or accommodation pages.
 		if ( ! isset( $_GET['page'] ) || ( 'aiohm-booking-settings' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) && 'aiohm-booking-accommodations' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) ) {
 			return;
 		}.html
- * @since 1.2.6
+ * @since  2.0.0
  */
 
 // phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Legacy method names
@@ -21,11 +21,10 @@
 /**
  * Settings Module class
  *
- * @package  AIOHM_Booking
  * @author  OHM Events Agency
  * @author URI: https://www.ohm.events
  * @license  GPL-2.0+ https://www.gnu.org/licenses/gpl-2.0.html
- * @since 1.2.6
+ * @since  2.0.0
  */
 class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstract {
 
@@ -222,8 +221,25 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 			return;
 		}
 
-		// Check if the save_booking_settings button was clicked
-		if ( ! isset( $_POST['save_booking_settings'] ) ) {
+		// Check if any save button was clicked (main settings or individual AI modules)
+		$save_buttons = array(
+			'save_booking_settings',
+			'save_gemini_settings',
+			'save_openai_settings', 
+			'save_ollama_settings',
+			'save_shareai_settings',
+			'save_ai_analytics_settings'
+		);
+		
+		$button_clicked = false;
+		foreach ( $save_buttons as $button ) {
+			if ( isset( $_POST[ $button ] ) ) {
+				$button_clicked = true;
+				break;
+			}
+		}
+		
+		if ( ! $button_clicked ) {
 			return;
 		}
 
