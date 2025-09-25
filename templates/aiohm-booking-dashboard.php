@@ -169,12 +169,12 @@ $safe_number_format = function ( $number, $decimals = 0 ) {
 
 	<!-- License Notice for Free Users -->
 	<?php if ( ! $is_premium ) : ?>
-	<div class="aiohm-dashboard-section aiohm-license-banner" style="background: linear-gradient(135deg, var(--aiohm-brand-color, #457d59) 0%, #2d5233 100%); color: white; padding: 30px; margin: 20px 0; border-radius: 8px; text-align: center;">
-		<h2 style="margin: 0 0 10px 0; font-size: 28px;">🚀 <?php esc_html_e( 'Unlock Pro Features', 'aiohm-booking-pro' ); ?></h2>
-		<p style="margin: 0 0 20px 0; font-size: 16px; color: #cccccc;"><?php esc_html_e( 'Get Stripe payments, advanced features, and premium support with a Pro license.', 'aiohm-booking-pro' ); ?></p>
-		<div style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
+	<div class="aiohm-dashboard-section aiohm-license-banner">
+		<h2>🚀 <?php esc_html_e( 'Unlock Pro Features', 'aiohm-booking-pro' ); ?></h2>
+		<p><?php esc_html_e( 'Get Stripe payments, advanced features, and premium support with a Pro license.', 'aiohm-booking-pro' ); ?></p>
+		<div class="aiohm-license-banner-actions">
 			<?php if ( function_exists( 'aiohm_booking_fs' ) ) : ?>
-			<a href="https://checkout.freemius.com/plugin/20270/plan/33657/" target="_blank" class="aiohm-license-button" style="background: #ff6b6b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+			<a href="https://checkout.freemius.com/plugin/20270/plan/33657/" target="_blank" class="aiohm-license-button">
 				<?php esc_html_e( 'Buy Pro License Now', 'aiohm-booking-pro' ); ?>
 			</a>
 			<?php endif; ?>

@@ -83,276 +83,33 @@ if ( function_exists( 'aiohm_booking_fs' ) ) {
         aiohm_booking_fs()->add_filter( 'show_opt_in', '__return_false' );
         aiohm_booking_fs()->add_filter( 'enable_blocking_mode', '__return_false' );
         
-        // Add custom styling for Freemius pricing page
-        add_action( 'admin_head', function() {
+        // Enqueue custom assets for Freemius pricing page
+        add_action( 'admin_enqueue_scripts', function( $hook_suffix ) {
             $screen = get_current_screen();
             if ( $screen && strpos( $screen->id, 'aiohm-booking-pro-pricing' ) !== false ) {
-                ?>
-                <style>
-                :root {
-                    --ohm-primary: #457d59;
-                    --ohm-primary-light: #5d9671;
-                    --ohm-primary-dark: #2d5a40;
-                    --ohm-secondary: #2c5aa0;
-                    --ohm-white: #ffffff;
-                    --ohm-gray-50: #f9fafb;
-                    --ohm-gray-100: #f3f4f6;
-                    --ohm-gray-200: #e5e7eb;
-                    --ohm-gray-300: #d1d5db;
-                    --ohm-gray-600: #4b5563;
-                    --ohm-gray-800: #1f2937;
-                }
-
-                /* Override Freemius pricing page colors */
-                #fs_pricing_wrapper,
-                #fs_pricing_app {
-                    --fs-ds-theme-primary-accent-color: var(--ohm-primary) !important;
-                    --fs-ds-theme-primary-accent-color-hover: var(--ohm-primary-dark) !important;
-                    --fs-ds-theme-button-primary-background-color: var(--ohm-primary) !important;
-                    --fs-ds-theme-button-primary-background-hover-color: var(--ohm-primary-dark) !important;
-                    --fs-ds-theme-button-primary-border-color: var(--ohm-primary-dark) !important;
-                    --fs-ds-theme-button-primary-border-hover-color: var(--ohm-primary-dark) !important;
-                }
-
-                /* Add consistent header styling like other plugin pages */
-                .wrap.fs-full-size-wrapper {
-                    margin-top: 0 !important;
-                }
+                // Enqueue pricing page styles (already included in admin CSS)
+                wp_enqueue_style( 
+                    'aiohm-booking-admin-css', 
+                    AIOHM_BOOKING_URL . 'assets/css/aiohm-booking-admin.css', 
+                    array(), 
+                    AIOHM_BOOKING_VERSION 
+                );
                 
-                .wrap.fs-full-size-wrapper::before {
-                    content: '';
-                    display: block;
-                    background: var(--ohm-white);
-                    border-bottom: 1px solid var(--ohm-gray-200);
-                    margin: 0 -20px 20px;
-                    padding: 0;
-                }
+                // Enqueue pricing page JavaScript
+                wp_enqueue_script( 
+                    'aiohm-booking-freemius-pricing', 
+                    AIOHM_BOOKING_URL . 'assets/js/aiohm-booking-freemius-pricing.js', 
+                    array( 'jquery' ), 
+                    AIOHM_BOOKING_VERSION, 
+                    true 
+                );
                 
-                .wrap.fs-full-size-wrapper .aiohm-booking-admin-header {
-                    background: var(--ohm-white);
-                    border-bottom: 1px solid var(--ohm-gray-200);
-                    margin: 0 -20px 20px;
-                    padding: 20px;
-                }
-                
-                .wrap.fs-full-size-wrapper .aiohm-booking-admin-header-content {
-                    display: flex;
-                    align-items: center;
-                    max-width: 1200px;
-                    margin: 0 auto;
-                }
-                
-                .wrap.fs-full-size-wrapper .aiohm-booking-admin-logo {
-                    margin-right: 20px;
-                }
-                
-                .wrap.fs-full-size-wrapper .aiohm-booking-admin-header-logo {
-                    width: 48px;
-                    height: 48px;
-                }
-                
-                .wrap.fs-full-size-wrapper .aiohm-booking-admin-header-text h1 {
-                    color: var(--ohm-gray-800) !important;
-                    font-size: 24px !important;
-                    font-weight: 600 !important;
-                    margin: 0 0 5px !important;
-                    line-height: 1.2 !important;
-                }
-                
-                .wrap.fs-full-size-wrapper .aiohm-booking-admin-tagline {
-                    color: var(--ohm-gray-600) !important;
-                    font-size: 14px !important;
-                    margin: 0 !important;
-                    font-weight: 400 !important;
-                }
-
-                /* Style the pricing cards */
-                #fs_pricing_wrapper .fs-package-card {
-                    border-radius: 12px !important;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
-                    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
-                    background: var(--ohm-white) !important;
-                }
-
-                #fs_pricing_wrapper .fs-package-card:hover {
-                    transform: translateY(-5px) !important;
-                    box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
-                }
-
-                /* Style the popular plan */
-                #fs_pricing_wrapper .fs-package-card.fs-popular {
-                    border: 3px solid var(--ohm-primary) !important;
-                    transform: scale(1.02) !important;
-                }
-
-                #fs_pricing_wrapper .fs-package-card.fs-popular::before {
-                    content: 'Most Popular';
-                    position: absolute;
-                    top: -12px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: var(--ohm-primary);
-                    color: var(--ohm-white);
-                    padding: 6px 20px;
-                    border-radius: 20px;
-                    font-size: 11px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    z-index: 10;
-                }
-
-                /* Style pricing buttons */
-                #fs_pricing_wrapper .fs-button-primary {
-                    background: var(--ohm-primary) !important;
-                    border-color: var(--ohm-primary-dark) !important;
-                    border-radius: 8px !important;
-                    padding: 12px 24px !important;
-                    font-weight: 600 !important;
-                    transition: all 0.3s ease !important;
-                }
-
-                #fs_pricing_wrapper .fs-button-primary:hover {
-                    background: var(--ohm-primary-dark) !important;
-                    border-color: var(--ohm-primary-dark) !important;
-                    transform: translateY(-2px) !important;
-                    box-shadow: 0 5px 15px rgba(69, 125, 89, 0.4) !important;
-                }
-
-                /* Style price amounts and currency */
-                #fs_pricing_wrapper .fs-price .fs-amount {
-                    color: var(--ohm-primary) !important;
-                    font-weight: 700 !important;
-                }
-                
-                /* Style price amounts */
-                #fs_pricing_wrapper .fs-price .fs-amount {
-                    color: var(--ohm-primary) !important;
-                    font-weight: 700 !important;
-                }
-
-                /* Style plan titles */
-                #fs_pricing_wrapper .fs-package-title {
-                    color: var(--ohm-gray-800) !important;
-                    font-weight: 700 !important;
-                }
-
-                /* Style feature lists */
-                #fs_pricing_wrapper .fs-package-features li {
-                    color: var(--ohm-gray-600) !important;
-                }
-
-                #fs_pricing_wrapper .fs-package-features li::before {
-                    content: '✓';
-                    background: #27ae60;
-                    color: var(--ohm-white);
-                    width: 16px;
-                    height: 16px;
-                    border-radius: 50%;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 10px;
-                    font-weight: 600;
-                    margin-right: 8px;
-                }
-
-                /* Style FAQ section headers with OHM green background */
-                #fs_pricing_wrapper .fs-section--faq-item h3,
-                #fs_pricing_wrapper .fs-section.fs-section--faq-item h3 {
-                    background: var(--ohm-primary) !important;
-                    color: var(--ohm-white) !important;
-                    font-weight: 600 !important;
-                    padding: 15px 20px !important;
-                    margin: 0 !important;
-                    border-radius: 8px !important;
-                }
-
-                /* Replace plugin logo with OHM logo */
-                #fs_pricing_wrapper .fs-plugin-logo,
-                #fs_pricing_wrapper object.fs-plugin-logo,
-                #fs_pricing_wrapper img.fs-plugin-logo {
-                    display: none !important;
-                }
-                
-                #fs_pricing_wrapper .fs-plugin-title-and-logo::before,
-                #fs_pricing_wrapper .fs-app-header .fs-plugin-title-and-logo::before {
-                    content: '';
-                    display: inline-block;
-                    width: 64px;
-                    height: 64px;
-                    background-image: url('<?php echo esc_url( AIOHM_BOOKING_URL . "assets/images/aiohm-booking-OHM_logo-black.svg" ); ?>');
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
-                    vertical-align: middle;
-                    margin-right: 15px;
-                }
-
-                /* Hide Freemius branding if needed */
-                #fs_pricing_wrapper .fs-powered-by {
-                    display: none !important;
-                }
-
-                /* Hide only custom guarantee sections, keep Freemius 7-day guarantee */
-                #fs_pricing_wrapper .fs-section:last-child::after {
-                    display: none !important;
-                }
-                
-                #fs_pricing_wrapper::after {
-                    display: none !important;
-                }
-
-                /* Responsive adjustments */
-                @media (max-width: 768px) {
-                    #fs_pricing_wrapper::after {
-                        font-size: 20px;
-                        padding: 30px 15px;
-                    }
-                    
-                    #fs_pricing_wrapper .fs-package-card.fs-popular {
-                        transform: none !important;
-                    }
-                }
-                </style>
-                
-                <script>
-                jQuery(document).ready(function($) {
-                    // Add consistent header to pricing page
-                    var headerHTML = '<div class="aiohm-booking-admin-header">' +
-                        '<div class="aiohm-booking-admin-header-content">' +
-                            '<div class="aiohm-booking-admin-logo">' +
-                                '<img src="<?php echo esc_url( AIOHM_BOOKING_URL . "assets/images/aiohm-booking-OHM_logo-black.svg" ); ?>" alt="AIOHM" class="aiohm-booking-admin-header-logo">' +
-                            '</div>' +
-                            '<div class="aiohm-booking-admin-header-text">' +
-                                '<h1>Upgrade to AIOHM Booking Pro</h1>' +
-                                '<p class="aiohm-booking-admin-tagline">Unlock premium features with secure payments and AI analytics</p>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-                    
-                    // Insert header at the beginning of the pricing wrapper
-                    if ($('#fs_pricing_wrapper').length > 0) {
-                        $('#fs_pricing_wrapper').prepend(headerHTML);
-                    } else if $('.wrap.fs-full-size-wrapper').length > 0) {
-                        $('.wrap.fs-full-size-wrapper').prepend(headerHTML);
-                    }
-                    
-                    // Also try after a delay in case elements load later
-                    setTimeout(function() {
-                        if ($('.aiohm-booking-admin-header').length === 0) {
-                            if ($('#fs_pricing_wrapper').length > 0) {
-                                $('#fs_pricing_wrapper').prepend(headerHTML);
-                            } else if $('.wrap.fs-full-size-wrapper').length > 0) {
-                                $('.wrap.fs-full-size-wrapper').prepend(headerHTML);
-                            }
-                        }
-                    }, 1000);
-                });
-                </script>
-                
-                <?php
+                // Localize script with plugin URL
+                wp_localize_script( 'aiohm-booking-freemius-pricing', 'aiohm_booking_vars', array(
+                    'plugin_url' => AIOHM_BOOKING_URL,
+                ) );
             }
-        });
+        } );
         // Clear module cache when license status changes
         aiohm_booking_fs()->add_action( 'after_license_change', function () {
             if ( class_exists( 'AIOHM_BOOKING_Module_Registry' ) ) {
@@ -397,10 +154,10 @@ if ( function_exists( 'aiohm_booking_fs' ) ) {
         add_filter( 'fs_message_above_input_field_aiohm-booking', function( $message ) {
             if ( function_exists( 'aiohm_booking_fs' ) && ! aiohm_booking_fs()->is_paying() ) {
                 $upgrade_url = 'https://checkout.freemius.com/plugin/20270/plan/33657/';
-                $message .= '<br><br><div style="background: #f0f8ff; border: 1px solid #b3d9ff; padding: 10px; border-radius: 4px; margin-top: 10px;">';
+                $message .= '<br><br><div class="aiohm-booking-license-message">';
                 $message .= '<strong>' . esc_html__( 'Don\'t have a license yet?', 'aiohm-booking-pro' ) . '</strong><br>';
                 $message .= esc_html__( 'Purchase a Pro license to unlock all premium features including Stripe payments.', 'aiohm-booking-pro' );
-                $message .= '<br><a href="' . esc_url( $upgrade_url ) . '" target="_blank" style="color: #007cba; text-decoration: none; font-weight: bold; margin-top: 5px; display: inline-block;">' . esc_html__( 'Buy Pro License →', 'aiohm-booking-pro' ) . '</a>';
+                $message .= '<br><a href="' . esc_url( $upgrade_url ) . '" target="_blank" class="aiohm-booking-upgrade-link">' . esc_html__( 'Buy Pro License →', 'aiohm-booking-pro' ) . '</a>';
                 $message .= '</div>';
             }
             return $message;
@@ -941,9 +698,7 @@ add_action( 'init', function() {
         // Add demo watermark to frontend
         add_action( 'wp_footer', function() {
             if ( ! is_admin() ) {
-                echo '<div style="position:fixed;bottom:10px;right:10px;background:var(--aiohm-brand-color,#457d59);color:white;padding:8px 12px;border-radius:6px;font-size:12px;z-index:9999;font-family:sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.2);">
-                    ✨ AIOHM Pro Demo
-                </div>';
+                echo '<div class="aiohm-booking-demo-watermark">✨ AIOHM Pro Demo</div>';
             }
         });
         

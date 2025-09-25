@@ -238,14 +238,14 @@ $aiohm_booking_events_context = $is_events_context;
 										<span class="aiohm-booking-btn-text"><?php esc_html_e( 'Send Invoice', 'aiohm-booking-pro' ); ?></span>
 									</button>
 									
-									<div class="aiohm-booking-upgrade-prompt" style="text-align: center;">
-										<p style="font-size: 14px;"><?php esc_html_e( 'Upgrade to Pro for instant payment processing with Stripe', 'aiohm-booking-pro' ); ?></p>
+									<div class="aiohm-booking-upgrade-prompt">
+										<p><?php esc_html_e( 'Upgrade to Pro for instant payment processing with Stripe', 'aiohm-booking-pro' ); ?></p>
 										<?php
 										$upgrade_url = aiohm_booking_fs()->is_paying()
 											? aiohm_booking_fs()->_get_admin_page_url('account')
 											: aiohm_booking_fs()->get_upgrade_url();
 										?>
-										<a href="<?php echo esc_url( $upgrade_url ); ?>" class="aiohm-booking-btn aiohm-booking-btn-secondary" style="font-size: 14px; padding: 8px 16px;">
+										<a href="<?php echo esc_url( $upgrade_url ); ?>" class="aiohm-booking-btn aiohm-booking-btn-secondary">
 											<?php echo aiohm_booking_fs()->is_paying() ? esc_html__( 'Manage License', 'aiohm-booking-pro' ) : esc_html__( 'Upgrade to Pro', 'aiohm-booking-pro' ); ?>
 										</a>
 									</div>

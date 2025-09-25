@@ -8611,3 +8611,302 @@ body.admin-bar .aiohm-booking-admin {
         font-size: 1.5rem;
     }
 }
+
+/* ===========================================
+   FREEMIUS PRICING PAGE STYLES
+   =========================================== */
+
+/* Freemius Pricing Page Color Variables */
+.admin_page_aiohm-booking-pro-pricing :root {
+    --ohm-primary: #457d59;
+    --ohm-primary-light: #5d9671;
+    --ohm-primary-dark: #2d5a40;
+    --ohm-secondary: #2c5aa0;
+    --ohm-white: #ffffff;
+    --ohm-gray-50: #f9fafb;
+    --ohm-gray-100: #f3f4f6;
+    --ohm-gray-200: #e5e7eb;
+    --ohm-gray-300: #d1d5db;
+    --ohm-gray-600: #4b5563;
+    --ohm-gray-800: #1f2937;
+}
+
+/* Override Freemius pricing page colors */
+#fs_pricing_wrapper,
+#fs_pricing_app {
+    --fs-ds-theme-primary-accent-color: var(--ohm-primary) !important;
+    --fs-ds-theme-primary-accent-color-hover: var(--ohm-primary-dark) !important;
+    --fs-ds-theme-button-primary-background-color: var(--ohm-primary) !important;
+    --fs-ds-theme-button-primary-background-hover-color: var(--ohm-primary-dark) !important;
+    --fs-ds-theme-button-primary-border-color: var(--ohm-primary-dark) !important;
+    --fs-ds-theme-button-primary-border-hover-color: var(--ohm-primary-dark) !important;
+}
+
+/* Add consistent header styling like other plugin pages */
+.wrap.fs-full-size-wrapper {
+    margin-top: 0 !important;
+}
+
+.wrap.fs-full-size-wrapper::before {
+    content: '';
+    display: block;
+    background: var(--ohm-white);
+    border-bottom: 1px solid var(--ohm-gray-200);
+    margin: 0 -20px 20px;
+    padding: 0;
+}
+
+.wrap.fs-full-size-wrapper .aiohm-booking-admin-header {
+    background: var(--ohm-white);
+    border-bottom: 1px solid var(--ohm-gray-200);
+    margin: 0 -20px 20px;
+    padding: 20px;
+}
+
+.wrap.fs-full-size-wrapper .aiohm-booking-admin-header-content {
+    display: flex;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.wrap.fs-full-size-wrapper .aiohm-booking-admin-logo {
+    margin-right: 20px;
+}
+
+.wrap.fs-full-size-wrapper .aiohm-booking-admin-header-logo {
+    width: 48px;
+    height: 48px;
+}
+
+.wrap.fs-full-size-wrapper .aiohm-booking-admin-header-text h1 {
+    color: var(--ohm-gray-800) !important;
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    margin: 0 0 5px !important;
+    line-height: 1.2 !important;
+}
+
+.wrap.fs-full-size-wrapper .aiohm-booking-admin-tagline {
+    color: var(--ohm-gray-600) !important;
+    font-size: 14px !important;
+    margin: 0 !important;
+    font-weight: 400 !important;
+}
+
+/* Style the pricing cards */
+#fs_pricing_wrapper .fs-package-card {
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    background: var(--ohm-white) !important;
+}
+
+#fs_pricing_wrapper .fs-package-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+}
+
+/* Style the popular plan */
+#fs_pricing_wrapper .fs-package-card.fs-popular {
+    border: 3px solid var(--ohm-primary) !important;
+    transform: scale(1.02) !important;
+}
+
+#fs_pricing_wrapper .fs-package-card.fs-popular::before {
+    content: 'Most Popular';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ohm-primary);
+    color: var(--ohm-white);
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    z-index: 10;
+}
+
+/* Style pricing buttons */
+#fs_pricing_wrapper .fs-button-primary {
+    background: var(--ohm-primary) !important;
+    border-color: var(--ohm-primary-dark) !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+#fs_pricing_wrapper .fs-button-primary:hover {
+    background: var(--ohm-primary-dark) !important;
+    border-color: var(--ohm-primary-dark) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(69, 125, 89, 0.4) !important;
+}
+
+/* Style price amounts and currency */
+#fs_pricing_wrapper .fs-price .fs-amount {
+    color: var(--ohm-primary) !important;
+    font-weight: 700 !important;
+}
+
+/* Style plan titles */
+#fs_pricing_wrapper .fs-package-title {
+    color: var(--ohm-gray-800) !important;
+    font-weight: 700 !important;
+}
+
+/* Style feature lists */
+#fs_pricing_wrapper .fs-package-features li {
+    color: var(--ohm-gray-600) !important;
+}
+
+#fs_pricing_wrapper .fs-package-features li::before {
+    content: '✓';
+    background: #27ae60;
+    color: var(--ohm-white);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+/* Style FAQ section headers with OHM green background */
+#fs_pricing_wrapper .fs-section--faq-item h3,
+#fs_pricing_wrapper .fs-section.fs-section--faq-item h3 {
+    background: var(--ohm-primary) !important;
+    color: var(--ohm-white) !important;
+    font-weight: 600 !important;
+    padding: 15px 20px !important;
+    margin: 0 !important;
+    border-radius: 8px !important;
+}
+
+/* Replace plugin logo with OHM logo */
+#fs_pricing_wrapper .fs-plugin-logo,
+#fs_pricing_wrapper object.fs-plugin-logo,
+#fs_pricing_wrapper img.fs-plugin-logo {
+    display: none !important;
+}
+
+#fs_pricing_wrapper .fs-plugin-title-and-logo::before,
+#fs_pricing_wrapper .fs-app-header .fs-plugin-title-and-logo::before {
+    content: '';
+    display: inline-block;
+    width: 64px;
+    height: 64px;
+    background-image: url('../images/aiohm-booking-OHM_logo-black.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    vertical-align: middle;
+    margin-right: 15px;
+}
+
+/* Hide Freemius branding if needed */
+#fs_pricing_wrapper .fs-powered-by {
+    display: none !important;
+}
+
+/* Hide only custom guarantee sections, keep Freemius 7-day guarantee */
+#fs_pricing_wrapper .fs-section:last-child::after {
+    display: none !important;
+}
+
+#fs_pricing_wrapper::after {
+    display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #fs_pricing_wrapper::after {
+        font-size: 20px;
+        padding: 30px 15px;
+    }
+    
+    #fs_pricing_wrapper .fs-package-card.fs-popular {
+        transform: none !important;
+    }
+}
+
+/* ===========================================
+   FREEMIUS LICENSE MESSAGE STYLES  
+   =========================================== */
+
+.aiohm-booking-license-message {
+    background: #f0f8ff;
+    border: 1px solid #b3d9ff;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.aiohm-booking-license-message .aiohm-booking-upgrade-link {
+    color: #007cba;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 5px;
+    display: inline-block;
+}
+
+.aiohm-booking-license-message .aiohm-booking-upgrade-link:hover {
+    color: #005a87;
+    text-decoration: underline;
+}
+
+/* ===========================================
+   DASHBOARD LICENSE BANNER STYLES
+   =========================================== */
+
+.aiohm-license-banner {
+    background: linear-gradient(135deg, var(--aiohm-brand-color, #457d59) 0%, #2d5233 100%);
+    color: white;
+    padding: 30px;
+    margin: 20px 0;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.aiohm-license-banner h2 {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+}
+
+.aiohm-license-banner p {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    color: #cccccc;
+}
+
+.aiohm-license-banner-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.aiohm-license-button {
+    background: #ff6b6b;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 16px;
+    display: inline-block;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.aiohm-license-button:hover {
+    background: #ff5252;
+    color: white;
+    text-decoration: none;
+}
