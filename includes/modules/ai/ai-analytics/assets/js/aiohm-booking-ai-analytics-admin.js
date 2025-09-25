@@ -16,6 +16,7 @@
             this.bindEvents();
             this.bindAIQueryEvents();
             this.bindOrdersAIQueryEvents();
+            this.bindCalendarAIQueryEvents();
             this.initAnalytics();
         },
 
@@ -420,13 +421,101 @@
             setTimeout(function() {
                 $textarea[0].focus();
             }, 10);
+        },
+
+        // Calendar AI functionality
+        bindCalendarAIQueryEvents: function() {
+            $(document).on('click', '#aiohm-calendar-ai-submit', this.handleCalendarAIQuery.bind(this));
+            $(document).on('click', '#aiohm-calendar-copy-response', this.copyCalendarAIResponse.bind(this));
+            $(document).on('click', '#aiohm-calendar-clear-response', this.clearCalendarAIResponse.bind(this));
+        },
+
+        handleCalendarAIQuery: function(e) {
+            e.preventDefault();
+            const query = $('#aiohm-calendar-ai-query').val().trim();
+            if (!query) {
+                this.showNotification('Please enter a question first.', 'warning');
+                return;
+            }
+
+            // Show loading state
+            $('#aiohm-calendar-ai-loading').removeClass('aiohm-hidden').show();
+            $('#aiohm-calendar-ai-submit').prop('disabled', true).text('Analyzing...');
+            $('#aiohm-calendar-ai-results').hide();
+
+            // AJAX call to the backend
+            $.ajax({
+                url: aiohm_ai_analytics.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'aiohm_booking_ai_query',
+                    query: query,
+                    context: 'calendar',
+                    nonce: aiohm_ai_analytics.nonce
+                },
+                timeout: 60000,
+                success: (response) => {
+                    if (response.success) {
+                        this.showCalendarAIResponse(query, response.data.response);
+                    } else {
+                        this.showCalendarAIResponse(query, 'Error: ' + (response.data || 'Unknown error occurred'));
+                    }
+                },
+                error: (xhr, status, error) => {
+                    console.error('AI query failed:', error);
+                    this.showCalendarAIResponse(query, 'Error: Could not connect to the server. ' + error);
+                },
+                complete: () => {
+                    $('#aiohm-calendar-ai-submit').prop('disabled', false).text('Ask AI');
+                    $('#aiohm-calendar-ai-loading').addClass('aiohm-hidden').hide();
+                }
+            });
+        },
+
+        showCalendarAIResponse: function(query, response) {
+            $('#aiohm-calendar-ai-response').html(response);
+            $('#aiohm-calendar-ai-results').removeClass('aiohm-hidden').show();
+        },
+
+        copyCalendarAIResponse: function(e) {
+            e.preventDefault();
+            const responseText = $('#aiohm-calendar-ai-response').text();
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(responseText).then(() => {
+                    this.showNotification('Response copied to clipboard!', 'success');
+                });
+            } else {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = responseText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    this.showNotification('Response copied to clipboard!', 'success');
+                } catch (err) {
+                    this.showNotification('Could not copy to clipboard', 'error');
+                }
+                document.body.removeChild(textArea);
+            }
+        },
+
+        clearCalendarAIResponse: function(e) {
+            e.preventDefault();
+            $('#aiohm-calendar-ai-results').hide();
+            const $textarea = $('#aiohm-calendar-ai-query');
+            $textarea.val('');
+            // Use setTimeout to avoid jQuery migrate warning with focus()
+            setTimeout(function() {
+                $textarea[0].focus();
+            }, 10);
         }
     };
 
     // Initialize when document is ready
     $(document).ready(function() {
-        // Only initialize if we're on an analytics admin page or orders page
-        if ($('.aiohm-analytics-container').length > 0 || $('#aiohm-orders-ai-query').length > 0) {
+        // Only initialize if we're on an analytics admin page, orders page, or calendar page
+        if ($('.aiohm-analytics-container').length > 0 || $('#aiohm-orders-ai-query').length > 0 || $('#aiohm-calendar-ai-query').length > 0) {
             AIOHM_Booking_AI_Analytics.init();
         }
     });

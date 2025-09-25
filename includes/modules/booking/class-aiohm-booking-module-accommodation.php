@@ -115,6 +115,9 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		// Handle form settings submission.
 		add_action( 'admin_init', array( $this, 'save_form_settings' ) );
 
+		// Handle add new accommodation action.
+		add_action( 'admin_init', array( $this, 'handle_add_new_accommodation' ) );
+
 		// AJAX handlers - only register if module is enabled.
 		if ( $this->is_enabled() ) {
 			// Only register the unified form settings handler once to avoid conflicts
@@ -157,9 +160,12 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			'hierarchical'    => false,
 			'public'          => true,
 			'show_ui'         => true,
-			'show_in_menu'    => 'aiohm-booking-pro', // Show under the main AIOHM menu.
+			'show_in_menu'    => true, // Show in admin menu
+			'show_in_admin_bar' => true,
 			'menu_icon'       => 'dashicons-building',
 			'capability_type' => 'post',
+			'has_archive'     => false,
+			'can_export'      => true,
 		);
 		register_post_type( 'aiohm_accommodation', $args );
 	}
@@ -216,7 +222,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	 * @param int $post_id The ID of the post being saved.
 	 */
 	public function save_accommodation_meta_data( $post_id ) {
-		if ( ! isset( $_POST['aiohm_accommodation_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_accommodation_meta_nonce'] ) ), 'aiohm_save_accommodation_meta' ) ) {
+		$meta_nonce = sanitize_text_field( wp_unslash( $_POST['aiohm_accommodation_meta_nonce'] ?? '' ) );
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $meta_nonce, 'aiohm_booking_save_accommodation_meta' ) ) {
 			return;
 		}
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -229,7 +236,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		update_post_meta( $post_id, '_aiohm_booking_accommodation_price', sanitize_text_field( wp_unslash( $_POST['aiohm_price'] ?? 0 ) ) );
 		update_post_meta( $post_id, '_aiohm_booking_accommodation_earlybird_price', sanitize_text_field( wp_unslash( $_POST['aiohm_earlybird_price'] ?? 0 ) ) );
 		update_post_meta( $post_id, '_aiohm_booking_accommodation_type', sanitize_text_field( wp_unslash( $_POST['aiohm_type'] ?? 'unit' ) ) );
-		update_post_meta( $post_id, '_aiohm_booking_accommodation_max_guests', intval( $_POST['aiohm_max_guests'] ?? 2 ) );
+		update_post_meta( $post_id, '_aiohm_booking_accommodation_max_guests', intval( wp_unslash( $_POST['aiohm_max_guests'] ?? 2 ) ) );
 	}
 
 	/**
@@ -412,7 +419,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 		// Handle legacy booking form customization form submission.
 		$nonce = sanitize_text_field( wp_unslash( $_POST['aiohm_booking_settings_nonce'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce retrieved for verification below
-		if ( isset( $_POST['form_submit'] ) && isset( $_POST['aiohm_booking_settings'] ) && AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'save_settings' ) && current_user_can( 'manage_options' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by AIOHM_BOOKING_Security_Helper
+		if ( isset( $_POST['form_submit'] ) && isset( $_POST['aiohm_booking_settings'] ) && AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'aiohm_booking_save_settings' ) && current_user_can( 'manage_options' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by AIOHM_BOOKING_Security_Helper
 			$posted_settings = wp_unslash( $_POST['aiohm_booking_settings'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified by AIOHM_BOOKING_Security_Helper, input sanitized in save_settings method
 
 			// Save the form customization settings using the already unslashed data
@@ -458,6 +465,12 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			$accommodation_posts = $this->sync_accommodation_posts( $accommodation_posts, $available_accommodations, $global_settings );
 		}
 
+		// Optimize performance: Pre-load all post meta data to avoid N+1 queries.
+		if ( ! empty( $accommodation_posts ) ) {
+			$post_ids = wp_list_pluck( $accommodation_posts, 'ID' );
+			update_postmeta_cache( $post_ids );
+		}
+
 		// Prepare accommodation display data with dynamic titles.
 		$accommodation_data = array();
 		foreach ( $accommodation_posts as $post ) {
@@ -479,7 +492,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		}
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Nonce verification
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['aiohm_accommodation_details_nonce'] ), 'aiohm_save_accommodation_details' ) ) {
+		$details_nonce = sanitize_text_field( wp_unslash( $_POST['aiohm_accommodation_details_nonce'] ?? '' ) );
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $details_nonce, 'aiohm_booking_save_accommodation_details' ) ) {
 			wp_die( esc_html__( 'Security check failed', 'aiohm-booking-pro' ) );
 		}
 
@@ -491,25 +505,88 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		if ( isset( $_POST['aiohm_accommodations'] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array elements sanitized individually below
 			$accommodations_data = wp_unslash( $_POST['aiohm_accommodations'] );
+			
+			// Validate input is array
+			if ( ! is_array( $accommodations_data ) ) {
+				add_action( 'admin_notices', function() {
+					echo '<div class="notice notice-error"><p>' . esc_html__( 'Invalid accommodation data format received.', 'aiohm-booking-pro' ) . '</p></div>';
+				});
+				return;
+			}
+			
+			$errors = array();
+			$updated_count = 0;
+			
 			foreach ( $accommodations_data as $post_id => $accommodation ) {
 				$post_id = intval( $post_id );
+				
+				// Validate accommodation data
+				if ( ! is_array( $accommodation ) ) {
+					$errors[] = sprintf( __( 'Invalid data for accommodation ID %d', 'aiohm-booking-pro' ), $post_id );
+					continue;
+				}
+				
 				if ( get_post_type( $post_id ) !== 'aiohm_accommodation' ) {
-					continue; // Skip if not a valid accommodation post.
+					$errors[] = sprintf( __( 'Accommodation with ID %d not found or invalid type', 'aiohm-booking-pro' ), $post_id );
+					continue;
 				}
 
+				// Validate required fields
+				$title = isset( $accommodation['title'] ) ? sanitize_text_field( $accommodation['title'] ) : '';
+				$description = isset( $accommodation['description'] ) ? wp_kses_post( $accommodation['description'] ) : '';
+				
 				$post_data = array(
 					'ID'           => $post_id,
-					'post_title'   => sanitize_text_field( $accommodation['title'] ),
-					'post_content' => wp_kses_post( $accommodation['description'] ),
+					'post_title'   => $title,
+					'post_content' => $description,
 				);
 
 				$updated_post_id = wp_update_post( $post_data, true );
+				
+				if ( is_wp_error( $updated_post_id ) ) {
+					$errors[] = sprintf( __( 'Failed to update accommodation ID %d: %s', 'aiohm-booking-pro' ), $post_id, $updated_post_id->get_error_message() );
+					continue;
+				}
+				
+				$updated_count++;
 
 				if ( ! is_wp_error( $updated_post_id ) ) {
-					update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_earlybird_price', sanitize_text_field( $accommodation['earlybird_price'] ?? '' ) );
-					update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_price', sanitize_text_field( $accommodation['price'] ?? '' ) );
-					update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_type', sanitize_text_field( $accommodation['type'] ?? 'unit' ) );
+					// Validate and sanitize meta data
+					$earlybird_price = isset( $accommodation['earlybird_price'] ) ? sanitize_text_field( $accommodation['earlybird_price'] ) : '';
+					$price = isset( $accommodation['price'] ) ? sanitize_text_field( $accommodation['price'] ) : '';
+					$type = isset( $accommodation['type'] ) ? sanitize_text_field( $accommodation['type'] ) : 'unit';
+					
+					// Validate price fields are numeric
+					if ( ! empty( $earlybird_price ) && ! is_numeric( $earlybird_price ) ) {
+						$errors[] = sprintf( __( 'Invalid early bird price for accommodation ID %d', 'aiohm-booking-pro' ), $post_id );
+					} else {
+						update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_earlybird_price', $earlybird_price );
+					}
+					
+					if ( ! empty( $price ) && ! is_numeric( $price ) ) {
+						$errors[] = sprintf( __( 'Invalid price for accommodation ID %d', 'aiohm-booking-pro' ), $post_id );
+					} else {
+						update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_price', $price );
+					}
+					
+					update_post_meta( $updated_post_id, '_aiohm_booking_accommodation_type', $type );
 				}
+			}
+			
+			// Display errors if any occurred
+			if ( ! empty( $errors ) ) {
+				add_action( 'admin_notices', function() use ( $errors, $updated_count ) {
+					$error_list = '<ul><li>' . implode( '</li><li>', array_map( 'esc_html', $errors ) ) . '</li></ul>';
+					echo '<div class="notice notice-warning"><p>' . 
+						sprintf( __( 'Updated %d accommodations with %d errors:', 'aiohm-booking-pro' ), $updated_count, count( $errors ) ) . 
+						'</p>' . $error_list . '</div>';
+				});
+			} else if ( $updated_count > 0 ) {
+				add_action( 'admin_notices', function() use ( $updated_count ) {
+					echo '<div class="notice notice-success"><p>' . 
+						sprintf( __( 'Successfully updated %d accommodations.', 'aiohm-booking-pro' ), $updated_count ) . 
+						'</p></div>';
+				});
 			}
 
 			wp_redirect( add_query_arg( array( 'updated' => 'true' ), wp_get_referer() ) );
@@ -529,7 +606,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 		// Verify nonce.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Nonce verification
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['aiohm_form_settings_nonce'] ), 'aiohm_booking_save_form_settings' ) ) {
+		$form_nonce = sanitize_text_field( wp_unslash( $_POST['aiohm_form_settings_nonce'] ?? '' ) );
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $form_nonce, 'aiohm_booking_save_form_settings' ) ) {
 			wp_die( esc_html__( 'Security check failed', 'aiohm-booking-pro' ) );
 		}
 
@@ -565,8 +643,12 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 					$sanitized_settings[ $key ] = sanitize_text_field( $value );
 				} elseif ( is_numeric( $value ) ) {
 					$sanitized_settings[ $key ] = intval( $value );
+				} elseif ( is_bool( $value ) ) {
+					$sanitized_settings[ $key ] = (bool) $value;
+				} elseif ( is_array( $value ) ) {
+					$sanitized_settings[ $key ] = array_map( 'sanitize_text_field', $value );
 				} else {
-					$sanitized_settings[ $key ] = $value;
+					$sanitized_settings[ $key ] = sanitize_text_field( strval( $value ) );
 				}
 			}
 
@@ -598,18 +680,100 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	}
 
 	/**
-	 * AJAX handler for saving individual accommodation data
+	 * Handle add new accommodation action from banner link.
 	 */
-	public function ajax_save_individual_accommodation() {
-		// Verify nonce first.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Nonce verification
-		if ( ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ?? '' ), 'aiohm_booking_admin_nonce' ) ) {
-			wp_send_json_error( 'Security check failed' );
+	public function handle_add_new_accommodation() {
+		// Check if this is our action.
+		if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'aiohm-booking-accommodations' ) {
+			return;
+		}
+
+		if ( ! isset( $_GET['action'] ) || $_GET['action'] !== 'add_new_accommodation' ) {
+			return;
+		}
+
+		// Verify nonce using standardized security helper.
+		$nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) );
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'aiohm_booking_add_accommodation' ) ) {
+			wp_die( esc_html__( 'Security verification failed. Please refresh the page and try again.', 'aiohm-booking-pro' ) );
 		}
 
 		// Check user permissions.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( 'Insufficient permissions' );
+			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'aiohm-booking-pro' ) );
+		}
+
+		try {
+			// Get current settings and accommodation count.
+			$current_settings = AIOHM_BOOKING_Settings::get_all();
+			$current_available = intval( $current_settings['available_accommodations'] ?? 1 );
+			
+			// Check maximum limit to prevent issues.
+			if ( $current_available >= 50 ) {
+				wp_die( esc_html__( 'Maximum number of accommodations (50) reached. Please contact support if you need more.', 'aiohm-booking-pro' ) );
+			}
+			
+			// Increase the available accommodations count by 1.
+			$new_count = $current_available + 1;
+			
+			// Update the setting which will trigger the sync method.
+			$settings_updated = AIOHM_BOOKING_Settings::update_multiple( array( 'available_accommodations' => $new_count ) );
+			
+			if ( ! $settings_updated ) {
+				error_log( 'AIOHM Booking - Failed to update available_accommodations setting' );
+				wp_die( esc_html__( 'Failed to update accommodation settings. Please try again.', 'aiohm-booking-pro' ) );
+			}
+			
+			// Use the same sync method as the settings box.
+			$this->sync_accommodations_with_setting( $new_count );
+
+			// Redirect back to accommodation page with success message.
+			$redirect_url = add_query_arg( 
+				array( 'accommodation_added' => '1' ), 
+				admin_url( 'admin.php?page=aiohm-booking-accommodations' ) 
+			);
+			
+			if ( ! wp_redirect( $redirect_url ) ) {
+				// Fallback if redirect fails.
+				echo '<div class="notice notice-success"><p>' . esc_html__( 'Accommodation added successfully!', 'aiohm-booking-pro' ) . '</p></div>';
+			}
+			exit;
+			
+		} catch ( Exception $e ) {
+			error_log( 'AIOHM Booking - Error adding accommodation: ' . $e->getMessage() );
+			wp_die( 
+				sprintf( 
+					/* translators: %s: error message */
+					esc_html__( 'An error occurred while adding the accommodation: %s', 'aiohm-booking-pro' ), 
+					esc_html( $e->getMessage() )
+				)
+			);
+		}
+	}
+
+	/**
+	 * AJAX handler for saving individual accommodation data
+	 */
+	public function ajax_save_individual_accommodation() {
+		// Verify nonce first.
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+			wp_send_json_error( 
+				array( 
+					'message' => __( 'Security verification failed. Please refresh the page and try again.', 'aiohm-booking-pro' ),
+					'code'    => 'security_check_failed'
+				)
+			);
+		}
+
+		// Check user permissions.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 
+				array( 
+					'message' => __( 'You do not have permission to perform this action.', 'aiohm-booking-pro' ),
+					'code'    => 'insufficient_permissions'
+				)
+			);
 		}
 
 		// Validate and sanitize input data.
@@ -621,8 +785,23 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			: array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array elements sanitized individually below
 
 		// Validate required fields.
-		if ( ! $post_id ) {
-			wp_send_json_error( 'Missing accommodation ID' );
+		if ( ! $post_id || $post_id <= 0 ) {
+			wp_send_json_error( 
+				array( 
+					'message' => __( 'Invalid accommodation ID provided.', 'aiohm-booking-pro' ),
+					'code'    => 'missing_accommodation_id'
+				)
+			);
+		}
+
+		// Verify accommodation exists.
+		if ( ! get_post( $post_id ) || get_post_type( $post_id ) !== 'aiohm_accommodation' ) {
+			wp_send_json_error( 
+				array( 
+					'message' => __( 'Accommodation not found or invalid type.', 'aiohm-booking-pro' ),
+					'code'    => 'accommodation_not_found'
+				)
+			);
 		}
 
 		// Create and validate DTO.
@@ -631,15 +810,29 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			$dto                      = AccommodationDTO::from_array( $accommodation_data );
 
 			if ( ! $dto->is_valid() ) {
-				wp_send_json_error( 'Invalid accommodation data' );
+				wp_send_json_error( 
+					array( 
+						'message' => __( 'Invalid accommodation data provided. Please check all required fields.', 'aiohm-booking-pro' ),
+						'code'    => 'invalid_accommodation_data',
+						'errors'  => $dto->get_validation_errors()
+					)
+				);
 			}
 		} catch ( InvalidArgumentException $e ) {
-			wp_send_json_error( $e->getMessage() );
-		}
-
-		// Verify post exists and is correct type.
-		if ( get_post_type( $post_id ) !== 'aiohm_accommodation' ) {
-			wp_send_json_error( 'Invalid Accommodation ID' );
+			wp_send_json_error( 
+				array( 
+					'message' => sprintf( __( 'Validation error: %s', 'aiohm-booking-pro' ), $e->getMessage() ),
+					'code'    => 'validation_exception'
+				)
+			);
+		} catch ( Exception $e ) {
+			error_log( 'AIOHM Booking - Accommodation save error: ' . $e->getMessage() );
+			wp_send_json_error( 
+				array( 
+					'message' => __( 'An unexpected error occurred while saving accommodation data.', 'aiohm-booking-pro' ),
+					'code'    => 'unexpected_error'
+				)
+			);
 		}
 
 		// Prepare post data for update using DTO.
@@ -649,11 +842,17 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			'post_content' => $dto->description,
 		);
 
-		// Update post.
+		// Update post with error handling.
 		$updated_post_id = wp_update_post( $post_data, true );
 
 		if ( is_wp_error( $updated_post_id ) ) {
-			wp_send_json_error( 'Failed to update accommodation: ' . $updated_post_id->get_error_message() );
+			error_log( 'AIOHM Booking - Failed to update accommodation post: ' . $updated_post_id->get_error_message() );
+			wp_send_json_error( 
+				array( 
+					'message' => sprintf( __( 'Failed to update accommodation: %s', 'aiohm-booking-pro' ), $updated_post_id->get_error_message() ),
+					'code'    => 'post_update_failed'
+				)
+			);
 		}
 
 		// Update post meta using DTO values.
@@ -784,9 +983,14 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Nonce verification happens below
 			$received_nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 
-			// Verify nonce.
-			if ( ! wp_verify_nonce( $received_nonce, 'aiohm_booking_update_preview' ) ) {
-				wp_send_json_error( 'Security check failed' );
+			// Verify nonce using security helper.
+			if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $received_nonce, 'aiohm_booking_update_preview' ) ) {
+				wp_send_json_error( 
+					array(
+						'message' => __( 'Security verification failed. Please refresh the page and try again.', 'aiohm-booking-pro' ),
+						'code'    => 'security_check_failed'
+					)
+				);
 				return;
 			}
 
@@ -954,7 +1158,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			return $cached;
 		}
 
-		// Fetch fresh data.
+		// Fetch fresh data with optimized query parameters.
 		$accommodations_query = new WP_Query(
 			array(
 				'post_type'              => 'aiohm_accommodation',
@@ -963,9 +1167,10 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 				'order'                  => 'ASC',
 				'post_status'            => array( 'publish', 'draft' ),
 				'fields'                 => 'all',
-				'no_found_rows'          => true,
-				'update_post_meta_cache' => true,
-				'update_post_term_cache' => false,
+				'no_found_rows'          => true, // Skip pagination count queries
+				'update_post_meta_cache' => true, // Pre-load meta cache
+				'update_post_term_cache' => false, // Skip taxonomy cache (not needed)
+				'suppress_filters'       => true, // Skip unnecessary filters for performance
 			)
 		);
 
@@ -994,16 +1199,19 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	 * Clear the accommodations cache - useful after accommodation updates
 	 */
 	public function clear_accommodations_cache() {
-		self::$cached_accommodations = null;
-
-		// Clear all accommodation cache variations.
-		global $wpdb;
-		$wpdb->query(	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for accommodation data insertion
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-				'%' . $wpdb->esc_like( '_transient_' . self::$accommodations_cache_key ) . '%'
-			)
-		);
+		self::$cached_accommodations = array(); // Clear runtime cache more efficiently
+		
+		// Clear specific cache keys instead of wildcard deletion for better performance
+		$common_limits = array( 10, 20, 50, -1 ); // Common pagination limits
+		foreach ( $common_limits as $limit ) {
+			$cache_key = self::$accommodations_cache_key . '_limit_' . $limit;
+			delete_transient( $cache_key );
+		}
+		
+		// Clear object cache if available
+		if ( function_exists( 'wp_cache_flush_group' ) ) {
+			wp_cache_flush_group( 'aiohm_accommodations' );
+		}
 	}
 
 	/**
@@ -1059,56 +1267,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	 * @return array Array of accommodation types with singular/plural forms
 	 */
 	public static function get_accommodation_types() {
-		return array(
-			'unit'      => array(
-				'singular' => 'Room',
-				'plural'   => 'Rooms',
-			),
-			'house'     => array(
-				'singular' => 'House',
-				'plural'   => 'Houses',
-			),
-			'apartment' => array(
-				'singular' => 'Apartment',
-				'plural'   => 'Apartments',
-			),
-			'villa'     => array(
-				'singular' => 'Villa',
-				'plural'   => 'Villas',
-			),
-			'bungalow'  => array(
-				'singular' => 'Bungalow',
-				'plural'   => 'Bungalows',
-			),
-			'cabin'     => array(
-				'singular' => 'Cabin',
-				'plural'   => 'Cabins',
-			),
-			'cottage'   => array(
-				'singular' => 'Cottage',
-				'plural'   => 'Cottages',
-			),
-			'suite'     => array(
-				'singular' => 'Suite',
-				'plural'   => 'Suites',
-			),
-			'studio'    => array(
-				'singular' => 'Studio',
-				'plural'   => 'Studios',
-			),
-			'unit'      => array(
-				'singular' => 'Unit',
-				'plural'   => 'Units',
-			),
-			'space'     => array(
-				'singular' => 'Space',
-				'plural'   => 'Spaces',
-			),
-			'venue'     => array(
-				'singular' => 'Venue',
-				'plural'   => 'Venues',
-			),
-		);
+		return aiohm_booking_get_accommodation_types();
 	}
 
 	/**
@@ -1139,7 +1298,15 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 		// Use centralized accommodation types.
 		$accommodation_types = self::get_accommodation_types();
-		$type_info           = $accommodation_types[ $accommodation_type ] ?? $accommodation_types['unit'];
+		
+		// Get type info with fallback to room if unit doesn't exist, then unit if room doesn't exist
+		if ( isset( $accommodation_types[ $accommodation_type ] ) ) {
+			$type_info = $accommodation_types[ $accommodation_type ];
+		} elseif ( isset( $accommodation_types['room'] ) ) {
+			$type_info = $accommodation_types['room'];
+		} else {
+			$type_info = $accommodation_types['unit'] ?? array( 'singular' => 'Accommodation', 'plural' => 'Accommodations' );
+		}
 
 		return array(
 			'singular_cap'   => $type_info['singular'],
@@ -1171,20 +1338,27 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	 */
 	public function get_accommodation_display_data( $post ) {
 		$custom_title = get_the_title( $post->ID );
-		$type         = get_post_meta( $post->ID, '_aiohm_booking_accommodation_type', true ) ? get_post_meta( $post->ID, '_aiohm_booking_accommodation_type', true ) : 'unit';
-		$number       = get_post_meta( $post->ID, '_aiohm_booking_accommodation_number', true ) ? get_post_meta( $post->ID, '_aiohm_booking_accommodation_number', true ) : 1;
+		
+		// Get all meta data in single calls (cache is pre-loaded).
+		$type = get_post_meta( $post->ID, '_aiohm_booking_accommodation_type', true ) ?: 'unit';
+		$number = get_post_meta( $post->ID, '_aiohm_booking_accommodation_number', true ) ?: 1;
+		$earlybird_price = get_post_meta( $post->ID, '_aiohm_booking_accommodation_earlybird_price', true );
+		$price = get_post_meta( $post->ID, '_aiohm_booking_accommodation_price', true );
 
-		// Use custom title if set, otherwise generate default.
-		$display_title = ! empty( trim( $custom_title ) ) ? $custom_title : self::generate_default_title( $type, $number );
+		// Generate default title once.
+		$default_title = self::generate_default_title( $type, $number );
+		
+		// Use custom title if set, otherwise use generated default.
+		$display_title = ! empty( trim( $custom_title ) ) ? $custom_title : $default_title;
 
 		return array(
 			'id'              => $post->ID,
 			'title'           => $display_title,
 			'custom_title'    => $custom_title,
-			'default_title'   => self::generate_default_title( $type, $number ),
+			'default_title'   => $default_title,
 			'description'     => $post->post_content,
-			'earlybird_price' => get_post_meta( $post->ID, '_aiohm_booking_accommodation_earlybird_price', true ),
-			'price'           => get_post_meta( $post->ID, '_aiohm_booking_accommodation_price', true ),
+			'earlybird_price' => $earlybird_price,
+			'price'           => $price,
 			'type'            => $type,
 			'number'          => $number,
 			'is_custom_title' => ! empty( trim( $custom_title ) ),

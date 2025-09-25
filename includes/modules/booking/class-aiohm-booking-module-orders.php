@@ -531,9 +531,8 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 			return; // No events configured, don't show the table
 		}
 
-		// Get the current number of events setting to match tickets module
-		$global_settings = AIOHM_BOOKING_Settings::get_all();
-		$num_events      = intval( $global_settings['number_of_events'] ?? 5 );
+		// Use actual count of events instead of fixed setting
+		$num_events = count( $events_data );
 
 		global $wpdb;
 		$table = $wpdb->prefix . 'aiohm_booking_order';

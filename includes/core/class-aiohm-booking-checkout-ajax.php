@@ -245,7 +245,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 				throw new Exception( __( 'Security check failed', 'aiohm-booking-pro' ) );
 			}
 			// Get booking data
-			$booking_data_raw = wp_unslash( $_POST['booking_data'] ?? '{}' );
+			$booking_data_raw = sanitize_textarea_field( wp_unslash( $_POST['booking_data'] ?? '{}' ) );
 			$booking_data     = json_decode( $booking_data_raw, true );
 			if ( empty( $booking_data ) ) {
 				throw new Exception( __( 'Invalid booking data', 'aiohm-booking-pro' ) );
@@ -620,7 +620,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			}
 
 			// Parse form data
-			$form_data_raw = isset( $_POST['form_data'] ) ? wp_unslash( $_POST['form_data'] ) : '';
+			$form_data_raw = isset( $_POST['form_data'] ) ? sanitize_textarea_field( wp_unslash( $_POST['form_data'] ) ) : '';
 			parse_str( $form_data_raw, $form_data );
 
 			// Get pricing data from the pricing summary (this should be available from the form)
@@ -690,7 +690,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			global $wpdb;
 			$table_name = $wpdb->prefix . 'aiohm_booking_order';
 
-			$insert_result = $wpdb->insert(
+			$insert_result = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table for booking orders, not available through WP API
 				$table_name,
 				array(
 					'buyer_name'     => $buyer_name,

@@ -1241,10 +1241,6 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 		$event_index = isset( $_POST['event_index'] ) ? intval( wp_unslash( $_POST['event_index'] ) ) : -1; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above with check_ajax_referer
 		$posted_events = isset( $_POST['events'] ) && is_array( $_POST['events'] ) ? wp_unslash( $_POST['events'] ) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above, data sanitized in processing loop
 
-		// Debug: Log received data for troubleshooting
-		error_log( 'AIOHM Debug - Event Index: ' . $event_index );
-		error_log( 'AIOHM Debug - Posted Events: ' . wp_json_encode( $posted_events ) );
-		error_log( 'AIOHM Debug - Event exists: ' . ( isset( $posted_events[ $event_index ] ) ? 'YES' : 'NO' ) );
 
 		if ( $event_index < 0 || ! isset( $posted_events[ $event_index ] ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid event data. Event index: ' . $event_index . ', Events count: ' . count( $posted_events ) ) );

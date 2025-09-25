@@ -231,9 +231,9 @@ function aiohm_booking_get_log_file() {
  */
 function aiohm_booking_get_accommodation_types() {
 	return array(
-		'unit'      => array(
-			'singular' => __( 'Unit', 'aiohm-booking-pro' ),
-			'plural'   => __( 'Units', 'aiohm-booking-pro' ),
+		'room'      => array(
+			'singular' => __( 'Room', 'aiohm-booking-pro' ),
+			'plural'   => __( 'Rooms', 'aiohm-booking-pro' ),
 		),
 		'house'     => array(
 			'singular' => __( 'House', 'aiohm-booking-pro' ),

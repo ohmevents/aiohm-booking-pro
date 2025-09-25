@@ -1,0 +1,408 @@
+# Romanian (Romania) translation for AIOHM Booking Pro
+# Copyright (C) 2024 AIOHM Booking
+# This file is distributed under the same license as the AIOHM Booking plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: AIOHM Booking Pro 2.0.3\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/aiohm-booking-pro\n"
+"Last-Translator: AIOHM Team\n"
+"Language-Team: Romanian <ro@li.org>\n"
+"Language: ro_RO\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-12-15T12:00:00+00:00\n"
+"PO-Revision-Date: 2024-12-15T12:00:00+00:00\n"
+"X-Generator: WordPress\n"
+"X-Domain: aiohm-booking-pro\n"
+"Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
+
+# Accommodation module
+msgid "Accommodation"
+msgstr "Cazare"
+
+msgid "Accommodations"
+msgstr "Cazări"
+
+msgid "Perfect for accommodations, vacation rentals, hotels, venues, houses, bungalows, and private spaces."
+msgstr "Perfect pentru cazări, închirieri de vacanță, hoteluri, locuri de evenimente, case, bungalouri și spații private."
+
+msgid "Accommodation Settings"
+msgstr "Setări Cazare"
+
+msgid "Accommodation Management"
+msgstr "Gestionare Cazare"
+
+msgid "Accommodation Archives"
+msgstr "Arhive Cazare"
+
+msgid "Accommodation Attributes"
+msgstr "Atribute Cazare"
+
+msgid "Parent Accommodation:"
+msgstr "Cazare Părinte:"
+
+msgid "All Accommodations"
+msgstr "Toate Cazările"
+
+msgid "Add New Accommodation"
+msgstr "Adaugă Cazare Nouă"
+
+msgid "Add New"
+msgstr "Adaugă Nou"
+
+msgid "New Accommodation"
+msgstr "Cazare Nouă"
+
+msgid "Edit Accommodation"
+msgstr "Editează Cazarea"
+
+msgid "Update Accommodation"
+msgstr "Actualizează Cazarea"
+
+msgid "View Accommodation"
+msgstr "Vizualizează Cazarea"
+
+msgid "View Accommodations"
+msgstr "Vizualizează Cazările"
+
+msgid "Search Accommodation"
+msgstr "Caută Cazare"
+
+msgid "Accommodation Details"
+msgstr "Detalii Cazare"
+
+# Accommodation types
+msgid "Room"
+msgstr "Cameră"
+
+msgid "Rooms"
+msgstr "Camere"
+
+msgid "House"
+msgstr "Casă"
+
+msgid "Houses"
+msgstr "Case"
+
+msgid "Apartment"
+msgstr "Apartament"
+
+msgid "Apartments"
+msgstr "Apartamente"
+
+msgid "Villa"
+msgstr "Vilă"
+
+msgid "Villas"
+msgstr "Vile"
+
+msgid "Bungalow"
+msgstr "Bungalou"
+
+msgid "Bungalows"
+msgstr "Bungalouri"
+
+msgid "Cabin"
+msgstr "Cabană"
+
+msgid "Cabins"
+msgstr "Cabane"
+
+msgid "Cottage"
+msgstr "Căsuță"
+
+msgid "Cottages"
+msgstr "Căsuțe"
+
+msgid "Suite"
+msgstr "Suită"
+
+msgid "Suites"
+msgstr "Suite"
+
+msgid "Studio"
+msgstr "Studio"
+
+msgid "Studios"
+msgstr "Studiouri"
+
+msgid "Unit"
+msgstr "Unitate"
+
+msgid "Units"
+msgstr "Unități"
+
+msgid "Space"
+msgstr "Spațiu"
+
+msgid "Spaces"
+msgstr "Spații"
+
+msgid "Venue"
+msgstr "Locație"
+
+msgid "Venues"
+msgstr "Locații"
+
+# Settings and configuration
+msgid "Settings saved successfully!"
+msgstr "Setările au fost salvate cu succes!"
+
+msgid "New accommodation added successfully!"
+msgstr "Cazarea nouă a fost adăugată cu succes!"
+
+msgid "Booking Settings"
+msgstr "Setări Rezervare"
+
+msgid "Deposit Percentage"
+msgstr "Procent Avans"
+
+msgid "Percentage required as deposit for bookings"
+msgstr "Procentul necesar ca avans pentru rezervări"
+
+msgid "Enable Early Bird Feature"
+msgstr "Activează Funcția Early Bird"
+
+msgid "Activate early bird pricing for accommodations"
+msgstr "Activează prețurile early bird pentru cazări"
+
+msgid "Disabled"
+msgstr "Dezactivat"
+
+msgid "Early Bird Window"
+msgstr "Perioada Early Bird"
+
+msgid "Days before check-in for early bird pricing"
+msgstr "Zile înainte de check-in pentru prețurile early bird"
+
+msgid "Minimum Age Requirement"
+msgstr "Vârsta Minimă Necesară"
+
+msgid "Minimum age for booking guests"
+msgstr "Vârsta minimă pentru oaspeții care rezervă"
+
+msgid "Default Accommodation Type"
+msgstr "Tipul Cazării Implicit"
+
+msgid "Default type for new accommodations"
+msgstr "Tipul implicit pentru cazările noi"
+
+msgid "Active Accommodations"
+msgstr "Cazări Active"
+
+msgid "Number of accommodations to activate"
+msgstr "Numărul de cazări de activat"
+
+msgid "Default Price"
+msgstr "Preț Implicit"
+
+msgid "Default price for accommodations when no specific price is set"
+msgstr "Prețul implicit pentru cazări când nu este setat un preț specific"
+
+msgid "Default Early Bird Price"
+msgstr "Preț Early Bird Implicit"
+
+msgid "Default early bird price for accommodations when no specific price is set"
+msgstr "Prețul early bird implicit pentru cazări când nu este setat un preț specific"
+
+msgid "Save Booking Settings"
+msgstr "Salvează Setările de Rezervare"
+
+# Statistics
+msgid "Accommodation Statistics"
+msgstr "Statistici Cazare"
+
+msgid "Total %s"
+msgstr "Total %s"
+
+msgid "Occupied Today"
+msgstr "Ocupate Astăzi"
+
+msgid "Available %s"
+msgstr "%s Disponibile"
+
+msgid "Pending Today"
+msgstr "În Așteptare Astăzi"
+
+msgid "External Today"
+msgstr "Externe Astăzi"
+
+# Banner messages
+msgid "Need More %s?"
+msgstr "Ai nevoie de mai multe %s?"
+
+msgid "Add more %s to your property"
+msgstr "Adaugă mai multe %s la proprietatea ta"
+
+msgid "Add New %s"
+msgstr "Adaugă %s Nou"
+
+msgid "unlimited"
+msgstr "nelimitat"
+
+msgid "No accommodations found. Click \"Add New\" to get started."
+msgstr "Nu s-au găsit cazări. Fă clic pe \"Adaugă Nou\" pentru a începe."
+
+# Form fields and details
+msgid "%s Details"
+msgstr "Detalii %s"
+
+msgid "Configure the details for each of your %s."
+msgstr "Configurează detaliile pentru fiecare dintre %s tale."
+
+msgid "Title"
+msgstr "Titlu"
+
+msgid "Description"
+msgstr "Descriere"
+
+msgid "Brief description of this accommodation..."
+msgstr "Scurtă descriere a acestei cazări..."
+
+msgid "Early Bird Price (%s)"
+msgstr "Preț Early Bird (%s)"
+
+msgid "Standard Price (%s)"
+msgstr "Preț Standard (%s)"
+
+msgid "Type:"
+msgstr "Tip:"
+
+msgid "Save"
+msgstr "Salvează"
+
+msgid "Leave blank to use default: \"%s\""
+msgstr "Lasă gol pentru a folosi valoarea implicită: \"%s\""
+
+# Error messages and security
+msgid "Security verification failed. Please refresh the page and try again."
+msgstr "Verificarea securității a eșuat. Te rugăm să reîmprospătezi pagina și să încerci din nou."
+
+msgid "You do not have permission to perform this action."
+msgstr "Nu ai permisiunea de a efectua această acțiune."
+
+msgid "Invalid accommodation ID provided."
+msgstr "ID-ul cazării furnizat nu este valid."
+
+msgid "Accommodation not found or invalid type."
+msgstr "Cazarea nu a fost găsită sau tipul nu este valid."
+
+msgid "Invalid accommodation data provided. Please check all required fields."
+msgstr "Datele cazării furnizate nu sunt valide. Te rugăm să verifici toate câmpurile obligatorii."
+
+msgid "Validation error: %s"
+msgstr "Eroare de validare: %s"
+
+msgid "An unexpected error occurred while saving accommodation data."
+msgstr "A apărut o eroare neașteptată în timpul salvării datelor cazării."
+
+msgid "Failed to update accommodation: %s"
+msgstr "Nu s-a putut actualiza cazarea: %s"
+
+msgid "Security check failed"
+msgstr "Verificarea securității a eșuat"
+
+msgid "Security check failed."
+msgstr "Verificarea securității a eșuat."
+
+msgid "Insufficient permissions"
+msgstr "Permisiuni insuficiente"
+
+msgid "You do not have sufficient permissions to access this page."
+msgstr "Nu ai permisiuni suficiente pentru a accesa această pagină."
+
+msgid "Maximum number of accommodations (50) reached. Please contact support if you need more."
+msgstr "Numărul maxim de cazări (50) a fost atins. Te rugăm să contactezi suportul dacă ai nevoie de mai multe."
+
+msgid "Failed to update accommodation settings. Please try again."
+msgstr "Nu s-au putut actualiza setările cazării. Te rugăm să încerci din nou."
+
+msgid "Accommodation added successfully!"
+msgstr "Cazarea a fost adăugată cu succes!"
+
+msgid "An error occurred while adding the accommodation: %s"
+msgstr "A apărut o eroare în timpul adăugării cazării: %s"
+
+# Validation and form processing
+msgid "Invalid accommodation data format received."
+msgstr "Formatul datelor cazării recepționat nu este valid."
+
+msgid "Invalid data for accommodation ID %d"
+msgstr "Date nevalide pentru cazarea cu ID-ul %d"
+
+msgid "Accommodation with ID %d not found or invalid type"
+msgstr "Cazarea cu ID-ul %d nu a fost găsită sau tipul nu este valid"
+
+msgid "Failed to update accommodation ID %d: %s"
+msgstr "Nu s-a putut actualiza cazarea cu ID-ul %d: %s"
+
+msgid "Invalid early bird price for accommodation ID %d"
+msgstr "Preț early bird nevalid pentru cazarea cu ID-ul %d"
+
+msgid "Invalid price for accommodation ID %d"
+msgstr "Preț nevalid pentru cazarea cu ID-ul %d"
+
+msgid "Updated %d accommodations with %d errors:"
+msgstr "Au fost actualizate %d cazări cu %d erori:"
+
+msgid "Successfully updated %d accommodations."
+msgstr "Au fost actualizate cu succes %d cazări."
+
+# Time and date related
+msgid "years"
+msgstr "ani"
+
+msgid "days"
+msgstr "zile"
+
+msgid "units"
+msgstr "unități"
+
+# Common actions and buttons
+msgid "Edit"
+msgstr "Editează"
+
+msgid "Delete"
+msgstr "Șterge"
+
+msgid "Cancel"
+msgstr "Anulează"
+
+msgid "Submit"
+msgstr "Trimite"
+
+msgid "Update"
+msgstr "Actualizează"
+
+msgid "Create"
+msgstr "Creează"
+
+msgid "Back"
+msgstr "Înapoi"
+
+msgid "Next"
+msgstr "Următorul"
+
+msgid "Previous"
+msgstr "Precedentul"
+
+msgid "Close"
+msgstr "Închide"
+
+# Success and info messages
+msgid "Operation completed successfully."
+msgstr "Operațiunea a fost finalizată cu succes."
+
+msgid "Changes saved."
+msgstr "Modificările au fost salvate."
+
+msgid "Item deleted."
+msgstr "Elementul a fost șters."
+
+msgid "No changes detected."
+msgstr "Nu s-au detectat modificări."
+
+# Manage your accommodation offerings
+msgid "Manage your accommodation offerings - from individual %s to entire properties."
+msgstr "Gestionează ofertele tale de cazare - de la %s individuale la proprietăți întregi."

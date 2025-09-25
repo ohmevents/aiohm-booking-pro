@@ -1055,6 +1055,16 @@ body.aiohm-modal-open {
     margin-top: var(--spacing-3);
 }
 
+.aiohm-module-actions .aiohm-configure-btn {
+    order: 2;
+    margin-left: auto;
+}
+
+.aiohm-module-actions .aiohm-page-badge {
+    order: 1;
+    margin-right: auto;
+}
+
 
 .aiohm-booking-calendar-module-description {
     margin: 12px 0;
@@ -1598,6 +1608,37 @@ body.aiohm-modal-open {
     color: var(--ohm-white) !important;
     text-shadow: none !important;
     box-shadow: var(--shadow-sm);
+}
+
+/* Specific AI orders button styling - Force override */
+.aiohm-booking-admin #aiohm-orders-ai-submit.button.button-primary,
+.aiohm-booking-admin #aiohm-orders-ai-submit.button-primary,
+#aiohm-orders-ai-submit.button.button-primary,
+.aiohm-booking-admin #aiohm-calendar-ai-submit.button.button-primary,
+.aiohm-booking-admin #aiohm-calendar-ai-submit.button-primary,
+#aiohm-calendar-ai-submit.button.button-primary {
+    height: 38px !important;
+    width: auto !important;
+    flex: none !important;
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+    min-width: 100px !important;
+    max-width: 150px !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: flex-start !important;
+    box-sizing: border-box !important;
+}
+
+/* Force wrapper alignment */
+.aiohm-ai-insights-card .aiohm-query-input-wrapper,
+.aiohm-booking-card .aiohm-query-input-wrapper {
+    align-items: flex-start !important;
+    display: flex !important;
 }
 
 .aiohm-booking-admin .button-primary:hover,
@@ -6370,7 +6411,7 @@ input:checked + .aiohm-toggle-slider::before {
 .aiohm-example-btn {
     padding: var(--spacing-2) var(--spacing-3);
     background: var(--ohm-gray-100);
-    border: 1px solid var(--ohm-gray-300);
+    border: 1px solid var(--ohm-primary);
     border-radius: var(--border-radius);
     font-size: var(--ohm-font-size-xs);
     cursor: pointer;
@@ -7585,7 +7626,7 @@ input:checked + .aiohm-toggle-slider::before {
 
 /* When admin bar is present, add more spacing */
 body.admin-bar .aiohm-booking-admin {
-    margin-top: 40px !important;
+    margin-top: 0px !important;
 }
 
 /* Admin Header Styles - Universal header for all admin pages */
@@ -8371,7 +8412,7 @@ body .aiohm-settings-section .aiohm-settings-grid {
 
 /* When admin bar is present, add more spacing */
 body.admin-bar .aiohm-booking-admin {
-    margin-top: 40px !important;
+    margin-top: 0px !important;
 }
 
 /* Admin Header Styles - Universal header for all admin pages */
