@@ -656,8 +656,8 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 		);
 
 		if ( in_array( $screen->id, $valid_screens, true ) ) {
-			// Enqueue AI Analytics JavaScript for calendar AI functionality
-			if ( $screen->id === 'aiohm-booking_page_aiohm-booking-calendar' ) {
+			// Enqueue AI Analytics JavaScript for calendar and orders AI functionality
+			if ( in_array( $screen->id, array( 'aiohm-booking_page_aiohm-booking-calendar', 'aiohm-booking_page_aiohm-booking-orders' ), true ) ) {
 				wp_enqueue_script(
 					'aiohm-ai-analytics-admin',
 					AIOHM_BOOKING_URL . 'includes/modules/ai/ai-analytics/assets/js/aiohm-booking-ai-analytics-admin.js',
@@ -768,6 +768,102 @@ class AIOHM_BOOKING_Module_AI_Analytics extends AIOHM_BOOKING_Module_Abstract {
 				<div id="aiohm-orders-ai-loading" class="aiohm-loading-indicator aiohm-hidden">
 					<div class="aiohm-loading-spinner"></div>
 					<span><?php esc_html_e( 'AI is analyzing your order data...', 'aiohm-booking-pro' ); ?></span>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render AI Booking Analytics section for calendar page (similar to orders analytics)
+	 */
+	public function render_calendar_booking_analytics_section() {
+		$settings = $this->get_module_settings();
+		if ( empty( $settings['enable_calendar_analytics'] ) ) {
+			return;
+		}
+
+		// Check if AI Analytics module is enabled
+		if ( ! aiohm_booking_is_module_enabled( 'ai_analytics' ) ) {
+			return;
+		}
+
+		?>
+		<div class="aiohm-booking-card aiohm-ai-insights-card">
+			<h3>
+				<?php esc_html_e( 'AI Booking Analytics', 'aiohm-booking-pro' ); ?>
+				<span class="aiohm-ai-provider-badge">
+					<?php
+					$provider_names   = array(
+						'shareai' => 'ShareAI',
+						'openai'  => 'OpenAI',
+						'gemini'  => 'Google Gemini',
+						'ollama'  => 'Ollama',
+					);
+					$global_settings  = get_option( 'aiohm_booking_settings', array() );
+					$default_provider = $global_settings['shortcode_ai_provider'] ?? '';
+					echo esc_html( $provider_names[ $default_provider ] ?? 'AI' );
+					?>
+				</span>
+			</h3>
+			
+			<p class="aiohm-module-description">
+				<?php esc_html_e( 'Ask natural language questions about your booking data, calendar patterns, and availability insights.', 'aiohm-booking-pro' ); ?>
+			</p>
+			
+			<div class="aiohm-ai-query-interface">
+				<div class="aiohm-query-input-section">
+					<div class="aiohm-query-input-wrapper">
+						<textarea id="aiohm-calendar-ai-query" 
+							placeholder="<?php esc_attr_e( 'Ask questions like: What are my busiest booking days? How is my availability distributed? Which dates have the highest demand?', 'aiohm-booking-pro' ); ?>" 
+							rows="3"></textarea>
+						<button type="button" id="aiohm-calendar-ai-submit" class="button button-primary">
+							<span class="dashicons dashicons-search"></span>
+							<?php esc_html_e( 'Ask AI', 'aiohm-booking-pro' ); ?>
+						</button>
+					</div>
+				</div>
+				
+				<div class="aiohm-query-examples">
+					<small><strong><?php esc_html_e( 'Example questions:', 'aiohm-booking-pro' ); ?></strong></small>
+					<div class="aiohm-example-buttons">
+						<button type="button" class="aiohm-example-btn" data-query="<?php esc_attr_e( 'What are my busiest booking days and peak seasons?', 'aiohm-booking-pro' ); ?>">
+							<?php esc_html_e( 'Peak Season Analysis', 'aiohm-booking-pro' ); ?>
+						</button>
+						<button type="button" class="aiohm-example-btn" data-query="<?php esc_attr_e( 'How is my availability distributed and what are the occupancy rates?', 'aiohm-booking-pro' ); ?>">
+							<?php esc_html_e( 'Occupancy Insights', 'aiohm-booking-pro' ); ?>
+						</button>
+						<button type="button" class="aiohm-example-btn" data-query="<?php esc_attr_e( 'Which dates have the highest demand and pricing opportunities?', 'aiohm-booking-pro' ); ?>">
+							<?php esc_html_e( 'Demand Forecast', 'aiohm-booking-pro' ); ?>
+						</button>
+					</div>
+				</div>
+				
+				<div id="aiohm-calendar-ai-results" class="aiohm-ai-response-area aiohm-hidden">
+					<div class="aiohm-response-header">
+						<h4><?php esc_html_e( 'AI Response', 'aiohm-booking-pro' ); ?></h4>
+						<span class="aiohm-provider-badge"><?php esc_html_e( 'AI Assistant', 'aiohm-booking-pro' ); ?></span>
+					</div>
+					<div class="aiohm-response-content">
+						<div class="aiohm-response-card">
+							<div id="aiohm-calendar-ai-response"></div>
+						</div>
+					</div>
+					<div class="aiohm-response-actions">
+						<button type="button" id="aiohm-calendar-copy-response" class="button button-secondary">
+							<span class="dashicons dashicons-clipboard"></span>
+							<?php esc_html_e( 'Copy Response', 'aiohm-booking-pro' ); ?>
+						</button>
+						<button type="button" id="aiohm-calendar-clear-response" class="button button-secondary">
+							<span class="dashicons dashicons-dismiss"></span>
+							<?php esc_html_e( 'Clear', 'aiohm-booking-pro' ); ?>
+						</button>
+					</div>
+				</div>
+				
+				<div id="aiohm-calendar-ai-loading" class="aiohm-loading-indicator aiohm-hidden">
+					<div class="aiohm-loading-spinner"></div>
+					<span><?php esc_html_e( 'AI is analyzing your booking data...', 'aiohm-booking-pro' ); ?></span>
 				</div>
 			</div>
 		</div>

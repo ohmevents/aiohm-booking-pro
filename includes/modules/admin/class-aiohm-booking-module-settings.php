@@ -653,11 +653,11 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 			);
 
 			foreach ( $tables_to_delete as $table ) {
-				$wpdb->query( "DROP TABLE IF EXISTS " . esc_sql( $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange
+				$wpdb->query( "DROP TABLE IF EXISTS " . esc_sql( $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema change, no caching needed
 			}
 
 			// Clear any transients
-			$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aiohm_%' OR option_name LIKE '_transient_timeout_aiohm_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_aiohm_%' OR option_name LIKE '_transient_timeout_aiohm_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cleanup operation, no caching needed
 
 			wp_send_json_success( array( 
 				'message' => 'All plugin data has been successfully reset.',

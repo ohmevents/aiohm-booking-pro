@@ -757,9 +757,13 @@ if ( $calendar_module && method_exists( $calendar_module, 'get_period_data_for_t
 	<!-- AI Calendar Insights Card (PRO Feature). -->
 		<?php
 		// Check if AI Analytics module is enabled and there's a default AI provider set.
-		$ai_analytics_enabled       = ! empty( $settings['enable_ai_analytics'] );
-		$default_ai_provider        = $settings['shortcode_ai_provider'] ?? '';
-		$calendar_analytics_enabled = ! empty( $settings['enable_calendar_analytics'] );
+		$ai_analytics_enabled = ! empty( $settings['enable_ai_analytics'] );
+		$default_ai_provider  = $settings['shortcode_ai_provider'] ?? '';
+		
+		// Get AI Analytics module settings
+		$ai_analytics_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'ai_analytics' );
+		$ai_module_settings = $ai_analytics_module ? $ai_analytics_module->get_module_settings() : array();
+		$calendar_analytics_enabled = ! empty( $ai_module_settings['enable_calendar_analytics'] );
 
 		// Show AI section only if ALL conditions are met:.
 		// 1. AI Analytics module is enabled.
@@ -770,19 +774,17 @@ if ( $calendar_module && method_exists( $calendar_module, 'get_period_data_for_t
 		$calendar_analytics_enabled &&
 		! empty( $default_ai_provider ) &&
 		! empty( $settings[ 'enable_ai_' . $default_ai_provider ] );
+		
 		?>
 
 		<?php if ( function_exists( 'aiohm_booking_fs' ) && aiohm_booking_fs()->can_use_premium_code__premium_only() ) : ?>
 			<?php if ( $show_ai_section ) : ?>
-		<div class="aiohm-booking-admin-card">
-				<?php
-				// Get AI Analytics module instance and render the insights section
-				$ai_analytics_module = AIOHM_BOOKING_Module_Registry::instance()->get_module( 'ai-analytics' );
-				if ( $ai_analytics_module && method_exists( $ai_analytics_module, 'render_ai_calendar_insights_section' ) ) {
-					$ai_analytics_module->render_ai_calendar_insights_section();
-				}
-				?>
-		</div>
+		<?php
+		// Render AI Booking Analytics section (similar to orders page)
+		if ( $ai_analytics_module && method_exists( $ai_analytics_module, 'render_calendar_booking_analytics_section' ) ) {
+			$ai_analytics_module->render_calendar_booking_analytics_section();
+		}
+		?>
 		<?php endif; ?>
 		<?php endif; ?>
 

@@ -5,15 +5,7 @@
  * This template provides the user interface for managing accommodations.
  * It uses the `aiohm_accommodation` Custom Post Type for data storage.
  *
- * @packag										<div class="aiohm-booking-setting-description">Number of accommodations to activate</div>
-						<div class="aiohm-booking-setting-input">
-							<input type="number" name="aiohm_booking_settings[available_accommodations]" value="<?php echo esc_attr( $global_settings['available_accommodations'] ?? '1' ); ?>" min="1" max="50" step="1" placeholder="1">
-							<span class="aiohm-booking-setting-unit">units</span>
-						</div>v class="aiohm-booking-setting-description">Number of accommodations to activate</div>
-						<div class="aiohm-booking-setting-input">
-							<input type="number" name="aiohm_booking_settings[available_accommodations]" value="<?php echo esc_attr( $global_settings['available_accommodations'] ?? '1' ); ?>" min="1" max="50" step="1" placeholder="1">
-							<span class="aiohm-booking-setting-unit">units</span>
-						</div>HM_Booking_PRO
+ * @package AIOHM_Booking_PRO
  * @since 2.0.0
  */
 
@@ -33,6 +25,12 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 	<?php if ( isset( $settings_saved ) && $settings_saved ) : ?>
 		<div class="notice notice-success is-dismissible">
 			<p><?php esc_html_e( 'Settings saved successfully!', 'aiohm-booking-pro' ); ?></p>
+		</div>
+	<?php endif; ?>
+
+	<?php if ( isset( $_GET['accommodation_added'] ) && sanitize_text_field( wp_unslash( $_GET['accommodation_added'] ) ) === '1' ) : ?>
+		<div class="notice notice-success is-dismissible">
+			<p><?php esc_html_e( 'New accommodation added successfully!', 'aiohm-booking-pro' ); ?></p>
 		</div>
 	<?php endif; ?>
 
@@ -222,7 +220,7 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 						<label class="aiohm-booking-setting-label">Active Accommodations</label>
 						<div class="aiohm-booking-setting-description">Number of accommodations to activate</div>
 						<div class="aiohm-booking-setting-input">
-							<input type="number" name="aiohm_booking_settings[available_accommodations]" value="<?php echo esc_attr( $global_settings['available_accommodations'] ?? '7' ); ?>" min="1" max="50" step="1" placeholder="7">
+							<input type="number" name="aiohm_booking_settings[available_accommodations]" value="<?php echo esc_attr( $global_settings['available_accommodations'] ?? '1' ); ?>" min="1" max="50" step="1" placeholder="1">
 							<span class="aiohm-booking-setting-unit">units</span>
 						</div>
 					</div>
@@ -275,7 +273,7 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 	<!-- Two-Column Section for Accommodation Details -->
 	<div class="aiohm-accommodation-section-wrapper">
 		<form method="post" action="">
-		<?php wp_nonce_field( 'aiohm_save_accommodation_details', 'aiohm_accommodation_details_nonce' ); ?>
+		<?php wp_nonce_field( 'aiohm_booking_save_accommodation_details', 'aiohm_accommodation_details_nonce' ); ?>
 		<div class="aiohm-booking-admin-card">
 			<h3><?php echo esc_html( $plural ); ?> Details</h3>
 			<p>Configure the details for each of your <?php echo esc_html( strtolower( $plural ) ); ?>.</p>
@@ -340,7 +338,7 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 						<div class="aiohm-add-more-content">
 							<h4>Need More <?php echo esc_html( $plural ); ?>?</h4>
 							<p>Add more <?php echo esc_html( strtolower( $plural ) ); ?> to your property</p>
-							<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=aiohm_accommodation' ) ); ?>" class="button button-primary aiohm-add-more-btn">
+							<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=aiohm-booking-accommodations&action=add_new_accommodation' ), 'aiohm_booking_add_accommodation' ) ); ?>" class="button button-primary aiohm-add-more-btn">
 								<span class="dashicons dashicons-plus-alt"></span>
 								Add New <?php echo esc_html( $singular ); ?>
 							</a>

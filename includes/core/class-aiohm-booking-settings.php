@@ -93,6 +93,27 @@ class AIOHM_BOOKING_Settings {
 					$settings['enable_stripe'] = true;
 					$updated                   = true;
 				}
+				if ( ! isset( $settings['enable_ai_analytics'] ) || $settings['enable_ai_analytics'] === false ) {
+					$settings['enable_ai_analytics'] = true;
+					$updated                          = true;
+				}
+				// Auto-enable AI providers for AI Analytics
+				if ( ! isset( $settings['enable_ai_shareai'] ) || $settings['enable_ai_shareai'] === false ) {
+					$settings['enable_ai_shareai'] = true;
+					$updated                       = true;
+				}
+				if ( ! isset( $settings['enable_ai_gemini'] ) || $settings['enable_ai_gemini'] === false ) {
+					$settings['enable_ai_gemini'] = true;
+					$updated                      = true;
+				}
+				if ( ! isset( $settings['enable_ai_openai'] ) || $settings['enable_ai_openai'] === false ) {
+					$settings['enable_ai_openai'] = true;
+					$updated                      = true;
+				}
+				if ( ! isset( $settings['shortcode_ai_provider'] ) || empty( $settings['shortcode_ai_provider'] ) ) {
+					$settings['shortcode_ai_provider'] = 'gemini'; // Default to Gemini since it's free
+					$updated                           = true;
+				}
 			}
 
 			// Save updated settings if defaults were applied.

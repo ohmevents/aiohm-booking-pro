@@ -1453,7 +1453,7 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
 .aiohm-query-input-wrapper {
     display: flex;
     gap: var(--spacing-3);
-    align-items: stretch;
+    align-items: flex-start;
     margin-bottom: var(--spacing-4);
 }
 
@@ -1482,17 +1482,42 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
     align-items: center;
     justify-content: center;
     gap: var(--spacing-2);
-    height: auto;
-    align-self: stretch;
-    min-height: 80px;
+    height: 38px !important;
+    width: auto !important;
+    flex: none !important;
+    align-self: flex-start;
+    min-height: 38px;
+    max-height: 38px;
+    padding: 8px 16px;
     background: var(--ohm-primary);
+    border: 1px solid var(--ohm-primary);
     border-color: var(--ohm-primary);
     font-weight: var(--ohm-font-weight-semibold);
+    border-radius: 4px;
+    margin-top: 4px;
+    font-size: 14px;
 }
 
 .aiohm-query-input-wrapper button:hover {
     background: var(--ohm-primary-dark);
     border-color: var(--ohm-primary-dark);
+}
+
+/* Specific override for orders and calendar AI submit buttons */
+#aiohm-orders-ai-submit,
+#aiohm-calendar-ai-submit {
+    height: 38px !important;
+    width: auto !important;
+    flex: none !important;
+    min-width: 100px !important;
+    max-width: 150px !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+}
+
+.aiohm-ai-insights-card .aiohm-query-input-wrapper {
+    align-items: flex-start !important;
 }
 
 /* AI Example Queries */
@@ -1525,7 +1550,7 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
     gap: var(--spacing-2);
     padding: var(--spacing-3) var(--spacing-4);
     background: var(--ohm-white);
-    border: 1px solid var(--ohm-gray-200);
+    border: 1px solid var(--ohm-primary);
     border-radius: var(--border-radius);
     color: var(--ohm-gray-700);
     text-decoration: none;
