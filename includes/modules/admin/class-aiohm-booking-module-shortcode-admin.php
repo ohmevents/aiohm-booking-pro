@@ -1716,13 +1716,15 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 	 */
 	public function ajax_process_checkout() {
 		// Verify security using centralized helper (only nonce for frontend)
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification handled by security helper
 		if ( ! AIOHM_BOOKING_Security_Helper::verify_ajax_nonce( 'frontend_nonce' ) ) {
 			return; // Error response already sent by helper
 		}
 
-		// Get raw form data from $_POST
+		// Get raw form data from $_POST (nonce verified above, all subsequent $_POST accesses are safe)
 		$form_data = array();
 		
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce already verified above
 		// Extract basic contact information
 		if ( isset( $_POST['name'] ) ) {
 			$form_data['contact_info']['name'] = sanitize_text_field( wp_unslash( $_POST['name'] ) );
@@ -1763,6 +1765,7 @@ class AIOHM_BOOKING_Module_Shortcode_Admin extends AIOHM_BOOKING_Settings_Module
 		if ( isset( $_POST['selected_events'] ) ) {
 			$form_data['events'] = array_map( 'intval', (array) wp_unslash( $_POST['selected_events'] ) );
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 		// Use the checkout AJAX class to process the booking
 		try {
@@ -2098,7 +2101,7 @@ Best regards,
 	public function preview_endpoint() {
 		// Verify nonce for security
 		$nonce = isset( $_GET['nonce'] ) ? sanitize_text_field( wp_unslash( $_GET['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in condition below
-		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_preview' ) ) {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'preview' ) ) {
 			wp_die( 'Security check failed' );
 		}
 

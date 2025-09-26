@@ -15,7 +15,9 @@
  * Tested up to: 6.8
  * Requires PHP: 7.4
  *
- * @fs_premium_only /includes/modules/payments/stripe/
+ * @fs_premium_only /includes/modules/payments/
+ * @fs_premium_only /includes/modules/ai/
+ * @fs_premium_only /includes/modules/integrations/
  *
  * @package AIOHM_Booking_PRO
  * @since   2.0.0
@@ -82,6 +84,14 @@ if ( function_exists( 'aiohm_booking_fs' ) ) {
         aiohm_booking_fs()->add_filter( 'enable_anonymous_functionality', '__return_true' );
         aiohm_booking_fs()->add_filter( 'show_opt_in', '__return_false' );
         aiohm_booking_fs()->add_filter( 'enable_blocking_mode', '__return_false' );
+
+        // WordPress Playground demo mode - unlock all Pro features for testing (premium only)
+        if ( aiohm_booking_fs()->can_use_premium_code__premium_only() ) {
+            if ( defined( 'WP_ENV' ) && WP_ENV === 'playground' ) {
+                add_filter( 'aiohm_booking_fs_is_premium', '__return_true' );
+                add_filter( 'aiohm_booking_fs_can_use_premium_code', '__return_true' );
+            }
+        }
         
         // Enqueue custom assets for Freemius pricing page
         add_action( 'admin_enqueue_scripts', function( $hook_suffix ) {
@@ -152,7 +162,7 @@ if ( function_exists( 'aiohm_booking_fs' ) ) {
 
         // Add custom license activation message with purchase link
         add_filter( 'fs_message_above_input_field_aiohm-booking', function( $message ) {
-            if ( function_exists( 'aiohm_booking_fs' ) && ! aiohm_booking_fs()->is_paying() ) {
+            if ( function_exists( 'aiohm_booking_fs' ) && ! aiohm_booking_fs()->can_use_premium_code__premium_only() ) {
                 $upgrade_url = 'https://checkout.freemius.com/plugin/20270/plan/33657/';
                 $message .= '<br><br><div class="aiohm-booking-license-message">';
                 $message .= '<strong>' . esc_html__( 'Don\'t have a license yet?', 'aiohm-booking-pro' ) . '</strong><br>';
@@ -228,7 +238,7 @@ function aiohm_booking_payment_module_exists(  $module_name  ) {
         if ( function_exists( 'aiohm_booking_fs' ) ) {
             $fs = aiohm_booking_fs();
             // If user is paying (has paid license) but not detected as premium, allow access.
-            if ( $fs->is_paying() ) {
+            if ( $fs->can_use_premium_code__premium_only() ) {
                 return true;
             }
         }
@@ -661,11 +671,12 @@ function aiohm_booking_fs_uninstall_cleanup() {
     wp_cache_flush();
 }
 
-// Demo mode detection for WordPress Playground
-add_action( 'init', function() {
-    // Check if we're in demo mode (WordPress Playground or explicitly set)
-    $is_demo = get_option( 'aiohm_booking_demo_mode' ) || 
-               (isset( $_SERVER['HTTP_HOST'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ), 'playground.wordpress.net' ) !== false);
+// Demo mode detection for WordPress Playground (premium only)
+if ( aiohm_booking_fs()->can_use_premium_code__premium_only() ) {
+    add_action( 'init', function() {
+        // Check if we're in demo mode (WordPress Playground or explicitly set)
+        $is_demo = get_option( 'aiohm_booking_demo_mode' ) || 
+                   (isset( $_SERVER['HTTP_HOST'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ), 'playground.wordpress.net' ) !== false);
     
     if ( $is_demo ) {
         // Enable Pro features for demo
@@ -721,12 +732,14 @@ add_action( 'init', function() {
             }
         });
     }
-}, 1 );
+    }, 1 );
+}
 
 /**
- * Initialize demo data for WordPress Playground
+ * Initialize demo data for WordPress Playground (premium only)
  */
-function aiohm_booking_initialize_demo_data() {
+if ( aiohm_booking_fs()->can_use_premium_code__premium_only() ) {
+    function aiohm_booking_initialize_demo_data() {
     // Sample events data
     $events_data = array(
         array(
@@ -844,6 +857,7 @@ function aiohm_booking_initialize_demo_data() {
     }
     
     update_option( 'aiohm_booking_settings', $demo_settings, false );
+    }
 }
 
 // Initialize the plugin.

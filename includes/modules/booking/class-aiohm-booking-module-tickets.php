@@ -847,28 +847,51 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 					$tickets_sold = 0;
 					$pending_orders = 0;
 					
-					// Check if orders table exists before querying
-					if ( $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) ) {
-						// Get total revenue from paid orders
-						$total_revenue = $wpdb->get_var( $wpdb->prepare( 
-							'SELECT SUM(total_amount) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status = %s', 
-							'paid' 
-						) );
-						$total_revenue = floatval( $total_revenue );
-						
-						// Get tickets sold from paid orders
-						$tickets_sold = $wpdb->get_var( $wpdb->prepare( 
-							'SELECT SUM(guests_qty) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status = %s AND mode = %s', 
-							'paid', 'tickets' 
-						) );
-						$tickets_sold = intval( $tickets_sold );
-						
-						// Get pending orders count
-						$pending_orders = $wpdb->get_var( $wpdb->prepare( 
-							'SELECT COUNT(*) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status != %s', 
-							'paid' 
+					// Check cache first
+					$cache_key = 'aiohm_booking_stats_' . md5( $table_name );
+					$cached_stats = wp_cache_get( $cache_key, 'aiohm_booking' );
+					
+					if ( false === $cached_stats ) {
+						// Check if orders table exists before querying
+						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table check required
+						if ( $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) ) {
+							// Get total revenue from paid orders
+							// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query with caching below
+							$total_revenue = $wpdb->get_var( $wpdb->prepare( 
+								'SELECT SUM(total_amount) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status = %s', 
+								'paid' 
+							) );
+							$total_revenue = floatval( $total_revenue );
+							
+							// Get tickets sold from paid orders
+							// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query with caching below
+							$tickets_sold = $wpdb->get_var( $wpdb->prepare( 
+								'SELECT SUM(guests_qty) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status = %s AND mode = %s', 
+								'paid', 'tickets' 
+							) );
+							$tickets_sold = intval( $tickets_sold );
+							
+							// Get pending orders count
+							// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query with caching below
+							$pending_orders = $wpdb->get_var( $wpdb->prepare( 
+								'SELECT COUNT(*) FROM ' . $wpdb->prefix . 'aiohm_booking_order WHERE status != %s', 
+								'paid' 
 						) );
 						$pending_orders = intval( $pending_orders );
+						}
+						
+						// Cache the results for 5 minutes
+						$cached_stats = array(
+							'total_revenue' => $total_revenue,
+							'tickets_sold' => $tickets_sold,
+							'pending_orders' => $pending_orders
+						);
+						wp_cache_set( $cache_key, $cached_stats, 'aiohm_booking', 300 );
+					} else {
+						// Use cached data
+						$total_revenue = $cached_stats['total_revenue'];
+						$tickets_sold = $cached_stats['tickets_sold'];
+						$pending_orders = $cached_stats['pending_orders'];
 					}
 					
 					// Calculate occupancy rate
@@ -2567,7 +2590,7 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 				</div>
 			</form>
 
-			<?php if ( ! function_exists( 'aiohm_booking_fs' ) || ! aiohm_booking_fs()->is_premium() ) : ?>
+			<?php if ( ! function_exists( 'aiohm_booking_fs' ) || ! aiohm_booking_fs()->can_use_premium_code__premium_only() ) : ?>
 			<div class="aiohm-booking-upsell-section">
 				<div class="aiohm-booking-upsell-header">
 					<h4>💳 Accept Payments with PRO</h4>

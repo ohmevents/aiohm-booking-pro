@@ -212,11 +212,13 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function process_settings_form() {
 		// Only process on our settings page.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Page parameter check, nonce verified below
 		if ( ! isset( $_GET['page'] ) || 'aiohm-booking-settings' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
 			return;
 		}
 
 		// Check if form was submitted.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Early detection before full validation
 		if ( ! isset( $_POST['aiohm_booking_settings_nonce'] ) ) {
 			return;
 		}
@@ -232,19 +234,22 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 		);
 		
 		$button_clicked = false;
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Button detection before nonce verification
 		foreach ( $save_buttons as $button ) {
 			if ( isset( $_POST[ $button ] ) ) {
 				$button_clicked = true;
 				break;
 			}
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 		
 		if ( ! $button_clicked ) {
 			return;
 		}
 
 		// Verify nonce.
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_booking_settings_nonce'] ) ), 'aiohm_booking_save_settings' ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by security helper call below
+		if ( ! isset( $_POST['aiohm_booking_settings_nonce'] ) || ! AIOHM_BOOKING_Security_Helper::verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_booking_settings_nonce'] ) ), 'save_settings' ) ) {
 			add_action(
 				'admin_notices',
 				function () {
@@ -260,8 +265,10 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 		}
 
 		// Process the form submission.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above at line 252
 		if ( isset( $_POST['aiohm_booking_settings'] ) ) {
-			$settings = wp_unslash( $_POST['aiohm_booking_settings'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Settings array sanitized below in save_settings method
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above, settings array sanitized below
+			$settings = wp_unslash( $_POST['aiohm_booking_settings'] );
 
 			// Filter out non-setting fields - allow all posted settings from the debug log.
 			$allowed_settings = array(
@@ -407,7 +414,8 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 	public function fallback_preview_ajax() {
 
 		// Verify nonce.
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_booking_update_preview' ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by security helper call below
+		if ( ! isset( $_POST['nonce'] ) || ! AIOHM_BOOKING_Security_Helper::verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'update_preview' ) ) {
 			wp_send_json_error( 'Security check failed' );
 			return;
 		}
@@ -431,7 +439,8 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function ajax_save_module_order() {
 		// Verify nonce.
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_booking_admin_nonce' ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by security helper call below
+		if ( ! isset( $_POST['nonce'] ) || ! AIOHM_BOOKING_Security_Helper::verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'admin_nonce' ) ) {
 			wp_send_json_error( 'Security check failed' );
 			return;
 		}
@@ -443,7 +452,8 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 		}
 
 		// Get the order from POST data.
-		$order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized below
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above, sanitized below
+		$order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : array();
 
 		if ( ! is_array( $order ) ) {
 			wp_send_json_error( 'Invalid order data' );
@@ -476,7 +486,8 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function ajax_save_masonry_order() {
 		// Verify nonce.
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'aiohm_booking_admin_nonce' ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by security helper call below
+		if ( ! isset( $_POST['nonce'] ) || ! AIOHM_BOOKING_Security_Helper::verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'admin_nonce' ) ) {
 			wp_send_json_error( 'Security check failed' );
 			return;
 		}
@@ -488,7 +499,8 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 		}
 
 		// Get the order from POST data.
-		$order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized below
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified above, sanitized below
+		$order = isset( $_POST['order'] ) ? wp_unslash( $_POST['order'] ) : array();
 
 		if ( ! is_array( $order ) ) {
 			wp_send_json_error( 'Invalid order data' );
@@ -609,8 +621,9 @@ class AIOHM_BOOKING_Module_Settings extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function ajax_reset_plugin_data() {
 		// Verify nonce and capabilities
-		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_save_settings' ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified by security helper call below
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'save_settings' ) ) {
 			wp_send_json_error( array( 'message' => 'Security verification failed.' ) );
 			return;
 		}

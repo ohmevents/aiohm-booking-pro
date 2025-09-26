@@ -28,7 +28,7 @@ $plural   = $product_names['plural_cap'] ?? 'Accommodations';
 		</div>
 	<?php endif; ?>
 
-	<?php if ( isset( $_GET['accommodation_added'] ) && sanitize_text_field( wp_unslash( $_GET['accommodation_added'] ) ) === '1' ) : ?>
+	<?php if ( isset( $_GET['accommodation_added'] ) && sanitize_text_field( wp_unslash( $_GET['accommodation_added'] ) ) === '1' ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display-only success message, no sensitive operations ?>
 		<div class="notice notice-success is-dismissible">
 			<p><?php esc_html_e( 'New accommodation added successfully!', 'aiohm-booking-pro' ); ?></p>
 		</div>

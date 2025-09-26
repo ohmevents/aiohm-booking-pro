@@ -221,21 +221,33 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	 * @param int $post_id The ID of the post being saved.
 	 */
 	public function save_accommodation_meta_data( $post_id ) {
-		$meta_nonce = sanitize_text_field( wp_unslash( $_POST['aiohm_accommodation_meta_nonce'] ?? '' ) );
-		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $meta_nonce, 'aiohm_booking_save_accommodation_meta' ) ) {
+		// Verify nonce for security
+		if ( ! isset( $_POST['aiohm_accommodation_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_accommodation_meta_nonce'] ) ), 'aiohm_save_accommodation_meta' ) ) {
 			return;
 		}
+		
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-		if ( isset( $_POST['post_type'] ) && 'aiohm_accommodation' == sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) && ! current_user_can( 'edit_post', $post_id ) ) {
+		
+		// Check user permissions and post type
+		if ( isset( $_POST['post_type'] ) && 'aiohm_accommodation' === sanitize_text_field( wp_unslash( $_POST['post_type'] ) ) && ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
 
-		update_post_meta( $post_id, '_aiohm_booking_accommodation_price', sanitize_text_field( wp_unslash( $_POST['aiohm_price'] ?? 0 ) ) );
-		update_post_meta( $post_id, '_aiohm_booking_accommodation_earlybird_price', sanitize_text_field( wp_unslash( $_POST['aiohm_earlybird_price'] ?? 0 ) ) );
-		update_post_meta( $post_id, '_aiohm_booking_accommodation_type', sanitize_text_field( wp_unslash( $_POST['aiohm_type'] ?? 'unit' ) ) );
-		update_post_meta( $post_id, '_aiohm_booking_accommodation_max_guests', intval( wp_unslash( $_POST['aiohm_max_guests'] ?? 2 ) ) );
+		// Save meta data with proper sanitization
+		if ( isset( $_POST['aiohm_price'] ) ) {
+			update_post_meta( $post_id, '_aiohm_booking_accommodation_price', sanitize_text_field( wp_unslash( $_POST['aiohm_price'] ) ) );
+		}
+		if ( isset( $_POST['aiohm_earlybird_price'] ) ) {
+			update_post_meta( $post_id, '_aiohm_booking_accommodation_earlybird_price', sanitize_text_field( wp_unslash( $_POST['aiohm_earlybird_price'] ) ) );
+		}
+		if ( isset( $_POST['aiohm_type'] ) ) {
+			update_post_meta( $post_id, '_aiohm_booking_accommodation_type', sanitize_text_field( wp_unslash( $_POST['aiohm_type'] ) ) );
+		}
+		if ( isset( $_POST['aiohm_max_guests'] ) ) {
+			update_post_meta( $post_id, '_aiohm_booking_accommodation_max_guests', intval( wp_unslash( $_POST['aiohm_max_guests'] ) ) );
+		}
 	}
 
 	/**
@@ -485,12 +497,12 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	 */
 	public function save_accommodation_details() {
 		// Only process if this form was submitted.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Nonce verification happens below
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification happens below
 		if ( ! isset( $_POST['aiohm_accommodation_details_nonce'] ) ) {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Nonce verification
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification handled by security helper
 		$details_nonce = sanitize_text_field( wp_unslash( $_POST['aiohm_accommodation_details_nonce'] ?? '' ) );
 		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $details_nonce, 'save_accommodation_details' ) ) {
 			wp_die( esc_html__( 'Security check failed', 'aiohm-booking-pro' ) );
@@ -500,10 +512,10 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 			wp_die( esc_html__( 'Insufficient permissions', 'aiohm-booking-pro' ) );
 		}
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Input validated and sanitized below  
-		if ( isset( $_POST['aiohm_accommodations'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array elements sanitized individually below
-			$accommodations_data = wp_unslash( $_POST['aiohm_accommodations'] );
+		// Process accommodation data if present
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification handled by individual form handlers
+		if ( isset( $_POST['aiohm_accommodations'] ) && is_array( $_POST['aiohm_accommodations'] ) ) {
+			$accommodations_data = wp_unslash( $_POST['aiohm_accommodations'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Data sanitized in processing loop below
 			
 			// Validate input is array
 			if ( ! is_array( $accommodations_data ) ) {
@@ -583,14 +595,14 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 					$error_list = '<ul><li>' . implode( '</li><li>', array_map( 'esc_html', $errors ) ) . '</li></ul>';
 					echo '<div class="notice notice-warning"><p>' . 
 						/* translators: %1$d: number of updated accommodations, %2$d: number of errors */
-						sprintf( __( 'Updated %1$d accommodations with %2$d errors:', 'aiohm-booking-pro' ), $updated_count, count( $errors ) ) . 
-						'</p>' . $error_list . '</div>';
+						esc_html( sprintf( __( 'Updated %1$d accommodations with %2$d errors:', 'aiohm-booking-pro' ), intval( $updated_count ), count( $errors ) ) ) . 
+						'</p>' . wp_kses_post( $error_list ) . '</div>';
 				});
 			} else if ( $updated_count > 0 ) {
 				add_action( 'admin_notices', function() use ( $updated_count ) {
 					echo '<div class="notice notice-success"><p>' . 
 						/* translators: %d: number of updated accommodations */
-						sprintf( __( 'Successfully updated %d accommodations.', 'aiohm-booking-pro' ), $updated_count ) . 
+						esc_html( sprintf( __( 'Successfully updated %d accommodations.', 'aiohm-booking-pro' ), intval( $updated_count ) ) ) . 
 						'</p></div>';
 				});
 			}
@@ -615,13 +627,13 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		}
 		
 		// Check if this is our form submission.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Nonce verification happens below
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification happens below
 		if ( ! isset( $_POST['aiohm_form_settings_nonce'] ) ) {
 			return;
 		}
 
 		// Verify nonce.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Nonce verification
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification handled by security helper
 		$form_nonce = sanitize_text_field( wp_unslash( $_POST['aiohm_form_settings_nonce'] ?? '' ) );
 		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $form_nonce, 'aiohm_booking_save_form_settings' ) ) {
 			wp_die( esc_html__( 'Security check failed', 'aiohm-booking-pro' ) );
@@ -634,20 +646,23 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 		// Handle unified form customization submission (check both action and nonce-based submission).
 		// Only handle non-AJAX requests here - AJAX requests are handled by wp_ajax_* hooks.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Nonce already verified above
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification handled by save handler
 		if ( ! defined( 'DOING_AJAX' ) && (
-			( isset( $_POST['action'] ) && sanitize_text_field( wp_unslash( $_POST['action'] ) ) === 'aiohm_save_form_settings' ) ||
+			( isset( $_POST['action'] ) && 'aiohm_save_form_settings' === sanitize_text_field( wp_unslash( $_POST['action'] ) ) ) ||
 			( isset( $_POST['aiohm_form_settings_nonce'] ) && isset( $_POST['aiohm_booking_form_settings'] ) )
 		) ) {
+			// phpcs:enable WordPress.Security.NonceVerification.Missing
 			AIOHM_BOOKING_Form_Settings_Handler::save_unified_form_settings();
 			return;
 		}
 
 		// Legacy handling for old form format (if needed).
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Legacy handler with individual sanitization
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array elements sanitized individually below
 		if ( isset( $_POST['aiohm_booking_settings'] ) && is_array( wp_unslash( $_POST['aiohm_booking_settings'] ) ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array elements sanitized individually below
 			$new_settings = wp_unslash( $_POST['aiohm_booking_settings'] );
+			// phpcs:enable WordPress.Security.NonceVerification.Missing
 
 			// Sanitize settings.
 			$sanitized_settings = array();
@@ -700,15 +715,18 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	 */
 	public function handle_add_new_accommodation() {
 		// Check if this is our action.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Page parameter check, nonce verified below
 		if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'aiohm-booking-accommodations' ) {
 			return;
 		}
 
-		if ( ! isset( $_GET['action'] ) || $_GET['action'] !== 'add_new_accommodation' ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Action parameter check, nonce verified below
+		if ( ! isset( $_GET['action'] ) || 'add_new_accommodation' !== sanitize_text_field( wp_unslash( $_GET['action'] ) ) ) {
 			return;
 		}
 
 		// Verify nonce using standardized security helper.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verification handled by security helper
 		$nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) );
 		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'aiohm_booking_add_accommodation' ) ) {
 			wp_die( esc_html__( 'Security verification failed. Please refresh the page and try again.', 'aiohm-booking-pro' ) );
@@ -769,10 +787,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 	 * AJAX handler for saving individual accommodation data
 	 */
 	public function ajax_save_individual_accommodation() {
-		// Verify nonce first.
-		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
-		
-		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' ) ) {
+		// Verify nonce for security
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'aiohm_booking_admin_nonce' ) ) {
 			wp_send_json_error( 
 				array( 
 					'message' => __( 'Security verification failed. Please refresh the page and try again.', 'aiohm-booking-pro' ),
@@ -792,12 +808,12 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		}
 
 		// Validate and sanitize input data.
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Input validated below
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above
 		$post_id = isset( $_POST['post_id'] ) ? intval( wp_unslash( $_POST['post_id'] ) ) : 0;
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array elements sanitized individually below
-		$accommodation_data = isset( $_POST['accommodation_data'] ) && is_array( wp_unslash( $_POST['accommodation_data'] ) )
-			? array_map( 'sanitize_text_field', wp_unslash( $_POST['accommodation_data'] ) )
-			: array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array elements sanitized individually below
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above
+		$accommodation_data = isset( $_POST['accommodation_data'] ) && is_array( wp_unslash( $_POST['accommodation_data'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Data sanitized via array_map below
+			? array_map( 'sanitize_text_field', wp_unslash( $_POST['accommodation_data'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Data sanitized via array_map
+			: array();
 
 		// Validate required fields.
 		if ( ! $post_id || $post_id <= 0 ) {
@@ -994,12 +1010,8 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 		$preview_filter = null; // Initialize filter variable outside try block.
 
 		try {
-			// Validate and sanitize nonce.
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Nonce verification happens below
-			$received_nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-
-			// Verify nonce using security helper.
-			if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $received_nonce, 'aiohm_booking_update_preview' ) ) {
+			// Verify nonce for security
+			if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'aiohm_booking_aiohm_booking_update_preview' ) ) {
 				wp_send_json_error( 
 					array(
 						'message' => __( 'Security verification failed. Please refresh the page and try again.', 'aiohm-booking-pro' ),
@@ -1023,7 +1035,9 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 
 			// Sanitize and validate settings for preview.
 			$temp_settings = array();
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above
 			if ( is_array( $_POST ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above
 				foreach ( wp_unslash( $_POST ) as $key => $value ) {
 					if ( strpos( $key, 'aiohm_booking_settings[' ) === 0 && is_string( $value ) ) {
 						$setting_key                   = str_replace( array( 'aiohm_booking_settings[', ']' ), '', $key );
@@ -1185,7 +1199,7 @@ class AIOHM_BOOKING_Module_Accommodation extends AIOHM_BOOKING_Settings_Module_A
 				'no_found_rows'          => true, // Skip pagination count queries
 				'update_post_meta_cache' => true, // Pre-load meta cache
 				'update_post_term_cache' => false, // Skip taxonomy cache (not needed)
-				'suppress_filters'       => true, // Skip unnecessary filters for performance
+				'suppress_filters'       => false, // Allow filters for plugin compatibility
 			)
 		);
 

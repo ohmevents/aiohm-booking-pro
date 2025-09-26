@@ -123,7 +123,10 @@ class AIOHM_BOOKING_Module_Registry {
 				// From the file path, derive the class name.
 				// e.g., /path/to/wp-content/plugins/aiohm-booking/includes/modules/booking/class-aiohm-booking-module-accommodation.php
 				// becomes AIOHM_BOOKING_Module_Accommodation.
-				$module_name = str_replace( '.php', '', str_replace( 'class-aiohm-booking-module-', '', $file->getFilename() ) );
+				$filename = $file->getFilename();
+				$module_name = str_replace( '.php', '', str_replace( 'class-aiohm-booking-module-', '', $filename ) );
+				// Remove __premium_only suffix if present
+				$module_name = str_replace( '__premium_only', '', $module_name );
 
 				// Handle special cases for acronyms.
 				$special_cases = array(
@@ -209,7 +212,7 @@ class AIOHM_BOOKING_Module_Registry {
 
 								// Check if this is a premium module and user doesn't have premium access
 								$is_premium_module  = isset( $definition['is_premium'] ) && $definition['is_premium'];
-								$has_premium_access = function_exists( 'aiohm_booking_fs' ) && (aiohm_booking_fs()->is_paying() || aiohm_booking_fs()->is_premium());
+								$has_premium_access = function_exists( 'aiohm_booking_fs' ) && aiohm_booking_fs()->can_use_premium_code__premium_only();
 
 
 								if ( ! $is_premium_module || $has_premium_access ) {

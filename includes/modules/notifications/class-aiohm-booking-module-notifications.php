@@ -2019,7 +2019,7 @@ class AIOHM_BOOKING_Module_Notifications extends AIOHM_BOOKING_Settings_Module_A
 		// Verify nonce and permissions explicitly so we always return JSON.
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
 
-		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'aiohm_booking_notifications_nonce' ) ) {
+		if ( empty( $nonce ) || ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'notifications_nonce' ) ) {
 			wp_send_json_error( 'Invalid or missing nonce' );
 		}
 

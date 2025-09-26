@@ -1137,7 +1137,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	public function handle_set_date_status() {
 		// Verify nonce for security.
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
-		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' ) ) {
 			wp_send_json_error( 'Invalid nonce' );
 		}
 
@@ -1236,7 +1236,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	public function handle_update_cell_status() {
 		// Verify nonce for security.
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
-		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' ) ) {
 			wp_send_json_error( 'Invalid nonce' );
 			return;
 		}
@@ -1366,7 +1366,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function handle_reset_all_days() {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
-		$nonce_result = wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' );
+		$nonce_result = AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' );
 
 		if ( ! $nonce_result ) {
 			wp_send_json_error( 'Invalid nonce' );
@@ -1486,7 +1486,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function handle_set_private_event() {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
-		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' ) ) {
 			wp_send_json_error( 'Invalid nonce' );
 		}
 
@@ -1549,7 +1549,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function handle_remove_private_event() {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
-		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' ) ) {
 			wp_send_json_error( 'Invalid nonce' );
 		}
 
@@ -1608,7 +1608,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function handle_get_private_events() {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
-		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' ) ) {
 			wp_die(
 				wp_json_encode(
 					array(
@@ -1650,7 +1650,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function handle_sync_calendar() {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
-		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' ) ) {
 			wp_die(
 				json_encode(
 					array(
@@ -1685,7 +1685,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function handle_save_calendar_color() {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
-		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' ) ) {
 			wp_send_json_error( 'Invalid nonce' );
 		}
 
@@ -1732,7 +1732,7 @@ class AIOHM_BOOKING_Module_Calendar extends AIOHM_BOOKING_Settings_Module_Abstra
 	 */
 	public function handle_reset_all_calendar_colors() {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in condition below
-		if ( ! wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+		if ( ! AIOHM_BOOKING_Security_Helper::verify_nonce( $nonce, 'admin_nonce' ) ) {
 			wp_send_json_error( 'Invalid nonce' );
 		}
 

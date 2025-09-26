@@ -566,7 +566,7 @@ class AIOHM_BOOKING_Module_Gemini extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 		if ( isset( $_POST['gemini_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['gemini_nonce'] ) ), 'aiohm_booking_gemini_settings' ) ) {
 			if ( current_user_can( 'manage_options' ) && isset( $_POST['gemini_settings'] ) ) {
 				$is_gemini_save = true;
-				$raw_data = wp_unslash( $_POST['gemini_settings'] );
+				$raw_data = wp_unslash( $_POST['gemini_settings'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Data sanitized in individual array elements below
 				$gemini_data['gemini_api_key']     = sanitize_text_field( $raw_data['gemini_api_key'] ?? '' );
 				$gemini_data['gemini_model']       = sanitize_text_field( $raw_data['gemini_model'] ?? 'gemini-pro' );
 				$gemini_data['gemini_temperature'] = floatval( $raw_data['gemini_temperature'] ?? 0.7 );
@@ -578,7 +578,7 @@ class AIOHM_BOOKING_Module_Gemini extends AIOHM_BOOKING_AI_Provider_Module_Abstr
 			if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['aiohm_booking_settings_nonce'] ) ), 'aiohm_booking_save_settings' ) ) {
 				if ( current_user_can( 'manage_options' ) && isset( $_POST['aiohm_booking_settings'] ) ) {
 					$is_gemini_save = true;
-					$raw_data = wp_unslash( $_POST['aiohm_booking_settings'] );
+					$raw_data = wp_unslash( $_POST['aiohm_booking_settings'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Data sanitized in individual array elements below
 					$gemini_data['gemini_api_key']     = sanitize_text_field( $raw_data['gemini_api_key'] ?? '' );
 					$gemini_data['gemini_model']       = sanitize_text_field( $raw_data['gemini_model'] ?? 'gemini-pro' );
 					$gemini_data['gemini_temperature'] = floatval( $raw_data['gemini_temperature'] ?? 0.7 );

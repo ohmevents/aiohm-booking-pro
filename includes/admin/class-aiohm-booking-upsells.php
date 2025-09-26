@@ -2,6 +2,7 @@
 /**
  * Upsell and Marketing for Free Version
  *
+ * @fs_free_only
  * @package AIOHM_Booking_PRO
  * @since  2.0.0
  */
@@ -20,7 +21,7 @@ class AIOHM_BOOKING_Upsells {
 	 */
 	public static function init() {
 		// Only show upsells in free version
-		if ( function_exists( 'aiohm_booking_fs' ) && aiohm_booking_fs()->is_premium() ) {
+		if ( function_exists( 'aiohm_booking_fs' ) && aiohm_booking_fs()->can_use_premium_code__premium_only() ) {
 			return;
 		}
 

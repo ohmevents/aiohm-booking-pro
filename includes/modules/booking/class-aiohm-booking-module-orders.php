@@ -925,7 +925,8 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 		global $wpdb;
 		$table = $wpdb->prefix . 'aiohm_booking_order';
 		
-		// Get the order
+		// Get the order from custom table
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query required for order data
 		$order = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $table ) . ' WHERE id = %d', $order_id ) );
 		if ( ! $order || ( $order->total_amount > 0 && $order->deposit_amount > 0 ) ) {
 			return; // Order not found or already has pricing
@@ -963,6 +964,7 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 		
 		// Update the order if we calculated a non-zero amount
 		if ( $total_amount > 0 ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table update required
 			$wpdb->update(
 				$table,
 				array(
