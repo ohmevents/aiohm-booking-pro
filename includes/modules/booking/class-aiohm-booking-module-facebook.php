@@ -68,6 +68,10 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 		add_action( 'wp_ajax_aiohm_booking_import_facebook_event', array( $this, 'ajax_import_facebook_event' ) );
 		add_action( 'wp_ajax_aiohm_booking_get_facebook_event_info', array( $this, 'ajax_get_facebook_event_info' ) );
 
+		// AJAX handler for saving Facebook settings.
+		add_action( 'wp_ajax_aiohm_booking_save_facebook_settings', array( $this, 'ajax_save_facebook_settings' ) );
+
+
 		// Add Facebook import JavaScript to tickets page.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_facebook_scripts' ) );
 	}
@@ -447,6 +451,7 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 					<div class="aiohm-status-error">
 						<span class="dashicons dashicons-dismiss"></span>
 						<?php esc_html_e( 'Connection failed', 'aiohm-booking-pro' ); ?>
+						<br><small><?php echo esc_html( $test_result->get_error_message() ); ?></small>
 					</div>
 				<?php else : ?>
 					<div class="aiohm-status-success">
@@ -480,8 +485,8 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 			return new WP_Error( 'no_access_token', 'No access token provided.' );
 		}
 
-		// Test with a simple "me" request.
-		$url = $this->graph_api_url . 'me?access_token=' . $access_token;
+		// Test with access token info endpoint which works for all token types
+		$url = $this->graph_api_url . 'me?fields=id,name&access_token=' . $access_token;
 
 		$response = wp_remote_get( $url, array( 'timeout' => 10 ) );
 
@@ -489,13 +494,110 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 			return new WP_Error( 'connection_failed', 'Could not connect to Facebook API.' );
 		}
 
+		$response_code = wp_remote_retrieve_response_code( $response );
 		$body = wp_remote_retrieve_body( $response );
 		$data = json_decode( $body, true );
 
-		if ( isset( $data['error'] ) ) {
-			return new WP_Error( 'api_error', $data['error']['message'] );
+		if ( $response_code !== 200 || isset( $data['error'] ) ) {
+			$error_message = 'Invalid access token or insufficient permissions.';
+			if ( isset( $data['error']['message'] ) ) {
+				$error_message = $data['error']['message'];
+			}
+			return new WP_Error( 'api_error', $error_message );
+		}
+
+		// Check if we can access the required permissions for events
+		$permissions_url = $this->graph_api_url . 'me/permissions?access_token=' . $access_token;
+		$permissions_response = wp_remote_get( $permissions_url, array( 'timeout' => 10 ) );
+
+		if ( ! is_wp_error( $permissions_response ) ) {
+			$permissions_body = wp_remote_retrieve_body( $permissions_response );
+			$permissions_data = json_decode( $permissions_body, true );
+
+			if ( isset( $permissions_data['data'] ) ) {
+				$has_events_permission = false;
+				foreach ( $permissions_data['data'] as $permission ) {
+					if ( ( $permission['permission'] === 'user_events' || $permission['permission'] === 'events_read' )
+						&& $permission['status'] === 'granted' ) {
+						$has_events_permission = true;
+						break;
+					}
+				}
+
+				if ( ! $has_events_permission ) {
+					return new WP_Error( 'insufficient_permissions', 'Access token does not have events_read permission. Please regenerate your token with events_read permission.' );
+				}
+			}
 		}
 
 		return true;
+	}
+
+	/**
+	 * AJAX handler for saving Facebook module settings.
+	 *
+	 * Processes AJAX requests to save Facebook integration settings including
+	 * App ID, App Secret, Access Token, and import preferences.
+	 *
+	 * @since  2.0.0
+	 */
+	public function ajax_save_facebook_settings() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ) );
+			return;
+		}
+
+		// Check nonce
+		$nonce = isset( $_POST['nonce'] ) ? wp_unslash( $_POST['nonce'] ) : '';
+		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid security token.' ) );
+			return;
+		}
+
+		// Check module parameter
+		$module = isset( $_POST['module'] ) ? sanitize_text_field( wp_unslash( $_POST['module'] ) ) : '';
+		if ( $module !== 'facebook' ) {
+			wp_send_json_error( array( 'message' => 'Invalid module.' ) );
+			return;
+		}
+
+		// Extract settings
+		$settings = array();
+		$form_settings = isset( $_POST['aiohm_booking_settings'] ) ? wp_unslash( $_POST['aiohm_booking_settings'] ) : array();
+
+		$settings['facebook_app_id'] = isset( $form_settings['facebook_app_id'] ) ? sanitize_text_field( $form_settings['facebook_app_id'] ) : '';
+		$settings['facebook_app_secret'] = isset( $form_settings['facebook_app_secret'] ) ? sanitize_text_field( $form_settings['facebook_app_secret'] ) : '';
+		$settings['facebook_access_token'] = isset( $form_settings['facebook_access_token'] ) ? sanitize_text_field( $form_settings['facebook_access_token'] ) : '';
+		$settings['import_cover_images'] = isset( $form_settings['import_cover_images'] ) ? (bool) $form_settings['import_cover_images'] : false;
+
+		// Save settings
+		$saved = $this->update_module_settings( $settings );
+
+		if ( $saved ) {
+			wp_send_json_success( array(
+				'message' => 'Facebook settings saved successfully!',
+				'settings' => $settings
+			) );
+		} else {
+			// Check if settings are already the same (update_option returns false if no change)
+			$existing_settings = $this->get_module_settings();
+			$settings_match = true;
+			foreach ( $settings as $key => $value ) {
+				if ( $existing_settings[$key] !== $value ) {
+					$settings_match = false;
+					break;
+				}
+			}
+
+			if ( $settings_match ) {
+				wp_send_json_success( array(
+					'message' => 'Facebook settings saved successfully!',
+					'settings' => $settings
+				) );
+			} else {
+				wp_send_json_error( array( 'message' => 'Failed to save Facebook settings.' ) );
+			}
+		}
 	}
 }

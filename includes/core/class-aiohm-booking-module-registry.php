@@ -193,6 +193,17 @@ class AIOHM_BOOKING_Module_Registry {
 
 		foreach ( $discovered_modules as $module_file ) {
 			if ( file_exists( $module_file['path'] ) ) {
+				// Check if this file is in a premium-only directory
+				$file_path = $module_file['path'];
+				$is_in_premium_dir = strpos( $file_path, '/payments/' ) !== false ||
+				                     strpos( $file_path, '/ai/' ) !== false ||
+				                     strpos( $file_path, '__premium_only' ) !== false;
+
+				// Skip loading files from premium directories for free users
+				if ( $is_in_premium_dir && ( ! function_exists( 'aiohm_booking_fs' ) || ! aiohm_booking_fs()->can_use_premium_code__premium_only() ) ) {
+					continue;
+				}
+
 				include_once $module_file['path'];
 
 				$class_name = $module_file['class_name'];
@@ -201,26 +212,34 @@ class AIOHM_BOOKING_Module_Registry {
 						try {
 							$definition = $class_name::get_ui_definition();
 							if ( is_array( $definition ) && ! empty( $definition ) && isset( $definition['id'] ) ) {
-								$module_id                              = $definition['id'];
-								$this->module_definitions[ $module_id ] = array_merge(
-									$definition,
-									array(
-										'class' => $class_name,
-										'file'  => str_replace( AIOHM_BOOKING_DIR . 'includes/', '', $module_file['path'] ),
-									)
-								);
+								$module_id = $definition['id'];
 
 								// Check if this is a premium module and user doesn't have premium access
 								$is_premium_module  = isset( $definition['is_premium'] ) && $definition['is_premium'];
 								$has_premium_access = function_exists( 'aiohm_booking_fs' ) && aiohm_booking_fs()->can_use_premium_code__premium_only();
 
+								// Also check if module is in a premium-only directory or has premium filename
+								$file_path = $module_file['path'];
+								$is_in_premium_dir = strpos( $file_path, '/payments/' ) !== false ||
+								                     strpos( $file_path, '/ai/' ) !== false ||
+								                     strpos( $file_path, '__premium_only' ) !== false;
 
+								// Only store definition and create instance if user has access
 								if ( ! $is_premium_module || $has_premium_access ) {
+									// Store module definition
+									$this->module_definitions[ $module_id ] = array_merge(
+										$definition,
+										array(
+											'class' => $class_name,
+											'file'  => str_replace( AIOHM_BOOKING_DIR . 'includes/', '', $module_file['path'] ),
+										)
+									);
+
+									// Create module instance
 									$this->modules[ $module_id ] = new $class_name();
 									do_action( 'aiohm_booking_module_loaded', $module_id, $this->modules[ $module_id ] );
-								} else {
-									// Skip loading premium module for free users
 								}
+								// If premium module without access, skip entirely (don't store definition or instance)
 							}
 						} catch ( Exception $e ) {
 							// Log error but continue loading other modules.

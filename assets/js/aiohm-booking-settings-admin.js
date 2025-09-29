@@ -70,7 +70,7 @@
             $(document).on('change.aiohm-settings', '.aiohm-toggle-switch input[type="checkbox"]', AIOHM_Booking_Settings_Admin.handleSettingsToggleSwitch);
             $(document).on('click.aiohm-settings', '.aiohm-module-toggle-badge', AIOHM_Booking_Settings_Admin.handleModuleToggleBadge);
             $(document).on('click.aiohm-settings', '.aiohm-configure-btn', AIOHM_Booking_Settings_Admin.handleConfigureButton);
-            $(document).on('click.aiohm-settings', '.aiohm-settings-save, .aiohm-booking-settings-save-btn, .aiohm-form-customization-save-btn', AIOHM_Booking_Settings_Admin.handleSaveSettings);
+            $(document).on('click.aiohm-settings', '.aiohm-settings-save, .aiohm-booking-settings-save-btn, .aiohm-form-customization-save-btn, input[name="save_facebook_settings"]', AIOHM_Booking_Settings_Admin.handleSaveSettings);
             $(document).on('click.aiohm-settings', '.aiohm-settings-reset', AIOHM_Booking_Settings_Admin.handleResetSettings);
             $(document).on('click.aiohm-settings', '[data-action="scroll"]', AIOHM_Booking_Settings_Admin.handleScrollAction);
             $(document).on('click.aiohm-settings', '.aiohm-card-toggle-btn', AIOHM_Booking_Settings_Admin.handleCardToggle);
@@ -613,14 +613,28 @@
 
         handleSaveSettings: function(e) {
             var $button = $(this);
-            
+
+            // Check if this is a Facebook settings save button - handle with AJAX
+            if ($button.attr('name') === 'save_facebook_settings') {
+                e.preventDefault();
+
+                // Try multiple ways to find the form
+                var $form = $button.closest('form');
+                if ($form.length === 0) {
+                    $form = $('form').first(); // Fallback to first form on page
+                }
+
+                AIOHM_Booking_Settings_Admin.saveModuleSettings($button, $form, 'facebook');
+                return;
+            }
+
             // Check if this is a save button (main settings or individual module)
-            if ($button.hasClass('aiohm-booking-settings-save-btn') || 
+            if ($button.hasClass('aiohm-booking-settings-save-btn') ||
                 ($button.attr('name') && $button.attr('name').startsWith('save_'))) {
                 // Don't prevent default - let the form submit normally for all save buttons
                 return;
             }
-            
+
             e.preventDefault();
             
             // Check if this is a form customization save button
@@ -918,21 +932,31 @@
         saveModuleSettings: function($button, $form, moduleName) {
             var originalText = $button.text();
             $button.prop('disabled', true).text('Saving...');
-            
+
+            // Determine the correct action based on module
+            var action = 'aiohm_save_module_settings';
+            if (moduleName === 'facebook') {
+                action = 'aiohm_booking_save_facebook_settings';
+            }
+
+            var ajaxData = $form.serialize() + '&action=' + action + '&module=' + moduleName + '&nonce=' + aiohm_booking_admin.nonce;
+
             $.ajax({
                 url: (typeof aiohm_booking_admin !== 'undefined' && aiohm_booking_admin.ajax_url) ? aiohm_booking_admin.ajax_url : ajaxurl,
                 type: 'POST',
-                data: $form.serialize() + '&action=aiohm_save_module_settings&module=' + moduleName + '&nonce=' + aiohm_booking_admin.nonce,
+                data: ajaxData,
                 success: function(response) {
                     $button.prop('disabled', false).text(originalText);
-                    
+
                     if (response.success) {
-                        AIOHM_Booking_Settings_Admin.showNotice(response.data || 'Settings saved successfully!', 'success');
+                        var message = response.data && response.data.message ? response.data.message : 'Settings saved successfully!';
+                        AIOHM_Booking_Settings_Admin.showNotice(message, 'success');
                     } else {
-                        AIOHM_Booking_Settings_Admin.showNotice('Error saving settings: ' + (response.data || 'Unknown error'), 'error');
+                        var errorMsg = response.data && response.data.message ? response.data.message : 'Unknown error';
+                        AIOHM_Booking_Settings_Admin.showNotice('Error saving settings: ' + errorMsg, 'error');
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
                     $button.prop('disabled', false).text(originalText);
                     AIOHM_Booking_Settings_Admin.showNotice('Network error while saving settings', 'error');
                 }

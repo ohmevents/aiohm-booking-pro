@@ -60,13 +60,13 @@ class AIOHMBookingSandwichNavigation {
 		// Navigation buttons
 		const nextBtn = this.container.querySelector('.aiohm-booking-btn-next');
 		const prevBtn = this.container.querySelector('.aiohm-booking-btn-prev');
-		
+
 		if (nextBtn) {
 			nextBtn.addEventListener('click', (e) => {
 				this.handleNextStep(e);
 			});
 		}
-		
+
 		if (prevBtn) {
 			prevBtn.addEventListener('click', (e) => {
 				this.handlePrevStep(e);
@@ -96,22 +96,18 @@ class AIOHMBookingSandwichNavigation {
 			return;
 		}
 		
-		// Step 2: Check if premium user - if yes, go to step 3, if not create pending order
+		// Step 2: Always go to step 3, regardless of user type
 		if (this.currentStep === 2) {
-			// Check if user has premium access (check both possible variable names)
-			const isPremiumUser = window.aiohm_booking_frontend?.is_premium_user || 
-								 window.aiohm_booking?.is_premium_user || false;
-			
-			if (isPremiumUser) {
-				// Premium user: go to payment step
-				await this.animateToStep(3);
-			} else {
-				// Free user: create pending order and show message
-				await this.createPendingOrder();
-			}
+			await this.animateToStep(3);
 			return;
 		}
-		
+
+		// Step 3: No button should be visible here
+		// Free users use "Send Invoice", premium users use Stripe
+		if (this.currentStep === 3) {
+			return;
+		}
+
 		if (this.currentStep < this.maxSteps) {
 			await this.animateToStep(this.currentStep + 1);
 		}
@@ -197,7 +193,7 @@ class AIOHMBookingSandwichNavigation {
 			
 			tabNavigation.classList.remove('aiohm-booking-sandwich-closing');
 			navigationFooter.classList.remove('aiohm-booking-sandwich-closing');
-			
+
 			tabNavigation.classList.add('aiohm-booking-sandwich-opening');
 			navigationFooter.classList.add('aiohm-booking-sandwich-opening');
 			
@@ -232,6 +228,12 @@ class AIOHMBookingSandwichNavigation {
 			// Create pending order and send notification when moving to checkout (step 3)
 			if (targetStep === 3) {
 				await this.createPendingOrderAndNotify();
+				// Generate invoice preview for Step 3
+				if (window.AIOHMBookingCheckout) {
+					setTimeout(() => {
+						window.AIOHMBookingCheckout.generateInvoicePreview();
+					}, 100);
+				}
 			}
 			
 		} catch (error) {
@@ -339,7 +341,7 @@ class AIOHMBookingSandwichNavigation {
 	updateNavigationButtons() {
 		const nextBtn = this.container.querySelector('.aiohm-booking-btn-next');
 		const prevBtn = this.container.querySelector('.aiohm-booking-btn-prev');
-		
+
 		// Previous button
 		if (prevBtn) {
 			if (this.currentStep === this.minStep) {
@@ -352,27 +354,18 @@ class AIOHMBookingSandwichNavigation {
 				prevBtn.style.display = '';
 			}
 		}
-		
+
 		// Next button
 		if (nextBtn) {
 			const nextText = nextBtn.querySelector('.aiohm-booking-btn-text');
 			if (this.currentStep === this.maxSteps) {
-				// Hide the next button on final step since Stripe handles payment flow
+				// Step 3: Hide button for both free and premium users
+				// Free users use "Send Invoice", premium users use Stripe
 				nextBtn.style.display = 'none';
 			} else if (this.currentStep === 2) {
-				// Step 2: Check premium status to determine button text
-				const isPremiumUser = window.aiohm_booking_frontend?.is_premium_user || 
-									 window.aiohm_booking?.is_premium_user || false;
-				
-				if (isPremiumUser) {
-					// Premium user: continue to payment step
-					if (nextText) nextText.textContent = 'Continue';
-					nextBtn.classList.remove('aiohm-booking-btn-final', 'aiohm-booking-btn-confirm');
-				} else {
-					// Free user: confirm booking (creates pending order)
-					if (nextText) nextText.textContent = 'Confirm Booking';
-					nextBtn.classList.add('aiohm-booking-btn-confirm');
-				}
+				// Step 2: Continue to checkout
+				if (nextText) nextText.textContent = 'Continue';
+				nextBtn.classList.remove('aiohm-booking-btn-final', 'aiohm-booking-btn-confirm');
 				nextBtn.style.display = '';
 			} else {
 				if (nextText) nextText.textContent = 'Continue';
@@ -511,17 +504,10 @@ class AIOHMBookingSandwichNavigation {
 	}
 	
 	/**
-	 * Create a pending order when user clicks "Confirm Booking" on step 2
+	 * Create a pending order (used when sending invoice)
 	 */
 	async createPendingOrder() {
 		try {
-			// Show loading state
-			const nextBtn = this.container.querySelector('.aiohm-booking-btn-next');
-			const nextText = nextBtn.querySelector('.aiohm-booking-btn-text');
-			const originalText = nextText.textContent;
-			
-			nextBtn.disabled = true;
-			nextText.textContent = 'Processing...';
 			
 			// Get the form data
 			const form = this.container.querySelector('#aiohm-booking-sandwich-form');
@@ -563,21 +549,20 @@ class AIOHMBookingSandwichNavigation {
 			const result = await response.json();
 			
 			if (result.success) {
-				// Show success message
-				this.showMessage(result.data.message || 'Booking confirmed! You will receive an email with payment instructions.', 'success');
-				
 				// Store the booking ID for later use
 				if (result.data.booking_id) {
 					this.container.dataset.bookingId = result.data.booking_id;
 				}
-				
-				// Optionally redirect or show success content
-				setTimeout(() => {
-					// You could redirect to a success page or show confirmation
-					// For now, just reset the form
-					this.showMessage('Thank you! Your booking has been confirmed and you will receive an email shortly.', 'success');
-				}, 1500);
-				
+
+				// Trigger checkout completion using the checkout handler we created
+				if (window.AIOHMBookingCheckout) {
+					const message = result.data.message || 'Booking confirmed! You will receive an email with payment instructions.';
+					window.AIOHMBookingCheckout.showBookingCompletionState(message);
+				} else {
+					// Fallback: show message
+					this.showMessage(result.data.message || 'Booking confirmed! You will receive an email with payment instructions.', 'success');
+				}
+
 			} else {
 				throw new Error(result.data?.message || 'Failed to create booking');
 			}
@@ -585,13 +570,7 @@ class AIOHMBookingSandwichNavigation {
 		} catch (error) {
 			this.showMessage('Error: ' + error.message, 'error');
 		} finally {
-			// Reset button state
-			const nextBtn = this.container.querySelector('.aiohm-booking-btn-next');
-			const nextText = nextBtn.querySelector('.aiohm-booking-btn-text');
-			if (nextBtn && nextText) {
-				nextBtn.disabled = false;
-				nextText.textContent = 'Confirm Booking';
-			}
+			// No button state to reset since navigation buttons were removed
 		}
 	}
 

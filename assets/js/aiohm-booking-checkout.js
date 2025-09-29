@@ -20,6 +20,14 @@ class AIOHMBookingCheckout {
         this.container = document.querySelector('.aiohm-booking-sandwich-container');
         if (!this.container) return;
         this.setupEventListeners();
+
+        // Generate initial invoice if on Step 3
+        setTimeout(() => {
+            const currentStep = this.container.querySelector('.aiohm-booking-step-content:not(.aiohm-booking-step-hidden)');
+            if (currentStep && currentStep.dataset.step === '3') {
+                this.generateInvoicePreview();
+            }
+        }, 500);
     }
 
     /**
@@ -27,12 +35,16 @@ class AIOHMBookingCheckout {
      */
     setupInvoiceUpdateListeners() {
         // Listen for tab changes to regenerate invoice when user reaches tab 3
-        const tabButtons = this.container.querySelectorAll('.aiohm-tab-button, [data-tab]');
+        const tabButtons = this.container.querySelectorAll('.aiohm-booking-tab-item, [data-tab]');
         tabButtons.forEach(tab => {
             tab.addEventListener('click', () => {
                 setTimeout(() => {
-                    this.generateInvoicePreview();
-                }, 100); // Small delay to ensure tab content is loaded
+                    // Only generate invoice if moving to Step 3
+                    const targetStep = tab.dataset.step;
+                    if (targetStep === '3') {
+                        this.generateInvoicePreview();
+                    }
+                }, 200); // Small delay to ensure tab content is loaded
             });
         });
 
@@ -65,6 +77,9 @@ class AIOHMBookingCheckout {
      * Set up event listeners for checkout buttons
      */
     setupEventListeners() {
+        // Set up invoice update listeners
+        this.setupInvoiceUpdateListeners();
+
         // Stripe payment button
         const stripeBtn = this.container.querySelector('#aiohm-stripe-payment');
         if (stripeBtn) {
@@ -517,10 +532,16 @@ class AIOHMBookingCheckout {
         }
         
         if (itemElements.length > 0) {
+            const seenItems = new Set(); // Track items to avoid duplicates
             itemElements.forEach(itemEl => {
                 const item = this.parseItemFromElement(itemEl, currency);
                 if (item) {
-                    items.push(item);
+                    // Create a unique key for the item to detect duplicates
+                    const itemKey = `${item.name}_${item.price}_${item.quantity}`;
+                    if (!seenItems.has(itemKey)) {
+                        seenItems.add(itemKey);
+                        items.push(item);
+                    }
                 }
             });
         }
@@ -539,6 +560,17 @@ class AIOHMBookingCheckout {
      * Parse item from DOM element
      */
     parseItemFromElement(element, currency) {
+        // Skip elements that contain placeholder text
+        const elementText = element.textContent.trim().toLowerCase();
+        if (elementText.includes('no items selected') ||
+            elementText.includes('no selection') ||
+            elementText.includes('select items') ||
+            elementText === '' ||
+            element.style.display === 'none' ||
+            element.classList.contains('hidden')) {
+            return null;
+        }
+
         // First try standard selectors
         let nameEl = element.querySelector('.item-name, .aiohm-item-title, h4, .title');
         let priceEl = element.querySelector('.item-price, .aiohm-price, .price');
@@ -606,6 +638,16 @@ class AIOHMBookingCheckout {
         if (!nameEl) return null;
 
         const name = nameEl.textContent.trim();
+
+        // Additional filtering at the name level
+        if (!name ||
+            name.toLowerCase().includes('no items selected') ||
+            name.toLowerCase().includes('no selection') ||
+            name.toLowerCase().includes('select items') ||
+            name.length === 0) {
+            return null;
+        }
+
         const priceText = priceEl?.textContent.trim() || '0';
         const quantityText = quantityEl?.textContent.trim() || '1';
         const quantity = parseInt(quantityText) || 1;
@@ -806,26 +848,109 @@ class AIOHMBookingCheckout {
      * Show success message
      */
     showSuccess(message) {
-        // You could implement a toast notification system here
-        alert('Success: ' + message);
+        // Show success message in the booking form instead of alert
+        this.displayMessage(message, 'success');
     }
 
     /**
      * Show error message
      */
     showError(message) {
-        // You could implement a toast notification system here
-        alert('Error: ' + message);
+        // Show error message in the booking form instead of alert
+        this.displayMessage(message, 'error');
     }
 
     /**
-     * Redirect to success page
+     * Display message in the booking form
+     */
+    displayMessage(message, type = 'success') {
+        // Find or create message container in Step 3
+        let messageContainer = this.container.querySelector('.aiohm-booking-message-container');
+        if (!messageContainer) {
+            messageContainer = document.createElement('div');
+            messageContainer.className = 'aiohm-booking-message-container';
+
+            // Insert before the checkout section or at the top of Step 3
+            const checkoutSection = this.container.querySelector('.aiohm-booking-checkout-section');
+            const step3Content = this.container.querySelector('[data-step="3"] .aiohm-booking-step-inner');
+
+            if (checkoutSection) {
+                checkoutSection.parentNode.insertBefore(messageContainer, checkoutSection);
+            } else if (step3Content) {
+                step3Content.insertBefore(messageContainer, step3Content.firstChild);
+            }
+        }
+
+        // Create message element
+        const messageElement = document.createElement('div');
+        messageElement.className = `aiohm-booking-message aiohm-booking-message-${type}`;
+        messageElement.innerHTML = `
+            <div class="aiohm-booking-message-content">
+                <span class="aiohm-booking-message-icon">${type === 'success' ? '✓' : '⚠'}</span>
+                <span class="aiohm-booking-message-text">${message}</span>
+            </div>
+        `;
+
+        // Clear previous messages and add new one
+        messageContainer.innerHTML = '';
+        messageContainer.appendChild(messageElement);
+
+        // Auto-hide after 5 seconds for success messages
+        if (type === 'success') {
+            setTimeout(() => {
+                if (messageElement.parentNode) {
+                    messageElement.remove();
+                }
+            }, 5000);
+        }
+    }
+
+    /**
+     * Redirect to success page or show completion message
      */
     redirectToSuccess() {
-        // Redirect to success page or show success message
-        setTimeout(() => {
-            window.location.href = '/booking-success'; // Adjust URL as needed
-        }, 2000);
+        // Instead of redirecting immediately, show completion state in Step 3
+        this.showBookingCompletionState();
+    }
+
+    /**
+     * Show booking completion state in Step 3
+     */
+    showBookingCompletionState(customMessage = null) {
+        // Hide the invoice and show completion message
+        const invoicePreview = this.container.querySelector('#aiohm-invoice-preview');
+        const freeActions = this.container.querySelector('.aiohm-booking-free-actions');
+
+        if (invoicePreview) {
+            invoicePreview.style.display = 'none';
+        }
+
+        // Use custom message if provided, otherwise use default
+        const confirmationMessage = customMessage || this.getText('You will receive a confirmation email with payment instructions shortly.');
+
+        if (freeActions) {
+            // Replace the send invoice button with completion message
+            freeActions.innerHTML = `
+                <div class="aiohm-booking-completion-state">
+                    <div class="aiohm-booking-completion-icon">✓</div>
+                    <h4>${this.getText('Booking Request Sent!')}</h4>
+                    <p>${confirmationMessage}</p>
+                    <div class="aiohm-booking-completion-actions">
+                        <button type="button" class="aiohm-booking-btn aiohm-booking-btn-secondary" onclick="location.reload()">
+                            ${this.getText('Make Another Booking')}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    /**
+     * Get translated text (helper method)
+     */
+    getText(text) {
+        // This could be enhanced with proper translation support
+        return text;
     }
 }
 

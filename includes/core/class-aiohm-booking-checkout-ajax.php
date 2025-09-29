@@ -723,7 +723,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 			// Determine mode
 			$mode = 'accommodation';
 			if ( ! empty( $selected_events ) && empty( $selected_accommodations ) ) {
-				$mode = 'event';
+				$mode = 'tickets'; // Changed from 'event' to 'tickets' to match admin display logic
 			} elseif ( ! empty( $selected_events ) && ! empty( $selected_accommodations ) ) {
 				$mode = 'mixed';
 			}
@@ -734,6 +734,9 @@ class AIOHM_BOOKING_Checkout_Ajax {
 				$total_event_tickets += intval( $event_selection['quantity'] );
 			}
 			$units_qty = count( $selected_accommodations ) + $total_event_tickets;
+
+			// For events, guests_qty should store ticket quantity; for accommodation, guest count
+			$guests_qty_value = ! empty( $selected_events ) ? $total_event_tickets : $guest_count;
 
 			// Notes
 			$notes = sanitize_textarea_field( $form_data['notes'] ?? '' );
@@ -791,7 +794,7 @@ class AIOHM_BOOKING_Checkout_Ajax {
 					'buyer_phone'    => $buyer_phone,
 					'mode'           => $mode,
 					'units_qty'      => $units_qty,
-					'guests_qty'     => $guest_count,
+					'guests_qty'     => $guests_qty_value,
 					'currency'       => $currency,
 					'total_amount'   => $total_amount,
 					'deposit_amount' => $deposit_amount,

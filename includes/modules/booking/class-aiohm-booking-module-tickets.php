@@ -2590,33 +2590,6 @@ class AIOHM_BOOKING_Module_Tickets extends AIOHM_BOOKING_Settings_Module_Abstrac
 				</div>
 			</form>
 
-			<?php if ( ! function_exists( 'aiohm_booking_fs' ) || ! aiohm_booking_fs()->can_use_premium_code__premium_only() ) : ?>
-			<div class="aiohm-booking-upsell-section">
-				<div class="aiohm-booking-upsell-header">
-					<h4>💳 Accept Payments with PRO</h4>
-				</div>
-				<p>Enable <strong>Stripe</strong> payment processing to collect payments automatically for your ticket sales.</p>
-				<div class="aiohm-booking-pro-features">
-					<span class="dashicons dashicons-yes-alt"></span> Credit Card Processing
-					<span class="dashicons dashicons-yes-alt"></span> Automated Payment Collection
-					<span class="dashicons dashicons-yes-alt"></span> AI Analytics & Insights
-				</div>
-				<?php if ( function_exists( 'aiohm_booking_fs' ) ) : ?>
-					<?php
-					$upgrade_url = aiohm_booking_fs()->is_paying()
-						? aiohm_booking_fs()->_get_admin_page_url('account')
-						: aiohm_booking_fs()->get_upgrade_url();
-					$button_text = aiohm_booking_fs()->is_paying()
-						? esc_html__( 'Manage License', 'aiohm-booking-pro' )
-						: esc_html__( 'Upgrade to PRO', 'aiohm-booking-pro' );
-					?>
-					<a href="<?php echo esc_url( $upgrade_url ); ?>" class="button button-secondary aiohm-pro-upgrade-btn">
-						<span class="dashicons dashicons-star-filled"></span>
-						<?php echo esc_html( $button_text ); ?>
-					</a>
-				<?php endif; ?>
-			</div>
-			<?php endif; ?>
 
 			<div class="aiohm-booking-card-event-footer">
 				<div class="aiohm-card-footer-actions">

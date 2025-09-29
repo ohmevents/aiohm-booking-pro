@@ -159,6 +159,7 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 		// Handle bulk actions.
 		$this->process_bulk_actions();
 
+
 		// Check for and display any stored notices.
 		$this->display_stored_notices();
 
@@ -917,8 +918,173 @@ class AIOHM_BOOKING_Module_Orders extends AIOHM_BOOKING_Settings_Module_Abstract
 	}
 
 	/**
+	 * Fix all orders data including mode, quantities, and pricing
+	 */
+	public function fix_all_orders_data() {
+		global $wpdb;
+		$table = $wpdb->prefix . 'aiohm_booking_order';
+
+		// Check cache first
+		$cache_key = 'aiohm_booking_all_orders_' . md5( $table );
+		$orders = wp_cache_get( $cache_key, 'aiohm_booking_orders' );
+
+		if ( false === $orders ) {
+			// Get all orders that need fixing
+			$orders = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY id DESC" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query, results cached below
+
+			// Cache for 5 minutes since this is administrative data
+			wp_cache_set( $cache_key, $orders, 'aiohm_booking_orders', 300 );
+		}
+
+		foreach ( $orders as $order ) {
+			$this->fix_order_data( $order->id );
+		}
+
+		// Return count of processed orders
+		return count( $orders );
+	}
+
+	/**
+	 * Fix a specific order's data including mode, quantities, and pricing
+	 *
+	 * @param int $order_id Order ID to fix
+	 */
+	private function fix_order_data( $order_id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'aiohm_booking_order';
+
+		// Check cache first
+		$cache_key = 'aiohm_booking_order_' . $order_id;
+		$order = wp_cache_get( $cache_key, 'aiohm_booking_orders' );
+
+		if ( false === $order ) {
+			// Get the order from custom table
+			$order = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . esc_sql( $table ) . ' WHERE id = %d', $order_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table query, results cached below
+
+			// Cache for 5 minutes
+			if ( $order ) {
+				wp_cache_set( $cache_key, $order, 'aiohm_booking_orders', 300 );
+			}
+		}
+		if ( ! $order ) {
+			return; // Order not found
+		}
+
+		$updates = array();
+		$update_formats = array();
+
+		// Fix mode detection based on notes content
+		$has_event_tickets = strpos( $order->notes, 'Event Tickets:' ) !== false;
+		$has_accommodations = strpos( $order->notes, 'Accommodation IDs:' ) !== false;
+
+		$correct_mode = 'accommodation';
+		if ( $has_event_tickets && ! $has_accommodations ) {
+			$correct_mode = 'tickets';
+		} elseif ( $has_event_tickets && $has_accommodations ) {
+			$correct_mode = 'mixed';
+		}
+
+		if ( $order->mode !== $correct_mode ) {
+			$updates['mode'] = $correct_mode;
+			$update_formats[] = '%s';
+		}
+
+		// Fix quantities based on content
+		if ( $has_event_tickets ) {
+			// Extract ticket quantities from notes
+			if ( preg_match( '/Event Tickets:\s*(.+?)(?=\n\n|$)/s', $order->notes, $matches ) ) {
+				$json_data = json_decode( trim( $matches[1] ), true );
+				if ( is_array( $json_data ) ) {
+					$total_tickets = 0;
+					foreach ( $json_data as $event ) {
+						if ( isset( $event['quantity'] ) ) {
+							$total_tickets += intval( $event['quantity'] );
+						}
+					}
+
+					// For event bookings, guests_qty should store ticket quantity
+					if ( $total_tickets > 0 && $order->guests_qty != $total_tickets ) {
+						$updates['guests_qty'] = $total_tickets;
+						$update_formats[] = '%d';
+					}
+				}
+			}
+		}
+
+		// Fix pricing if zero or missing
+		if ( $order->total_amount <= 0 ) {
+			$pricing_result = $this->calculate_order_pricing_from_notes( $order->notes, $order->mode );
+			if ( $pricing_result['total'] > 0 ) {
+				$updates['total_amount'] = $pricing_result['total'];
+				$updates['deposit_amount'] = $pricing_result['deposit'];
+				$update_formats[] = '%f';
+				$update_formats[] = '%f';
+			}
+		}
+
+		// Apply updates if any
+		if ( ! empty( $updates ) ) {
+			$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table update, cache invalidated below
+				$table,
+				$updates,
+				array( 'id' => $order_id ),
+				$update_formats,
+				array( '%d' )
+			);
+
+			// Invalidate cache after update
+			wp_cache_delete( 'aiohm_booking_order_' . $order_id, 'aiohm_booking_orders' );
+			wp_cache_delete( 'aiohm_booking_all_orders_' . md5( $table ), 'aiohm_booking_orders' );
+		}
+	}
+
+	/**
+	 * Calculate order pricing from notes content
+	 *
+	 * @param string $notes Order notes
+	 * @param string $mode Order mode
+	 * @return array Array with 'total' and 'deposit' values
+	 */
+	private function calculate_order_pricing_from_notes( $notes, $mode ) {
+		$total_amount = 0;
+
+		if ( empty( $notes ) ) {
+			return array( 'total' => 0, 'deposit' => 0 );
+		}
+
+		// Extract event tickets from JSON format
+		if ( preg_match( '/Event Tickets:\s*(.+?)(?=\n\n|$)/s', $notes, $matches ) ) {
+			$json_data = json_decode( trim( $matches[1] ), true );
+			if ( is_array( $json_data ) ) {
+				foreach ( $json_data as $event ) {
+					if ( isset( $event['price'], $event['quantity'] ) ) {
+						$total_amount += floatval( $event['price'] ) * intval( $event['quantity'] );
+					}
+				}
+			}
+		}
+
+		// Extract accommodation pricing if available
+		if ( preg_match( '/Accommodation IDs:\s*(.+?)(?=\n|$)/s', $notes, $matches ) ) {
+			// Basic accommodation pricing - would need more sophisticated calculation
+			// For now, use a default if we can't determine the price
+			if ( $total_amount === 0 && $mode === 'accommodation' ) {
+				$total_amount = 100.00; // Default fallback
+			}
+		}
+
+		// Calculate deposit (typically 50%)
+		$deposit_amount = $total_amount * 0.5;
+
+		return array(
+			'total' => $total_amount,
+			'deposit' => $deposit_amount
+		);
+	}
+
+	/**
 	 * Fix orders with zero amounts by recalculating pricing from event/accommodation data
-	 * 
+	 *
 	 * @param int $order_id Order ID to fix
 	 */
 	private function fix_zero_amount_order( $order_id ) {

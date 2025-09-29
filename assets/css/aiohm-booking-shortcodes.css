@@ -4155,7 +4155,7 @@ input[type="tel"].aiohm-contact-input {
 }
 
 .aiohm-booking-events-scroll-container {
-    max-height: 190px;
+    max-height: 320px;
     overflow: visible auto;
     padding-right: 8px;
     display: flex;
@@ -4164,7 +4164,6 @@ input[type="tel"].aiohm-contact-input {
     scroll-behavior: smooth;
     border: 1px solid var(--ohm-gray-200, #e5e7eb);
     border-left: 4px solid var(--aiohm-brand-color);
-    border-right: 4px solid var(--aiohm-brand-color);
     border-radius: 8px;
     padding: 12px;
     background: var(--ohm-gray-50, #f9fafb);
@@ -4336,7 +4335,8 @@ input[type="tel"].aiohm-contact-input {
     display: grid;
     grid-template-columns: 2fr 2fr 1.2fr;
     gap: 6px;
-    align-items: flex-start;
+    align-items: center;
+    justify-items: center;
     padding: 0;
     margin: 0;
     min-height: 60px;
@@ -4347,9 +4347,11 @@ input[type="tel"].aiohm-contact-input {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    text-align: left;
     margin: 0;
-    padding: 0;
+    padding: 0 12px 0 0;
+    width: 100%;
 }
 
 /* Column 2: Date */
@@ -4358,6 +4360,8 @@ input[type="tel"].aiohm-contact-input {
     flex-direction: column;
     gap: 2px;
     justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .aiohm-booking-event-start-compact,
@@ -4388,7 +4392,8 @@ input[type="tel"].aiohm-contact-input {
     gap: 3px;
     text-align: right;
     min-width: 120px;
-    padding-right: 6px;
+    padding-right: 12px;
+    width: 100%;
 }
 
 /* ====================
@@ -4458,6 +4463,8 @@ input[type="tel"].aiohm-contact-input {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     text-align: center !important;
+    justify-items: center;
+    align-items: center;
     gap: 8px;
 }
 
@@ -4469,13 +4476,14 @@ input[type="tel"].aiohm-contact-input {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    justify-content: center;
     gap: 4px;
     padding: 12px 6px;
     background: var(--ohm-gray-50, #f9fafb);
     border: 1px solid var(--ohm-gray-200, #e5e7eb);
     border-radius: 6px;
     height: 80px;
-    justify-content: center;
+    width: 100%;
 }
 
 .aiohm-booking-teacher-info strong,
@@ -4503,6 +4511,7 @@ input[type="tel"].aiohm-contact-input {
     height: 32px;
     border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0;
 }
 
 .aiohm-booking-teacher-info .aiohm-booking-teacher-details {
@@ -4513,9 +4522,15 @@ input[type="tel"].aiohm-contact-input {
 }
 
 .aiohm-booking-teacher-info .aiohm-booking-teacher-details span {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
     color: var(--ohm-gray-700, #374151);
+    line-height: 1.2;
+    max-width: 80px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    text-align: center;
 }
 
 /* Fix ticket controls to use proper class names */
@@ -4659,23 +4674,27 @@ input[type="tel"].aiohm-contact-input {
     color: var(--ohm-primary, #457d58);
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    margin: 2px 0 0;
+    margin: 0 0 4px 0;
     background: rgb(69 125 88 / 10%);
     padding: 2px 6px;
     border-radius: 8px;
     display: inline-block;
-    align-self: center;
-    order: 2;
+    align-self: flex-start;
+    order: 1;
+    width: fit-content;
 }
 
 .aiohm-booking-event-title {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     margin: 0;
     color: var(--ohm-gray-800, #1f2937);
-    line-height: 1.2;
-    text-align: center;
-    order: 1;
+    line-height: 1.3;
+    text-align: left;
+    order: 2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
 
 /* ====================
@@ -7112,6 +7131,54 @@ div.aiohm-calendar-date,
     color: #dc3545;
 }
 
+.aiohm-booking-message-container {
+    margin: 20px 0;
+    padding: 0;
+}
+
+.aiohm-booking-message-container .aiohm-booking-message {
+    display: block;
+    margin-bottom: 0;
+}
+
+.aiohm-booking-completion-state {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgb(25 135 84 / 5%);
+    border: 2px solid rgb(25 135 84 / 20%);
+    border-radius: var(--aiohm-booking-border-radius);
+    margin: 20px 0;
+}
+
+.aiohm-booking-completion-state h3 {
+    color: #198754;
+    margin: 0 0 15px 0;
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+.aiohm-booking-completion-state p {
+    color: #666;
+    margin: 0 0 25px 0;
+    line-height: 1.6;
+}
+
+.aiohm-booking-completion-state .aiohm-booking-btn {
+    background: #198754;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: var(--aiohm-booking-border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.aiohm-booking-completion-state .aiohm-booking-btn:hover {
+    background: #157347;
+    transform: translateY(-1px);
+}
+
 /* ====================
    ANIMATIONS
    ==================== */
@@ -7431,19 +7498,6 @@ div.aiohm-calendar-date,
     box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
 }
 
-.aiohm-booking-upgrade-prompt {
-    text-align: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-    border: 2px solid #ffc107;
-    border-radius: 8px;
-}
-
-.aiohm-booking-upgrade-prompt p {
-    margin: 0 0 15px;
-    color: #856404;
-    font-weight: 500;
-}
 
 .aiohm-booking-btn-secondary {
     background: #ffc107;
@@ -7747,22 +7801,6 @@ div.aiohm-calendar-date,
 	}
 }
 
-/* ===========================================
-   UPGRADE PROMPT STYLES
-   =========================================== */
-
-.aiohm-booking-upgrade-prompt {
-	text-align: center;
-}
-
-.aiohm-booking-upgrade-prompt p {
-	font-size: 14px;
-}
-
-.aiohm-booking-upgrade-prompt .aiohm-booking-btn {
-	font-size: 14px;
-	padding: 8px 16px;
-}
 
 /* ===========================================
    CANCELLED BOOKING PAGE STYLES

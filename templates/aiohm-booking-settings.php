@@ -13,6 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Get current settings.
 $settings = AIOHM_BOOKING_Settings::get_all();
 
+// Get Facebook module settings.
+$facebook_settings = get_option( 'aiohm_booking_facebook_settings', array() );
+if ( is_array( $facebook_settings ) ) {
+	$settings = array_merge( $settings, $facebook_settings );
+}
+
 // Get AI Analytics settings.
 $ai_analytics_settings = get_option( 'aiohm_booking_ai_analytics_settings', array() );
 if ( is_string( $ai_analytics_settings ) ) {

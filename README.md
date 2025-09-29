@@ -3,7 +3,7 @@
 A comprehensive WordPress plugin for event booking and accommodation management.
 
 ## Version
-2.0.4
+2.0.5
 
 ## Features
 

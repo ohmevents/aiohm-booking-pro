@@ -4,7 +4,7 @@
  * Plugin Name: AIOHM Booking Pro
  * Plugin URI:  https://wordpress.org/plugins/aiohm-booking/
  * Description: Professional event booking and accommodation management system. Streamlined booking experience for events and accommodations with secure Stripe payments and comprehensive utilities.
- * Version:     2.0.4
+ * Version:     2.0.5
  * Author:      OHM Events Agency
  * Author URI:  https://www.ohm.events
  * Text Domain: aiohm-booking-pro
@@ -218,7 +218,7 @@ if ( function_exists( 'aiohm_booking_fs' ) ) {
 
     }
 }
-define( 'AIOHM_BOOKING_VERSION', '2.0.4' );
+define( 'AIOHM_BOOKING_VERSION', '2.0.5' );
 define( 'AIOHM_BOOKING_FILE', __FILE__ );
 define( 'AIOHM_BOOKING_DIR', __DIR__ . '/' );
 define( 'AIOHM_BOOKING_URL', plugins_url( '', __FILE__ ) . '/' );
@@ -409,9 +409,9 @@ class AIOHM_Booking {
             add_action( 'init', array('AIOHM_BOOKING_Security_Config', 'init_security') );
         }
         // Initialize upsells for free version.
-        if ( class_exists( 'AIOHM_BOOKING_Upsells' ) ) {
-            AIOHM_BOOKING_Upsells::init();
-        }
+        // if ( class_exists( 'AIOHM_BOOKING_Upsells' ) ) {
+        //     AIOHM_BOOKING_Upsells::init();
+        // }
     }
 
     /**
@@ -495,7 +495,7 @@ class AIOHM_Booking {
         require_once AIOHM_BOOKING_DIR . 'includes/core/class-aiohm-booking-admin-ajax.php';
         require_once AIOHM_BOOKING_DIR . 'includes/core/class-aiohm-booking-admin-settings.php';
         require_once AIOHM_BOOKING_DIR . 'includes/core/class-aiohm-booking-admin-modules.php';
-        require_once AIOHM_BOOKING_DIR . 'includes/admin/class-aiohm-booking-upsells.php';
+        // require_once AIOHM_BOOKING_DIR . 'includes/admin/class-aiohm-booking-upsells.php';
     }
 
     /**
