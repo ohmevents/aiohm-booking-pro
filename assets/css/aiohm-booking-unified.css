@@ -2896,6 +2896,48 @@ div.aiohm-ai-insights-card.aiohm-booking-card {
 	background: #365899;
 }
 
+.aiohm-facebook-reauth-btn:disabled,
+.aiohm-facebook-auth-btn:disabled {
+	background: #ccc;
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+
+.aiohm-facebook-reauth-btn:disabled:hover,
+.aiohm-facebook-auth-btn:disabled:hover {
+	background: #ccc;
+}
+
+.aiohm-auth-status-success,
+.aiohm-auth-status-pending {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin-right: 15px;
+	padding: 6px 12px;
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.aiohm-auth-status-success {
+	background: #d1e7dd;
+	color: #0f5132;
+	border: 1px solid #badbcc;
+}
+
+.aiohm-auth-status-pending {
+	background: #fff3cd;
+	color: #664d03;
+	border: 1px solid #ffecb5;
+}
+
+.aiohm-facebook-auth {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
 .aiohm-facebook-auth-status {
 	font-size: 14px;
 	color: #666;

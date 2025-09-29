@@ -632,14 +632,6 @@ abstract class AIOHM_BOOKING_Module_Abstract {
 		$option_name = 'aiohm_booking_' . $this->module_id . '_settings';
 		$saved_settings = get_option( $option_name, array() );
 
-		// Debug logging for Facebook module
-		if ( $this->module_id === 'facebook' ) {
-			error_log( 'Facebook get_module_settings - module_id: ' . $this->module_id );
-			error_log( 'Facebook get_module_settings - option_name: ' . $option_name );
-			error_log( 'Facebook get_module_settings - saved_settings: ' . print_r( $saved_settings, true ) );
-			error_log( 'Facebook get_module_settings - defaults: ' . print_r( $defaults, true ) );
-		}
-
 		return array_merge( $defaults, $saved_settings );
 	}
 
@@ -651,24 +643,6 @@ abstract class AIOHM_BOOKING_Module_Abstract {
 	 */
 	protected function update_module_settings( $settings ) {
 		$option_name = 'aiohm_booking_' . $this->module_id . '_settings';
-
-		// Debug logging for Facebook module
-		if ( $this->module_id === 'facebook' ) {
-			error_log( 'Facebook update_module_settings - module_id: ' . $this->module_id );
-			error_log( 'Facebook update_module_settings - option_name: ' . $option_name );
-			error_log( 'Facebook update_module_settings - settings: ' . print_r( $settings, true ) );
-
-			// Check what was actually saved
-			$result = update_option( $option_name, $settings );
-			error_log( 'Facebook update_option result: ' . ( $result ? 'SUCCESS' : 'FAILED' ) );
-
-			// Immediately check what's in the database
-			$saved_check = get_option( $option_name );
-			error_log( 'Facebook immediate read-back: ' . print_r( $saved_check, true ) );
-
-			return $result;
-		}
-
 		return update_option( $option_name, $settings );
 	}
 

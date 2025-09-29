@@ -23,6 +23,8 @@
             this.initToggles();
             this.initSortableFields();
             this.initEventCardToggles();
+            this.checkFacebookAuthStatus();
+            this.updateFacebookAuthButton();
             
             // Re-bind events after a short delay to ensure DOM is ready
             setTimeout(function() {
@@ -61,6 +63,32 @@
             }
         },
 
+        checkFacebookAuthStatus: function() {
+            // Check URL parameters for Facebook authorization feedback
+            var urlParams = new URLSearchParams(window.location.search);
+            var facebookAuth = urlParams.get('facebook_auth');
+            var errorMessage = urlParams.get('error');
+            
+            if (facebookAuth === 'success') {
+                this.showNotice('Facebook authorization successful! You can now import events.', 'success');
+                // Clean up URL
+                this.cleanUrl(['facebook_auth']);
+            } else if (facebookAuth === 'error') {
+                var message = errorMessage ? decodeURIComponent(errorMessage) : 'Facebook authorization failed.';
+                this.showNotice('Facebook authorization failed: ' + message, 'error');
+                // Clean up URL
+                this.cleanUrl(['facebook_auth', 'error']);
+            }
+        },
+
+        cleanUrl: function(paramsToRemove) {
+            var url = new URL(window.location);
+            paramsToRemove.forEach(function(param) {
+                url.searchParams.delete(param);
+            });
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+        },
+
         bindEvents: function() {
             // Clear any existing events to prevent duplicates
             $(document).off('.aiohm-settings');
@@ -78,6 +106,8 @@
             $(document).on('click.aiohm-settings', '.aiohm-input-copy', AIOHM_Booking_Settings_Admin.handleInputCopy);
             $(document).on('click.aiohm-settings', '.aiohm-preset-btn', AIOHM_Booking_Settings_Admin.handlePresetButton);
             $(document).on('click.aiohm-settings', '[data-action="test-connection"]', AIOHM_Booking_Settings_Admin.handleTestConnection);
+            $(document).on('click.aiohm-settings', '.aiohm-facebook-auth-btn, .aiohm-facebook-reauth-btn', AIOHM_Booking_Settings_Admin.handleFacebookAuth);
+            $(document).on('input.aiohm-settings', 'input[name="aiohm_booking_settings[facebook_app_id]"], input[name="aiohm_booking_settings[facebook_app_secret]"]', AIOHM_Booking_Settings_Admin.updateFacebookAuthButton);
             
             // Event buttons handlers
             $(document).on('click.aiohm-settings', '.aiohm-clone-event-btn', this.handleCloneEvent);
@@ -902,6 +932,103 @@
                     AIOHM_Booking_Settings_Admin.showNotice('Network error while testing connection', 'error');
                 }
             });
+        },
+
+        handleFacebookAuth: function(e) {
+            e.preventDefault();
+            
+            var $button = $(this);
+            
+            // Check if Facebook App ID and App Secret are configured
+            var $appIdField = $('input[name="aiohm_booking_settings[facebook_app_id]"]');
+            var $appSecretField = $('input[name="aiohm_booking_settings[facebook_app_secret]"]');
+            
+            if ($appIdField.length === 0 || !$appIdField.val().trim()) {
+                AIOHM_Booking_Settings_Admin.showNotice('Please enter your Facebook App ID first.', 'error');
+                $appIdField.focus();
+                return;
+            }
+            
+            if ($appSecretField.length === 0 || !$appSecretField.val().trim()) {
+                AIOHM_Booking_Settings_Admin.showNotice('Please enter your Facebook App Secret first.', 'error');
+                $appSecretField.focus();
+                return;
+            }
+            
+            // Prevent multiple simultaneous requests
+            if ($button.hasClass('authorizing')) {
+                return;
+            }
+            
+            $button.addClass('authorizing');
+            var originalText = $button.text();
+            $button.prop('disabled', true).text('Connecting...');
+            
+            // Get Facebook authorization URL
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'aiohm_facebook_get_auth_url',
+                    nonce: aiohm_booking_admin.nonce
+                },
+                success: function(response) {
+                    if (response.success && response.data.auth_url) {
+                        // Open Facebook authorization in new window
+                        var authWindow = window.open(
+                            response.data.auth_url,
+                            'facebook_auth',
+                            'width=500,height=600,scrollbars=yes,resizable=yes'
+                        );
+                        
+                        // Check if popup was blocked
+                        if (!authWindow || authWindow.closed || typeof authWindow.closed === 'undefined') {
+                            // Popup blocked, redirect in same window
+                            window.location.href = response.data.auth_url;
+                        } else {
+                            // Monitor the popup window
+                            var checkClosed = setInterval(function() {
+                                if (authWindow.closed) {
+                                    clearInterval(checkClosed);
+                                    $button.removeClass('authorizing').prop('disabled', false).text(originalText);
+                                    
+                                    // Reload the page to reflect authorization status
+                                    setTimeout(function() {
+                                        window.location.reload();
+                                    }, 1000);
+                                }
+                            }, 1000);
+                        }
+                    } else {
+                        var errorMsg = response.data && response.data.message ? response.data.message : 'Failed to get authorization URL.';
+                        AIOHM_Booking_Settings_Admin.showNotice(errorMsg, 'error');
+                    }
+                },
+                error: function() {
+                    AIOHM_Booking_Settings_Admin.showNotice('Network error while connecting to Facebook.', 'error');
+                },
+                complete: function() {
+                    $button.removeClass('authorizing').prop('disabled', false).text(originalText);
+                }
+            });
+        },
+
+        updateFacebookAuthButton: function() {
+            var $appIdField = $('input[name="aiohm_booking_settings[facebook_app_id]"]');
+            var $appSecretField = $('input[name="aiohm_booking_settings[facebook_app_secret]"]');
+            var $authButton = $('.aiohm-facebook-auth-btn, .aiohm-facebook-reauth-btn');
+            var $authDescription = $('.aiohm-facebook-auth-description');
+            
+            var hasAppId = $appIdField.length > 0 && $appIdField.val().trim();
+            var hasAppSecret = $appSecretField.length > 0 && $appSecretField.val().trim();
+            
+            if (hasAppId && hasAppSecret) {
+                $authButton.prop('disabled', false);
+                $authDescription.html('Click "Authorize with Facebook" to connect your Facebook account and enable event importing. Use the same Facebook account that owns your Facebook app.');
+            } else {
+                $authButton.prop('disabled', true);
+                $authDescription.html('<strong>⚠️ Required:</strong> Please fill in your Facebook App ID and App Secret above before authorizing.');
+            }
         },
 
         handlePresetButton: function(e) {

@@ -71,6 +71,9 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 		// AJAX handler for saving Facebook settings.
 		add_action( 'wp_ajax_aiohm_booking_save_facebook_settings', array( $this, 'ajax_save_facebook_settings' ) );
 
+		// Facebook OAuth handlers.
+		add_action( 'admin_post_ife_facebook_authorize_callback', array( $this, 'handle_facebook_oauth_callback' ) );
+		add_action( 'wp_ajax_aiohm_facebook_get_auth_url', array( $this, 'ajax_get_facebook_auth_url' ) );
 
 		// Add Facebook import JavaScript to tickets page.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_facebook_scripts' ) );
@@ -599,5 +602,139 @@ class AIOHM_BOOKING_Module_Facebook extends AIOHM_BOOKING_Settings_Module_Abstra
 				wp_send_json_error( array( 'message' => 'Failed to save Facebook settings.' ) );
 			}
 		}
+	}
+
+	/**
+	 * AJAX handler for getting Facebook authorization URL.
+	 *
+	 * @since  2.0.0
+	 */
+	public function ajax_get_facebook_auth_url() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Insufficient permissions.' ) );
+			return;
+		}
+
+		// Check nonce
+		$nonce = isset( $_POST['nonce'] ) ? wp_unslash( $_POST['nonce'] ) : '';
+		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'aiohm_booking_admin_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid security token.' ) );
+			return;
+		}
+
+		$settings = $this->get_module_settings();
+		$app_id = $settings['facebook_app_id'] ?? '';
+
+		if ( empty( $app_id ) ) {
+			wp_send_json_error( array( 'message' => 'Please enter your Facebook App ID first.' ) );
+			return;
+		}
+
+		// Generate Facebook OAuth URL
+		$redirect_uri = admin_url( 'admin-post.php?action=ife_facebook_authorize_callback' );
+		$state = wp_create_nonce( 'facebook_oauth_state' );
+		
+		$auth_url = 'https://www.facebook.com/v18.0/dialog/oauth?' . http_build_query( array(
+			'client_id'     => $app_id,
+			'redirect_uri'  => $redirect_uri,
+			'scope'         => 'email,pages_show_list,pages_read_engagement,pages_read_user_content',
+			'response_type' => 'code',
+			'state'         => $state,
+		) );
+
+		// Store state for verification
+		set_transient( 'facebook_oauth_state_' . get_current_user_id(), $state, 600 ); // 10 minutes
+
+		wp_send_json_success( array( 'auth_url' => $auth_url ) );
+	}
+
+	/**
+	 * Handle Facebook OAuth callback.
+	 *
+	 * @since  2.0.0
+	 */
+	public function handle_facebook_oauth_callback() {
+		// Check if user can manage options
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'Insufficient permissions.' );
+		}
+
+		// Get authorization code
+		$code = isset( $_GET['code'] ) ? sanitize_text_field( wp_unslash( $_GET['code'] ) ) : '';
+		$state = isset( $_GET['state'] ) ? sanitize_text_field( wp_unslash( $_GET['state'] ) ) : '';
+
+		if ( empty( $code ) ) {
+			$this->redirect_with_error( 'Authorization failed: No authorization code received.' );
+			return;
+		}
+
+		// Verify state
+		$stored_state = get_transient( 'facebook_oauth_state_' . get_current_user_id() );
+		if ( empty( $stored_state ) || $stored_state !== $state ) {
+			$this->redirect_with_error( 'Authorization failed: Invalid state parameter.' );
+			return;
+		}
+
+		// Clean up state
+		delete_transient( 'facebook_oauth_state_' . get_current_user_id() );
+
+		$settings = $this->get_module_settings();
+		$app_id = $settings['facebook_app_id'] ?? '';
+		$app_secret = $settings['facebook_app_secret'] ?? '';
+
+		if ( empty( $app_id ) || empty( $app_secret ) ) {
+			$this->redirect_with_error( 'Authorization failed: App ID or App Secret not configured.' );
+			return;
+		}
+
+		// Exchange code for access token
+		$redirect_uri = admin_url( 'admin-post.php?action=ife_facebook_authorize_callback' );
+		$token_url = 'https://graph.facebook.com/v18.0/oauth/access_token';
+		
+		$token_response = wp_remote_post( $token_url, array(
+			'body' => array(
+				'client_id'     => $app_id,
+				'client_secret' => $app_secret,
+				'redirect_uri'  => $redirect_uri,
+				'code'          => $code,
+			),
+			'timeout' => 30,
+		) );
+
+		if ( is_wp_error( $token_response ) ) {
+			$this->redirect_with_error( 'Authorization failed: ' . $token_response->get_error_message() );
+			return;
+		}
+
+		$token_body = wp_remote_retrieve_body( $token_response );
+		$token_data = json_decode( $token_body, true );
+
+		if ( empty( $token_data['access_token'] ) ) {
+			$error_message = isset( $token_data['error']['message'] ) ? $token_data['error']['message'] : 'Unknown error';
+			$this->redirect_with_error( 'Authorization failed: ' . $error_message );
+			return;
+		}
+
+		// Save access token
+		$settings['facebook_access_token'] = $token_data['access_token'];
+		$this->update_module_settings( $settings );
+
+		// Redirect back to settings page with success message
+		$redirect_url = admin_url( 'admin.php?page=aiohm-booking-settings&facebook_auth=success' );
+		wp_redirect( $redirect_url );
+		exit;
+	}
+
+	/**
+	 * Redirect with error message.
+	 *
+	 * @param string $error_message Error message.
+	 * @since  2.0.0
+	 */
+	private function redirect_with_error( $error_message ) {
+		$redirect_url = admin_url( 'admin.php?page=aiohm-booking-settings&facebook_auth=error&error=' . urlencode( $error_message ) );
+		wp_redirect( $redirect_url );
+		exit;
 	}
 }

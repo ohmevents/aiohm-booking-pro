@@ -837,14 +837,26 @@ $earlybird_days = isset( $settings['earlybird_days'] ) ? absint( $settings['earl
 				<label class="aiohm-facebook-label">Facebook Authorization</label>
 				<div class="aiohm-facebook-auth">
 					<?php if ( ! empty( $settings['facebook_access_token'] ) ) : ?>
+						<div class="aiohm-auth-status-success">
+							<span class="dashicons dashicons-yes-alt"></span>
+							<strong>Authorized</strong>
+						</div>
 						<button type="button" class="aiohm-facebook-reauth-btn">Reauthorize</button>
-						<span class="aiohm-facebook-auth-status">( Authorized as: Facebook User )</span>
 					<?php else : ?>
-						<button type="button" class="aiohm-facebook-auth-btn">Authorize</button>
+						<div class="aiohm-auth-status-pending">
+							<span class="dashicons dashicons-warning"></span>
+							<strong>Not Authorized</strong>
+						</div>
+						<button type="button" class="aiohm-facebook-auth-btn">Authorize with Facebook</button>
 					<?php endif; ?>
 				</div>
 				<p class="aiohm-facebook-auth-description">
-					Please authorize your Facebook account for import Facebook events. Please authorize with account which you have used for create an Facebook app.
+					<?php if ( empty( $settings['facebook_app_id'] ) || empty( $settings['facebook_app_secret'] ) ) : ?>
+						<strong>⚠️ Required:</strong> Please fill in your Facebook App ID and App Secret above before authorizing.
+					<?php else : ?>
+						Click "Authorize with Facebook" to connect your Facebook account and enable event importing.
+						Use the same Facebook account that owns your Facebook app.
+					<?php endif; ?>
 				</p>
 			</div>
 			
